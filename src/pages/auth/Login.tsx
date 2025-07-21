@@ -2,18 +2,29 @@ import React, { useState } from 'react';
 import { Card, Form, Input, Button, Typography, message } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { login } from '../../features/auth';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = (values: any) => {
+  const handleLogin = async (values: any) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const res = await login(values);
+      const user = res.data.user || res.data;
+      localStorage.setItem('user', JSON.stringify(user));
       message.success(t('loginSuccess'));
-      // TODO: chuyển hướng sau khi đăng nhập thành công
-    }, 1200);
+      setTimeout(() => {
+        navigate('/');
+      }, 800);
+    } catch (err: any) {
+      message.error(err?.response?.data?.message || t('loginFailed'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,8 +45,26 @@ export default function Login() {
         </div>
         <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>{t('login')}</Typography.Title>
         <Form layout="vertical" onFinish={handleLogin} autoComplete="off">
-          <Form.Item name="email" label={t('email')} rules={[{ required: true, message: t('emailRequired') }, { type: 'email', message: t('emailInvalid') }]}> <Input prefix={<UserOutlined />} placeholder={t('emailPlaceholder')} size="large" autoFocus /> </Form.Item>
-          <Form.Item name="password" label={t('password')} rules={[{ required: true, message: t('passwordRequired') }]}> <Input.Password prefix={<LockOutlined />} placeholder={t('passwordPlaceholder')} size="large" /> </Form.Item>
+          <Form.Item
+            name="email"
+            label={t('email')}
+            rules={[
+              { required: true, message: t('emailRequired') },
+              { type: 'email', message: t('emailInvalid') },
+            ]}
+          >
+            <Input prefix={<UserOutlined />} placeholder={t('emailPlaceholder')} size="large" autoFocus />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label={t('password')}
+            rules={[
+              { required: true, message: t('passwordRequired') },
+              { min: 6, message: t('passwordMinLength', { min: 6 }) },
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder={t('passwordPlaceholder')} size="large" />
+          </Form.Item>
           <Form.Item style={{ marginBottom: 8 }}>
             <Button type="primary" htmlType="submit" block size="large" loading={loading} style={{ borderRadius: 8 }}>{t('login')}</Button>
           </Form.Item>

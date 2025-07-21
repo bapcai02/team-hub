@@ -78,5 +78,9 @@
   "passwordPlaceholder": "Enter your password",
   "loginSuccess": "Login successful!",
   "noAccount": "Don't have an account?",
-  "registerNow": "Register now"
+  "registerNow": "Register now",
+  "passwordMinLength": "Password must be at least {{min}} characters!",
+  "logout": "Logout",
+  "profile": "Profile",
+  "logoutFailed": "Logout failed!"
 } 

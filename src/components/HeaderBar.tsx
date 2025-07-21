@@ -1,17 +1,18 @@
 import React from 'react';
-import { Layout, Input, Avatar, Dropdown, Menu, Button, Badge, Tooltip } from 'antd';
+import { Layout, Avatar, Dropdown, Menu, Badge, Tooltip } from 'antd';
 import {
-  SearchOutlined,
   UserOutlined,
   LogoutOutlined,
-  SettingOutlined,
   BellOutlined,
   BulbOutlined,
-  PoweroffOutlined,
   CheckSquareOutlined,
   MessageOutlined,
 } from '@ant-design/icons';
-import { List, Typography, Divider, Button as AntdButton, Tooltip as AntdTooltip } from 'antd';
+import { List, Typography, Button as AntdButton, Tooltip as AntdTooltip } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { logout as apiLogout } from '../features/auth';
+import { message } from 'antd';
 
 const { Header } = Layout;
 
@@ -53,24 +54,31 @@ const notificationList = (
 );
 
 const HeaderBar: React.FC = () => {
-  // Giả lập user, sau này thay bằng dữ liệu thực tế
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const user = {
     name: 'Nguyễn Văn A',
-    avatar: '', // Thay bằng link ảnh nếu có, ví dụ: 'https://i.pravatar.cc/150?img=3'
+    avatar: '',
   };
-  // Giả lập số lượng task và tin nhắn
   const myTaskCount = 5;
   const myMessageCount = 2;
 
+  const handleMenuClick = async (e: any) => {
+    if (e.key === 'logout') {
+      try {
+        await apiLogout();
+        localStorage.removeItem('user');
+        navigate('/login');
+      } catch (err: any) {
+        message.error(t('logoutFailed') || 'Đăng xuất thất bại!');
+      }
+    }
+  };
   const menu = (
-    <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
-        Trang cá nhân
-      </Menu.Item>
+    <Menu onClick={handleMenuClick}>
+      <Menu.Item key="profile" icon={<UserOutlined />}>{t('profile') || 'Trang cá nhân'}</Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />} danger>
-        Đăng xuất
-      </Menu.Item>
+      <Menu.Item key="logout" icon={<LogoutOutlined />} danger>{t('logout') || 'Đăng xuất'}</Menu.Item>
     </Menu>
   );
 
@@ -87,21 +95,17 @@ const HeaderBar: React.FC = () => {
         zIndex: 10,
       }}
     >
-      {/* Actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-        {/* Task count */}
         <Tooltip title="Task của bạn">
           <Badge count={myTaskCount} size="small">
             <CheckSquareOutlined style={{ fontSize: 22, color: '#4B48E5', cursor: 'pointer' }} />
           </Badge>
         </Tooltip>
-        {/* Message count */}
         <Tooltip title="Tin nhắn cần trả lời">
           <Badge count={myMessageCount} size="small">
             <MessageOutlined style={{ fontSize: 22, color: '#4B48E5', cursor: 'pointer' }} />
           </Badge>
         </Tooltip>
-        {/* Notification */}
         <Dropdown
           overlay={notificationList}
           placement="bottomRight"
@@ -117,7 +121,6 @@ const HeaderBar: React.FC = () => {
         <Tooltip title="Chuyển chế độ sáng/tối">
           <BulbOutlined style={{ fontSize: 22, color: '#4B48E5', cursor: 'pointer' }} />
         </Tooltip>
-        {/* Avatar user dropdown đơn giản */}
         <Dropdown overlay={menu} placement="bottomRight" trigger={['click']}>
           <Avatar
             size={36}

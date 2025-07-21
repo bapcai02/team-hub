@@ -78,5 +78,9 @@
   "passwordPlaceholder": "Nhập mật khẩu",
   "loginSuccess": "Đăng nhập thành công!",
   "noAccount": "Chưa có tài khoản?",
-  "registerNow": "Đăng ký ngay"
+  "registerNow": "Đăng ký ngay",
+  "passwordMinLength": "Mật khẩu phải có ít nhất {{min}} ký tự!",
+  "logout": "Đăng xuất",
+  "profile": "Trang cá nhân",
+  "logoutFailed": "Đăng xuất thất bại!"
 } 

@@ -8,7 +8,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Thêm interceptors nếu cần
 
 // Wrapper methods
 const get = <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
