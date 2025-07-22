@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Modal, Form, Input, DatePicker, Select, Upload } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import type { Dayjs } from 'dayjs'
@@ -16,14 +16,10 @@ interface ProjectCreateModalProps {
   setFileList: React.Dispatch<React.SetStateAction<any[]>>
   dateRange: [Dayjs | null, Dayjs | null]
   setDateRange: React.Dispatch<React.SetStateAction<[Dayjs | null, Dayjs | null]>>
-  memberSalaries: { [key: string]: number }
-  setMemberSalaries: React.Dispatch<React.SetStateAction<{ [key: string]: number }>>
-  defaultSalaries: { [key: string]: number }
-  totalSalary: number
-  profit: number
   memberOptions: { value: string, label: string }[]
   roleOptions: { value: string, label: string }[]
   statusOptions: { value: string, label: string }[]
+  users: any[]
   t: any
 }
 
@@ -42,16 +38,33 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
   setFileList,
   dateRange,
   setDateRange,
-  memberSalaries,
-  setMemberSalaries,
-  defaultSalaries,
-  totalSalary,
-  profit,
   memberOptions,
   roleOptions,
   statusOptions,
+  users,
   t,
 }) => {
+  const [watchedBudget, setWatchedBudget] = useState<number>(0)
+
+  // Theo dõi thay đổi ngân sách
+  React.useEffect(() => {
+    setWatchedBudget(form.getFieldValue('budget') || 0)
+    const unsubscribe = form.subscribe?.(() => {
+      setWatchedBudget(form.getFieldValue('budget') || 0)
+    })
+    return () => { if (unsubscribe) unsubscribe() }
+  }, [form])
+
+  const getMonthDiff = (start: any, end: any) => {
+    if (!start || !end) return 1;
+    const s = start.clone ? start.clone() : start;
+    const e = end.clone ? end.clone() : end;
+    return Math.max(1, Math.round(e.diff(s, 'months', true) + 1));
+  };
+  const numMonths = dateRange[0] && dateRange[1] ? getMonthDiff(dateRange[0], dateRange[1]) : 1;
+  const totalSalary = selectedMembers.reduce((sum: number, m: any) => sum + (users.find((u: any) => u.id === m)?.employee?.salary || 0), 0);
+  const profit = Math.round((watchedBudget / numMonths) - (totalSalary / numMonths));
+
   return (
     <Modal
       title={t('createNew') + ' dự án'}
@@ -72,10 +85,10 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
         <Form.Item name="manager" label={t('manager')} rules={[{ required: true, message: t('selectManager') }]}> 
           <Select
             placeholder={t('selectManager')}
-            options={selectedMembers.map(m => ({ value: m, label: m }))}
-            disabled={selectedMembers.length === 0}
+            options={memberOptions}
             showSearch
             filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+            optionLabelProp="label"
           />
         </Form.Item>
         <Form.Item label={t('projectTime')} required>
@@ -86,10 +99,18 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
             format="DD/MM/YYYY"
           />
         </Form.Item>
-        <Form.Item name="budget" label={t('budget')} rules={[{ required: true, message: t('budget') + ' ' + t('required') }]}> <Input type="number" min={0} addonAfter="VNĐ" placeholder={t('budget')} /> </Form.Item>
+        <Form.Item name="budget" label={t('budget')} rules={[{ required: true, message: t('budget') + ' ' + t('required') }]}> 
+          <Input 
+            type="number" 
+            min={0} 
+            addonAfter="VNĐ" 
+            placeholder={t('budget')} 
+            onChange={e => setWatchedBudget(Number(e.target.value))}
+          /> 
+        </Form.Item>
         <div style={{ margin: '12px 0 0 0', fontWeight: 600, color: '#4B48E5' }}>
-          {t('totalSalary')}: {totalSalary.toLocaleString()} VNĐ<br />
-          {t('profit')}: <span style={{ color: profit >= 0 ? '#52c41a' : '#fa3e3e' }}>{profit.toLocaleString()} VNĐ</span>
+          {t('totalSalary')}: {totalSalary.toLocaleString()} VNĐ / tháng<br />
+          {t('profit')}: <span style={{ color: profit >= 0 ? '#52c41a' : '#fa3e3e' }}>{profit.toLocaleString()} VNĐ / tháng</span>
         </div>
         <Form.Item name="status" label={t('status')}>
           <Select options={statusOptions} />
@@ -122,38 +143,40 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
                 members.forEach(m => { next[m] = prev[m] || 'member' })
                 return next
               })
-              setMemberSalaries(prev => {
-                const next: {[key:string]: number} = {}
-                members.forEach(m => {
-                  next[m] = prev[m] !== undefined ? prev[m] : (defaultSalaries[m] || 0)
-                })
-                return next
-              })
             }}
             style={{ width: '100%' }}
           />
           {selectedMembers.length > 0 && (
             <div style={{ marginTop: 12 }}>
-              {selectedMembers.map(m => (
-                <div key={m} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <span style={{ minWidth: 120 }}>{m}</span>
-                  <Select
-                    value={memberRoles[m] || 'member'}
-                    options={roleOptions}
-                    style={{ width: 140 }}
-                    onChange={role => setMemberRoles(r => ({ ...r, [m]: role }))}
-                  />
-                  <Input
-                    type="number"
-                    min={0}
-                    placeholder={t('salaryPerMonth')}
-                    value={memberSalaries[m] || ''}
-                    onChange={e => setMemberSalaries(s => ({ ...s, [m]: Number(e.target.value) }))}
-                    style={{ width: 180 }}
-                    addonAfter="VNĐ"
-                  />
-                </div>
-              ))}
+              {selectedMembers.map(m => {
+                const user = users.find(u => u.id === m)
+                const salary = user?.employee?.salary || 0
+                return (
+                  <div
+                    key={m}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 8,
+                      marginBottom: 10,
+                      maxWidth: 520,
+                      marginLeft: 'auto',
+                      marginRight: 'auto',
+                    }}
+                  >
+                    <span style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {user ? `${user.name} (Lương: ${salary.toLocaleString()} VNĐ)` : m}
+                    </span>
+                    <Select
+                      value={memberRoles[m] || 'member'}
+                      options={roleOptions}
+                      style={{ width: 120, minWidth: 100 }}
+                      onChange={role => setMemberRoles(r => ({ ...r, [m]: role }))}
+                    />
+                  </div>
+                )
+              })}
             </div>
           )}
         </Form.Item>
