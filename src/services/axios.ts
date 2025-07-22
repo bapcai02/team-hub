@@ -1,12 +1,31 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://api.example.com',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const userStr = localStorage.getItem('user');
+    let token = '';
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        token = user.data.access_token || '';
+      } catch {}
+    }
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 
 // Wrapper methods

@@ -4,8 +4,8 @@ import type { SerializedError } from '@reduxjs/toolkit';
 
 export const getProjects = createAsyncThunk(
   'project/getProjects',
-  async (params, thunkAPI) => {
-    const res = await projectApi.fetchProjects(params);
+  async (query: string, thunkAPI) => {
+    const res = await projectApi.fetchProjects(query);
     return res.data;
   }
 );
@@ -30,9 +30,9 @@ const projectSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(getProjects.pending, state => { state.loading = true; })
-      .addCase(getProjects.fulfilled, (state, action) => {
+      .addCase(getProjects.fulfilled, (state, action) => {        
         state.loading = false;
-        state.list = action.payload;
+        state.list = action.payload.data.projects;
       })
       .addCase(getProjects.rejected, (state, action) => {
         state.loading = false;

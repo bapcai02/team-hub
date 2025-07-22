@@ -15,7 +15,6 @@ export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  // Đặt menuItems vào trong function để dùng được t
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: t('dashboard'), path: '/' },
     { key: 'staff', icon: <TeamOutlined />, label: t('team') },
@@ -25,7 +24,6 @@ export default function Sidebar() {
     { key: 'docs', icon: <FileOutlined />, label: t('docs') },
     { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
   ];
-  // Sửa logic selectedKey để active đúng theo path
   const selectedKey =
     menuItems
       .filter(item => item.path)
@@ -157,7 +155,7 @@ export default function Sidebar() {
               boxShadow: selectedKey === item.key ? '0 4px 16px #4B48E540' : undefined,
               fontWeight: selectedKey === item.key ? 900 : 700,
               transition: 'all 0.2s',
-              overflow: 'hidden', // Ngăn tràn
+              overflow: 'hidden',
             }}
             onClick={() => item.path && navigate(item.path)}
           >

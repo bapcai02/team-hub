@@ -1,8 +1,8 @@
 import axios from '../../services/axios';
 
 // Lấy danh sách project
-export const fetchProjects = (params?: any) =>
-  axios.get('/projects', { params });
+export const fetchProjects = (query?: any) =>
+  axios.get(`/projects${query}`);
 
 // Lấy chi tiết 1 project
 export const fetchProjectDetail = (id: string | number) =>

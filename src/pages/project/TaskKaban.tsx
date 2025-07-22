@@ -51,7 +51,6 @@ export default function TaskKanban() {
     description: '',
   });
 
-  // Thêm task mới
   const handleAddTask = () => {
     if (!newTask.name.trim()) return;
     setTasks([...tasks, newTask]);

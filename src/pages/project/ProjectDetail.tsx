@@ -231,7 +231,7 @@ export default function ProjectDetail() {
                             <Button
                               type="primary"
                               icon={<AppstoreOutlined />}
-                              href="/projects/1/kanban" // hoặc dùng navigate nếu dùng react-router
+                              href="/projects/1/kanban"
                             >
                               {t('viewKanban')}
                             </Button>
