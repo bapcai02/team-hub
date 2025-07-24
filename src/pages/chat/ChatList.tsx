@@ -4,6 +4,16 @@ import { SendOutlined, UserOutlined, MoreOutlined, PhoneOutlined, VideoCameraOut
 import HeaderBar from '../../components/HeaderBar';
 import Sidebar from '../../components/Sidebar';
 import EmojiPicker from 'emoji-picker-react';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+import type PusherType from 'pusher-js';
+
+declare global {
+  interface Window {
+    Pusher: typeof PusherType;
+  }
+}
+window.Pusher = Pusher;
 
 const { Text } = Typography;
 
@@ -69,16 +79,33 @@ export default function ChatList() {
   const [groupName, setGroupName] = useState('');
   const [groupMembers, setGroupMembers] = useState<string[]>([]);
   const [groupAvatar, setGroupAvatar] = useState<any>(null);
-
-  // Thêm state để lưu ảnh đang xem
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-
-  // Thêm state cho search
   const [search, setSearch] = useState('');
+  
+  const echo = new Echo({
+    broadcaster: 'pusher',
+    key: process.env.REACT_APP_REVERB_APP_KEY!,
+    wsHost: process.env.REACT_APP_REVERB_HOST!,
+    wsPort: Number(process.env.REACT_APP_REVERB_PORT),
+    wssPort: Number(process.env.REACT_APP_REVERB_PORT),
+    forceTLS: false,
+    disableStats: true,
+    cluster: 'mt1',
+    enabledTransports: ['ws'],
+  });
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    const channel = echo.channel('test-channel');
+
+    channel.listen('.test-event', (data: any) => {
+      console.log('Broadcast Received:', data.message);
+      alert(`Broadcast Received: ${data.message}`);
+    });
+  }, []);
 
   const handleSend = () => {
     let newMessages: ChatMessage[] = [];
