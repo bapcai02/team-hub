@@ -58,8 +58,6 @@ const mockMessages = [
   { id: 4, fromMe: true, text: 'Tối nay mình rảnh nhé!', time: '09:03' },
 ];
 
-const emojiList = ['😀','😂','😍','😎','😭','👍','🎉','🔥','❤️','😡','😱','🤔'];
-
 type ChatMessage =
   | { id: number; fromMe: boolean; text: string; time: string }
   | { id: number; fromMe: true; type: 'image' | 'file'; fileName: string; fileUrl: string; fileType: string; time: string };
@@ -72,7 +70,6 @@ export default function ChatList() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Thêm state cho modal tạo nhóm, file, emoji
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
   const [showEmoji, setShowEmoji] = useState(false);
@@ -95,17 +92,23 @@ export default function ChatList() {
   });
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const channel = echo.channel('chat.global')
+
+    channel.listen('MessageSent', (data: any) => {
+      console.log('✅ Broadcast Received:', data)
+      alert(`Broadcast Received: ${data.message}`)
+    }).error((error: any) => {
+      console.error('❌ Channel error:', error)
+    })
+    
+    channel.subscribed(() => {
+      console.log('✅ Channel subscribed successfully')
+    })
+  }, [])
 
   useEffect(() => {
-    const channel = echo.channel('test-channel');
-
-    channel.listen('.test-event', (data: any) => {
-      console.log('Broadcast Received:', data.message);
-      alert(`Broadcast Received: ${data.message}`);
-    });
-  }, []);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSend = () => {
     let newMessages: ChatMessage[] = [];

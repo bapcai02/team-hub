@@ -13,7 +13,7 @@
     "@types/react-dom": "^19.1.6",
     "ajv": "^6.12.6",
     "antd": "^5.26.4",
-    "axios": "^1.10.0",
+    "axios": "^1.11.0",
     "emoji-picker-react": "^4.13.1",
     "i18next": "^25.3.2",
     "laravel-echo": "^2.1.7",
