@@ -2,7 +2,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Avatar, Tag, Button, Progress } from 'antd';
 import React from 'react';
 
-export function getProjectTableColumns(t: any, navigate: any) {
+export function getProjectTableColumns(t: any, navigate: any, handleEdit?: (project: any) => void, handleDelete?: (project: any) => void) {
   return [
     {
       title: t('project'),
@@ -64,13 +64,14 @@ export function getProjectTableColumns(t: any, navigate: any) {
           React.createElement(Button, {
             type: 'link',
             icon: React.createElement(EditOutlined),
-            onClick: () => navigate(`/projects/${record.key}`)
+            onClick: () => handleEdit ? handleEdit(record) : navigate(`/projects/${record.key}`)
           }, t('edit')),
           React.createElement(Button, {
             type: 'link',
             danger: true,
-            icon: React.createElement(DeleteOutlined)
-          }, t('archive'))
+            icon: React.createElement(DeleteOutlined),
+            onClick: () => handleDelete ? handleDelete(record) : null
+          }, t('delete') || 'Xóa')
         )
       ),
     },

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Layout, Button, Table, Modal, Form, Input, DatePicker, Select, Upload } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Layout, Button, Table, Modal, Form, Input, DatePicker, Select, Upload, message } from 'antd';
+import { PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Sidebar from '../../components/Sidebar';
 import HeaderBar from '../../components/HeaderBar';
 import { useTranslation } from 'react-i18next';
@@ -8,13 +8,15 @@ import type { Dayjs } from 'dayjs';
 import { useSelector, useDispatch } from 'react-redux';
 import type { AppDispatch, RootState } from '../../app/store';
 import { useEffect } from 'react';
-import { getProjects } from '../../features/project/projectSlice';
+import { getProjects, deleteProject } from '../../features/project/projectSlice';
 import { Spin } from 'antd';
 import { mapProjectsData } from '../../utils';
 import { getProjectTableColumns } from '../../utils/table';
 import { useNavigate } from 'react-router-dom';
 import ProjectCreateModal from '../../components/modal/ProjectCreateModal'
+import ProjectEditModal from '../../components/modal/ProjectEditModal'
 import { getUsers } from '../../features/user/userSlice'
+import type { Project } from '../../features/project/types'
 
 const { Content } = Layout;
 const statusOptions = [
@@ -32,7 +34,9 @@ const roleOptions = [
 const ProjectList: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate()
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [createModalOpen, setCreateModalOpen] = React.useState(false);
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
   const [form] = Form.useForm();
   const [selectedMembers, setSelectedMembers] = React.useState<string[]>([]);
   const [memberRoles, setMemberRoles] = React.useState<{[key:string]: string}>({});
@@ -56,9 +60,44 @@ const ProjectList: React.FC = () => {
     const e = end.clone ? end.clone() : end;
     return e.diff(s, 'months', true) + 1;
   };
-  const memberOptions = users.map((u: any) => ({ value: u.id, label: u.name }))
+  const refreshProjects = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    dispatch(getProjects(`?user_id=${user.data.user.id}`))
+  }
+
+  const handleEdit = (project: any) => {
+    // Find the full project object from the projects list
+    const fullProject = projects.find(p => p.id === project.key)
+    if (fullProject) {
+      setSelectedProject(fullProject)
+      setEditModalOpen(true)
+    }
+  }
+
+  const handleDelete = (project: any) => {
+    Modal.confirm({
+      title: t('confirmDelete') || 'Xác nhận xóa',
+      icon: <ExclamationCircleOutlined />,
+      content: `${t('confirmDeleteProject') || 'Bạn có chắc chắn muốn xóa dự án'} "${project.name}"?`,
+      okText: t('delete') || 'Xóa',
+      okType: 'danger',
+      cancelText: t('cancel') || 'Hủy',
+      onOk: async () => {
+        try {
+          await dispatch(deleteProject(project.key)).unwrap()
+          message.success(t('deleteSuccess') || 'Xóa dự án thành công!')
+          refreshProjects()
+        } catch (error: any) {
+          console.error('Error deleting project:', error)
+          message.error(error?.message || t('deleteError') || 'Có lỗi xảy ra khi xóa dự án!')
+        }
+      }
+    })
+  }
+
+  const memberOptions = users.map((u: any) => ({ value: String(u.id), label: u.name }))
   const tableData = mapProjectsData(projects)
-  const columns = getProjectTableColumns(t, navigate)
+  const columns = getProjectTableColumns(t, navigate, handleEdit, handleDelete)
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -68,7 +107,7 @@ const ProjectList: React.FC = () => {
         <Content style={{ margin: '24px', padding: '24px', background: '#fff', borderRadius: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
             <h2 style={{ margin: 0 }}>{t('projects')}</h2>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>
               {t('createNew')}
             </Button>
           </div>
@@ -85,18 +124,10 @@ const ProjectList: React.FC = () => {
             />
           )}
           <ProjectCreateModal
-            open={modalOpen}
-            onCancel={() => setModalOpen(false)}
-            onOk={() => {
-              form.validateFields().then((values: any) => {
-                setModalOpen(false)
-                form.resetFields()
-                setSelectedMembers([])
-                setMemberRoles({})
-                setFileList([])
-                setDateRange([null, null])
-              })
-            }}
+            open={createModalOpen}
+            onCancel={() => setCreateModalOpen(false)}
+            onOk={() => setCreateModalOpen(false)}
+            onProjectCreated={refreshProjects}
             form={form}
             selectedMembers={selectedMembers}
             setSelectedMembers={setSelectedMembers}
@@ -106,6 +137,25 @@ const ProjectList: React.FC = () => {
             setFileList={setFileList}
             dateRange={dateRange}
             setDateRange={setDateRange}
+            memberOptions={memberOptions}
+            roleOptions={roleOptions}
+            statusOptions={statusOptions}
+            t={t}
+            users={users}
+          />
+          
+          <ProjectEditModal
+            open={editModalOpen}
+            onCancel={() => {
+              setEditModalOpen(false)
+              setSelectedProject(null)
+            }}
+            onOk={() => {
+              setEditModalOpen(false)
+              setSelectedProject(null)
+            }}
+            project={selectedProject}
+            onProjectUpdated={refreshProjects}
             memberOptions={memberOptions}
             roleOptions={roleOptions}
             statusOptions={statusOptions}

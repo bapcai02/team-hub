@@ -1,65 +1,142 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select, Upload, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import type { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
 import type { AppDispatch } from '../../app/store'
-import { createNewProject, getProjects } from '../../features/project/projectSlice'
+import { updateProject, getProjectDetail } from '../../features/project/projectSlice'
+import type { Project } from '../../features/project/types'
 
-interface ProjectCreateModalProps {
+interface ProjectEditModalProps {
   open: boolean
   onCancel: () => void
   onOk: () => void
-  form: any
-  selectedMembers: string[]
-  setSelectedMembers: React.Dispatch<React.SetStateAction<string[]>>
-  memberRoles: { [key: string]: string }
-  setMemberRoles: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>
-  fileList: any[]
-  setFileList: React.Dispatch<React.SetStateAction<any[]>>
-  dateRange: [Dayjs | null, Dayjs | null]
-  setDateRange: React.Dispatch<React.SetStateAction<[Dayjs | null, Dayjs | null]>>
+  project: Project | null
   memberOptions: { value: string, label: string }[]
   roleOptions: { value: string, label: string }[]
   statusOptions: { value: string, label: string }[]
   users: any[]
   t: any
-  onProjectCreated?: () => void
+  onProjectUpdated?: () => void
 }
 
 const { RangePicker } = DatePicker
 
-const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
+const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   open,
   onCancel,
   onOk,
-  form,
-  selectedMembers,
-  setSelectedMembers,
-  memberRoles,
-  setMemberRoles,
-  fileList,
-  setFileList,
-  dateRange,
-  setDateRange,
+  project,
   memberOptions,
   roleOptions,
   statusOptions,
   users,
   t,
-  onProjectCreated,
+  onProjectUpdated,
 }) => {
+  const [form] = Form.useForm()
   const [watchedBudget, setWatchedBudget] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([])
+  const [memberRoles, setMemberRoles] = useState<{[key:string]: string}>({})
+  const [fileList, setFileList] = useState<any[]>([])
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null])
   const dispatch = useDispatch<AppDispatch>()
 
+  // Load project data when modal opens
+  useEffect(() => {
+    if (open && project) {
+      // Load detailed project data including members
+      loadProjectDetails()
+    }
+  }, [open, project])
+
+  const loadProjectDetails = async () => {
+    if (!project) return
+    
+    try {
+      // Get detailed project info from API
+      const detailResult = await dispatch(getProjectDetail(project.id)).unwrap()
+      
+      const responseData = detailResult.data || detailResult
+      const projectDetail = responseData.project || responseData
+      const members = responseData.members || []
+      
+      // Set form values
+      form.setFieldsValue({
+        name: projectDetail.name,
+        description: projectDetail.description || '',
+        manager: projectDetail.owner_id,
+        budget: projectDetail.total_amount,
+        status: projectDetail.status,
+      })
+      
+      setWatchedBudget(projectDetail.total_amount || 0)
+      
+      // Set date range
+      if (projectDetail.start_date && projectDetail.end_date) {
+        setDateRange([
+          dayjs(projectDetail.start_date),
+          dayjs(projectDetail.end_date)
+        ])
+      }
+      
+      // Handle members data
+      if (members && Array.isArray(members) && members.length > 0) {
+        // Extract member IDs
+        const memberIds = members.map((member: any) => {
+          const id = member.user_id || member.id || member.userId
+          return String(id)
+        }).filter(id => id && id !== 'undefined')
+        
+        setSelectedMembers(memberIds)
+        
+        // Set member roles
+        const roles: {[key:string]: string} = {}
+        members.forEach((member: any) => {
+          const memberId = String(member.user_id || member.id || member.userId)
+          if (memberId && memberId !== 'undefined') {
+            roles[memberId] = member.role || member.pivot?.role || 'member'
+          }
+        })
+        setMemberRoles(roles)
+      } else {
+        setSelectedMembers([])
+        setMemberRoles({})
+      }
+      
+      setFileList([])
+      
+    } catch (error) {
+      console.error('Error loading project details:', error)
+      // Fallback to basic project data
+      form.setFieldsValue({
+        name: project.name,
+        description: project.description || '',
+        manager: project.owner_id,
+        budget: project.total_amount,
+        status: project.status,
+      })
+      
+      setWatchedBudget(project.total_amount || 0)
+      
+      if (project.start_date && project.end_date) {
+        setDateRange([
+          dayjs(project.start_date),
+          dayjs(project.end_date)
+        ])
+      }
+      
+      setSelectedMembers([])
+      setMemberRoles({})
+      setFileList([])
+    }
+  }
+
   // Theo dõi thay đổi ngân sách
-  React.useEffect(() => {
+  useEffect(() => {
     setWatchedBudget(form.getFieldValue('budget') || 0)
-    const unsubscribe = form.subscribe?.(() => {
-      setWatchedBudget(form.getFieldValue('budget') || 0)
-    })
-    return () => { if (unsubscribe) unsubscribe() }
   }, [form])
 
   const getMonthDiff = (start: any, end: any) => {
@@ -68,11 +145,14 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
     const e = end.clone ? end.clone() : end;
     return Math.max(1, Math.round(e.diff(s, 'months', true) + 1));
   };
+  
   const numMonths = dateRange[0] && dateRange[1] ? getMonthDiff(dateRange[0], dateRange[1]) : 1;
   const totalSalary = selectedMembers.reduce((sum: number, m: any) => sum + (users.find((u: any) => u.id === m)?.employee?.salary || 0), 0);
   const profit = Math.round((watchedBudget / numMonths) - (totalSalary / numMonths));
 
   const handleSubmit = async () => {
+    if (!project) return
+    
     try {
       setLoading(true)
       
@@ -105,13 +185,14 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
         return
       }
       
+      // Chuẩn bị dữ liệu để gửi API
       const projectData = {
         name: values.name.trim(),
         description: values.description?.trim() || '',
-        owner_id: values.manager, // Backend expects owner_id, not manager_id
+        owner_id: values.manager,
         start_date: dateRange[0].format('YYYY-MM-DD'),
         end_date: dateRange[1].format('YYYY-MM-DD'),
-        total_amount: Number(values.budget), // Backend expects total_amount, not budget
+        total_amount: Number(values.budget),
         status: values.status || 'planning',
         members: selectedMembers.map(memberId => Number(memberId)),
         attachments: fileList.map(file => ({
@@ -121,39 +202,28 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
         }))
       }
 
-      console.log('Sending project data:', projectData)
+      console.log('Updating project data:', projectData)
       
-      await dispatch(createNewProject(projectData)).unwrap()
+      await dispatch(updateProject({ id: project.id, data: projectData })).unwrap()
       
-      message.success(t('createSuccess') || 'Tạo dự án thành công!')
+      message.success(t('updateSuccess') || 'Cập nhật dự án thành công!')
       
       // Refresh danh sách projects
-      if (onProjectCreated) {
-        onProjectCreated()
-      } else {
-        // Fallback: refresh projects list
-        const user = JSON.parse(localStorage.getItem('user') || '{}')
-        dispatch(getProjects(`?user_id=${user.data.user.id}`))
+      if (onProjectUpdated) {
+        onProjectUpdated()
       }
       
-      // Reset form và đóng modal
-      form.resetFields()
-      setSelectedMembers([])
-      setMemberRoles({})
-      setFileList([])
-      setDateRange([null, null])
-      setWatchedBudget(0)
       onOk()
       
     } catch (error: any) {
-      console.error('Error creating project:', error)
+      console.error('Error updating project:', error)
       
       // Handle validation errors
       if (error.errorFields && error.errorFields.length > 0) {
         const firstError = error.errorFields[0]
         message.error(`${firstError.name[0]}: ${firstError.errors[0]}`)
       } else {
-        message.error(error?.message || t('createError') || 'Có lỗi xảy ra khi tạo dự án!')
+        message.error(error?.message || t('updateError') || 'Có lỗi xảy ra khi cập nhật dự án!')
       }
     } finally {
       setLoading(false)
@@ -162,11 +232,11 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
 
   return (
     <Modal
-      title={t('createNew') + ' dự án'}
+      title={t('edit') + ' dự án'}
       open={open}
       onCancel={onCancel}
       onOk={handleSubmit}
-      okText={t('createNew')}
+      okText={t('update') || 'Cập nhật'}
       cancelText={t('cancel')}
       width={900}
       confirmLoading={loading}
@@ -176,24 +246,24 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
         layout="vertical"
         initialValues={{ status: 'planning' }}
       >
-        <Form.Item
-          name="name"
-          label={t('projectName')}
+        <Form.Item 
+          name="name" 
+          label={t('projectName')} 
           rules={[
             { required: true, message: t('projectName') + ' ' + (t('required') || 'là bắt buộc') },
             { whitespace: true, message: t('projectName') + ' không được để trống' }
           ]}
-        >
-          <Input placeholder={t('projectName')} />
+        > 
+          <Input placeholder={t('projectName')} /> 
         </Form.Item>
-        <Form.Item name="description" label={t('description')}>
-          <Input.TextArea rows={2} placeholder={t('description')} />
+        <Form.Item name="description" label={t('description')}> 
+          <Input.TextArea rows={2} placeholder={t('description')} /> 
         </Form.Item>
-        <Form.Item
-          name="manager"
-          label={t('manager')}
+        <Form.Item 
+          name="manager" 
+          label={t('manager')} 
           rules={[{ required: true, message: t('selectManager') || 'Vui lòng chọn quản lý dự án' }]}
-        >
+        > 
           <Select
             placeholder={t('selectManager')}
             options={memberOptions}
@@ -210,14 +280,14 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
             format="DD/MM/YYYY"
           />
         </Form.Item>
-        <Form.Item
-          name="budget"
-          label={t('budget')}
+        <Form.Item 
+          name="budget" 
+          label={t('budget')} 
           rules={[
             { required: true, message: t('budget') + ' ' + (t('required') || 'là bắt buộc') },
             { pattern: /^[0-9]+$/, message: 'Ngân sách phải là số' }
           ]}
-        >
+        > 
           <Input 
             type="number" 
             min={0} 
@@ -303,4 +373,4 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
   )
 }
 
-export default ProjectCreateModal 
+export default ProjectEditModal
