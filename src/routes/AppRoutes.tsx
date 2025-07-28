@@ -2,8 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from '../pages/Dashboard';
 import ProjectList from '../pages/project/ProjectList';
 import ProjectDetail from '../pages/project/ProjectDetail';
+import ProjectEdit from '../pages/project/ProjectEdit';
 import TaskDetail from '../pages/project/TaskDetail';
-import TaskKanban from '../pages/project/TaskKaban';
+import TaskList from '../pages/project/TaskList';
+import TaskKanban from '../pages/project/TaskKanban';
 import Login from '../pages/auth/Login';
 import ChatList from '../pages/chat/ChatList';
 import React from 'react';
@@ -40,6 +42,21 @@ export default function AppRoutes() {
       <Route path="/projects/:id" element={
         <PrivateRoute>
           <ProjectDetail />
+        </PrivateRoute>
+      } />
+      <Route path="/projects/:id/edit" element={
+        <PrivateRoute>
+          <ProjectEdit />
+        </PrivateRoute>
+      } />
+      <Route path="/projects/:id/tasks" element={
+        <PrivateRoute>
+          <TaskList />
+        </PrivateRoute>
+      } />
+      <Route path="/projects/:id/kanban" element={
+        <PrivateRoute>
+          <TaskKanban />
         </PrivateRoute>
       } />
       <Route path="/projects/task/:id" element={

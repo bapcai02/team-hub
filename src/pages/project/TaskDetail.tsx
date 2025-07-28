@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import HeaderBar from '../../components/HeaderBar';
 import Sidebar from '../../components/Sidebar';
-import { Card, Button, Avatar, Breadcrumb, Input, DatePicker, Select, List, Upload, message, Divider, Row, Col, Tag } from 'antd';
+import { Card, Button, Breadcrumb, Input, DatePicker, Select, List, Upload, message, Divider, Row, Col, Tag, Spin } from 'antd';
 import type { RcFile } from 'antd/es/upload';
 import { ArrowLeftOutlined, EditOutlined, PaperClipOutlined, CommentOutlined, ClockCircleOutlined, SyncOutlined, CheckCircleOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useTranslation } from 'react-i18next';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../../app/store';
+import { getProjectDetail } from '../../features/project/projectSlice';
+import axios from '../../services/axios';
+import UserAvatar from '../../components/UserAvatar';
 
 const users = [
   { label: 'Nguyễn Văn A', value: 'Nguyễn Văn A' },
@@ -15,12 +21,31 @@ const users = [
   { label: 'Lê Văn C', value: 'Lê Văn C' },
 ];
 
-type TaskStatus = 'Chưa bắt đầu' | 'Đang làm' | 'Hoàn thành';
+type TaskStatus = 'todo' | 'in_progress' | 'done';
 
 const statusMap: Record<TaskStatus, { color: string; icon: React.ReactNode }> = {
-  'Chưa bắt đầu': { color: 'default', icon: <ClockCircleOutlined /> },
-  'Đang làm': { color: 'blue', icon: <SyncOutlined spin /> },
-  'Hoàn thành': { color: 'green', icon: <CheckCircleOutlined /> },
+  'todo': { color: 'orange', icon: <ClockCircleOutlined /> },
+  'in_progress': { color: 'blue', icon: <SyncOutlined spin /> },
+  'done': { color: 'green', icon: <CheckCircleOutlined /> },
+};
+
+// Helper functions
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'done': return 'Hoàn thành';
+    case 'in_progress': return 'Đang làm';
+    case 'todo': return 'Chưa bắt đầu';
+    default: return status;
+  }
+};
+
+const getPriorityText = (priority: string) => {
+  switch (priority) {
+    case 'high': return 'Cao';
+    case 'medium': return 'Trung bình';
+    case 'low': return 'Thấp';
+    default: return priority;
+  }
 };
 
 type CommentFile = { name: string; url: string; type: string };
@@ -32,44 +57,73 @@ type CommentType = {
 };
 
 export default function TaskDetail() {
+  const { t } = useTranslation();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  
+  // Get project info from Redux store
+  const project = useSelector((state: RootState) => state.project.detail);
+  
+  // State cho task data
+  const [task, setTask] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   // State cho các trường chỉnh sửa trực tiếp
-  const [name, setName] = useState('Thiết kế giao diện');
+  const [name, setName] = useState('');
   const [editingName, setEditingName] = useState(false);
-  const [assignees, setAssignees] = useState(['Nguyễn Văn A']);
-  const [status, setStatus] = useState<TaskStatus>('Đang làm');
-  const [due, setDue] = useState('2024-06-10');
-  const [description, setDescription] = useState('Thiết kế UI/UX cho trang dashboard và các module chính.');
-  const [logtimes, setLogtimes] = useState([
-    { user: 'Nguyễn Văn A', hours: 2, desc: 'Thiết kế UI', time: '10/06/2024 10:00' },
-    { user: 'Trần Thị B', hours: 1, desc: 'Review', time: '11/06/2024 14:00' },
-  ]);
+  const [assignees, setAssignees] = useState<string[]>([]);
+  const [status, setStatus] = useState<TaskStatus>('todo');
+  const [due, setDue] = useState('');
+  const [description, setDescription] = useState('');
+  const [logtimes, setLogtimes] = useState<any[]>([]);
   const [logtimeUser, setLogtimeUser] = useState(users[0].value);
   const [logtime, setLogtime] = useState('');
   const [logtimeDesc, setLogtimeDesc] = useState('');
-  const [attachments, setAttachments] = useState([
-    { name: 'wireframe.pdf', url: '#' },
-    { name: 'logo.png', url: '#' },
-  ]);
-  const [comments, setComments] = useState<CommentType[]>([
-    {
-      user: 'Trần Thị B',
-      content: 'Nhớ bám sát guideline nhé!',
-      time: '1 giờ trước',
-      files: [
-        { name: 'design.png', url: '/path/to/design.png', type: 'image/png' },
-        { name: 'spec.pdf', url: '/path/to/spec.pdf', type: 'application/pdf' },
-      ],
-    },
-    {
-      user: 'Nguyễn Văn A',
-      content: 'Đã cập nhật bản mới.',
-      time: '10 phút trước',
-      // Không có files cũng được
-    },
-  ]);
+  const [attachments, setAttachments] = useState<any[]>([]);
+  const [comments, setComments] = useState<CommentType[]>([]);
   const [commentInput, setCommentInput] = useState('');
 
-  const { t } = useTranslation();
+  // Fetch task data
+  useEffect(() => {
+    if (id) {
+      fetchTask();
+    }
+  }, [id]);
+
+  // Fetch project info when task is loaded
+  useEffect(() => {
+    if (task?.project_id) {
+      dispatch(getProjectDetail(task.project_id));
+    }
+  }, [task?.project_id, dispatch]);
+
+  const fetchTask = async () => {
+    if (!id) return;
+    
+    setLoading(true);
+    try {
+      const response = await axios.get(`/tasks/${id}`);
+      
+      if (response.data.success) {
+        const taskData = response.data.data.task;
+        setTask(taskData);
+        setName(taskData.title || '');
+        setAssignees(taskData.assigned_to ? [taskData.assigned_to.toString()] : []);
+        setStatus(taskData.status || 'todo');
+        setDue(taskData.deadline || '');
+        setDescription(taskData.description || '');
+        // TODO: Load logtimes, attachments, comments from API
+      }
+    } catch (error) {
+      console.error('Error fetching task:', error);
+      setError('Failed to load task details');
+      message.error('Failed to load task details');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Hàm upload file (giả lập)
   const handleUpload = (file: RcFile) => {
@@ -106,28 +160,56 @@ export default function TaskDetail() {
     {
       label: (
         <span>
-          <ClockCircleOutlined style={{ color: '#888' }} /> {t('notStarted')}
+          <ClockCircleOutlined style={{ color: '#faad14' }} /> Chưa bắt đầu
         </span>
       ),
-      value: t('notStarted'),
+      value: 'todo',
     },
     {
       label: (
         <span>
-          <SyncOutlined spin style={{ color: '#1890ff' }} /> {t('inProgress')}
+          <SyncOutlined spin style={{ color: '#1890ff' }} /> Đang làm
         </span>
       ),
-      value: t('inProgress'),
+      value: 'in_progress',
     },
     {
       label: (
         <span>
-          <CheckCircleOutlined style={{ color: '#52c41a' }} /> {t('done')}
+          <CheckCircleOutlined style={{ color: '#52c41a' }} /> Hoàn thành
         </span>
       ),
-      value: t('done'),
+      value: 'done',
     },
   ];
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+        <HeaderBar />
+        <div style={{ display: 'flex', flex: 1 }}>
+          <Sidebar />
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Spin size="large" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !task) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+        <HeaderBar />
+        <div style={{ display: 'flex', flex: 1 }}>
+          <Sidebar />
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div>{error || 'Task not found'}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
@@ -136,12 +218,30 @@ export default function TaskDetail() {
         <Sidebar />
         <div style={{ flex: 1, background: '#f6f8fa', overflow: 'auto', padding: '32px 0' }}>
           <div style={{ margin: '0 auto', padding: '0 40px'}}>
-            <Breadcrumb>
-              <Breadcrumb.Item>
-                <a href="/projects/1"><ArrowLeftOutlined /> {t('project')} ABC</a>
-              </Breadcrumb.Item>
-              <Breadcrumb.Item>{t('task')}: {name}</Breadcrumb.Item>
-            </Breadcrumb>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Breadcrumb>
+                <Breadcrumb.Item>
+                  <a onClick={() => navigate('/projects')} style={{ cursor: 'pointer' }}>
+                    <ArrowLeftOutlined /> {t('projects')}
+                  </a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                  <a onClick={() => navigate(`/projects/${task?.project_id}`)} style={{ cursor: 'pointer' }}>
+                    {project?.name || `Project ${task?.project_id}`}
+                  </a>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>{t('task')}: {name}</Breadcrumb.Item>
+              </Breadcrumb>
+              {task?.project_id && (
+                <Button 
+                  type="primary" 
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() => navigate(`/projects/${task.project_id}`)}
+                >
+                  Quay lại dự án
+                </Button>
+              )}
+            </div>
             <Card
               style={{
                 borderRadius: 12,
@@ -261,7 +361,7 @@ export default function TaskDetail() {
                           bodyStyle={{ padding: 12 }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <Avatar style={{ background: '#4B48E5' }}>{item.user[0]}</Avatar>
+                            <UserAvatar userId={1} size={24} showPosition={true} />
                             <div style={{ flex: 1 }}>
                               <div style={{ fontWeight: 600 }}>
                                 <ClockCircleOutlined style={{ color: '#faad14', marginRight: 4 }} />
@@ -319,7 +419,7 @@ export default function TaskDetail() {
                       renderItem={(cmt) => (
                         <List.Item>
                           <List.Item.Meta
-                            avatar={<Avatar style={{ background: '#4B48E5' }}>{cmt.user[0]}</Avatar>}
+                            avatar={<UserAvatar userId={1} size={32} showPosition={true} />}
                             title={
                               <span>
                                 <b>{cmt.user}</b>
@@ -388,7 +488,7 @@ export default function TaskDetail() {
                       renderItem={(item: { user: string; action: string; time: string }) => (
                         <List.Item>
                           <List.Item.Meta
-                            avatar={<Avatar>{item.user[0]}</Avatar>}
+                            avatar={<UserAvatar userId={1} size={32} showPosition={true} />}
                             title={<span><b>{item.user}</b> {item.action}</span>}
                             description={item.time}
                           />

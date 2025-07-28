@@ -1,43 +1,94 @@
-import React, { useState } from 'react';
-import { Card, Tabs, Tag, Button, Avatar, List, Descriptions, Breadcrumb, Badge, Space, Progress, Radio } from 'antd';
+import { useState, useEffect } from 'react';
+import { Card, Tabs, Tag, Button, List, Descriptions, Breadcrumb, Badge, Space, Radio, Spin, message } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, UserOutlined, FileTextOutlined, UnorderedListOutlined, HistoryOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
 import HeaderBar from '../../components/HeaderBar';
 import Sidebar from '../../components/Sidebar';
 import { useTranslation } from 'react-i18next';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import type { AppDispatch, RootState } from '../../app/store';
+import { getProjectDetail } from '../../features/project/projectSlice';
+import ProjectStats from '../../components/ProjectStats';
+import UserAvatar from '../../components/UserAvatar';
 
-const members = [
-  { name: 'Nguyễn Văn A', role: 'Quản trị viên' },
-  { name: 'Trần Thị B', role: 'Thành viên' },
-];
+// Helper function to get status color
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'done': return 'green';
+    case 'in_progress': return 'blue';
+    case 'todo': return 'orange';
+    default: return 'default';
+  }
+};
 
-const tasks = [
-  { name: 'Thiết kế giao diện', assignee: 'Nguyễn Văn A', status: 'Đang làm', due: '10/06/2024' },
-  { name: 'Phân tích yêu cầu', assignee: 'Trần Thị B', status: 'Hoàn thành', due: '05/06/2024' },
-  { name: 'Triển khai backend', assignee: 'Lê Văn C', status: 'Chưa bắt đầu', due: '15/06/2024' },
-];
-
-const documents = [
-  { name: 'Đặc tả dự án.pdf', type: 'PDF', uploader: 'Nguyễn Văn A', date: '01/06/2024' },
-  { name: 'Kế hoạch.xlsx', type: 'Excel', uploader: 'Trần Thị B', date: '02/06/2024' },
-];
-
-const activities = [
-  { user: 'Nguyễn Văn A', action: 'tạo task mới', time: '10 phút trước' },
-  { user: 'Trần Thị B', action: 'upload tài liệu', time: '1 giờ trước' },
-  { user: 'Lê Văn C', action: 'cập nhật trạng thái task', time: '2 giờ trước' },
-];
+// Helper function to get status text
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'done': return 'Hoàn thành';
+    case 'in_progress': return 'Đang làm';
+    case 'todo': return 'Chưa bắt đầu';
+    default: return status;
+  }
+};
 
 export default function ProjectDetail() {
   const [taskView, setTaskView] = useState<'list' | 'kanban'>('list');
   const { t } = useTranslation();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  
+  const project = useSelector((state: RootState) => state.project.detail);
+  const loading = useSelector((state: RootState) => state.project.loading);
+  const error = useSelector((state: RootState) => state.project.error);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getProjectDetail(id));
+    }
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (error) {
+      message.error('Failed to load project details');
+    }
+  }, [error]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+        <HeaderBar />
+        <div style={{ display: 'flex', flex: 1 }}>
+          <Sidebar />
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Spin size="large" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+        <HeaderBar />
+        <div style={{ display: 'flex', flex: 1 }}>
+          <Sidebar />
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div>Project not found</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const taskStatus = [
-    { key: 'Đang làm', title: 'Đang làm', color: 'blue' },
-    { key: 'Hoàn thành', title: 'Hoàn thành', color: 'green' },
-    { key: 'Chưa bắt đầu', title: 'Chưa bắt đầu', color: 'default' },
+    { key: 'in_progress', title: 'Đang làm', color: 'blue' },
+    { key: 'done', title: 'Hoàn thành', color: 'green' },
+    { key: 'todo', title: 'Chưa bắt đầu', color: 'orange' },
   ];
 
-  // Kanban component như đã hướng dẫn ở trên
+  // Kanban component sử dụng dữ liệu từ API
   const KanbanBoard = (
     <div style={{ display: 'flex', gap: 16, padding: 24, minHeight: 400 }}>
       {taskStatus.map(status => (
@@ -45,22 +96,22 @@ export default function ProjectDetail() {
           <div style={{ fontWeight: 600, marginBottom: 12, color: '#555' }}>
             <Tag color={status.color}>{status.title}</Tag>
           </div>
-          {tasks.filter(t => t.status === status.key).length === 0 && (
+          {(project.tasks || []).filter((t: any) => t.status === status.key).length === 0 && (
             <div style={{ color: '#bbb', fontStyle: 'italic', textAlign: 'center', marginTop: 24 }}>Không có công việc</div>
           )}
-          {tasks.filter(t => t.status === status.key).map(task => (
+          {(project.tasks || []).filter((t: any) => t.status === status.key).map((task: any) => (
             <Card
-              key={task.name}
+              key={task.id}
               size="small"
               style={{ marginBottom: 12, borderLeft: `4px solid #4B48E5` }}
               bodyStyle={{ padding: 12 }}
             >
-              <div style={{ fontWeight: 500 }}>{task.name}</div>
+              <div style={{ fontWeight: 500 }}>{task.title}</div>
               <div style={{ fontSize: 13, color: '#888' }}>
-                Người thực hiện: <b>{task.assignee}</b>
+                Người thực hiện: <b>User ID: {task.assigned_to}</b>
               </div>
               <div style={{ fontSize: 12, color: '#aaa' }}>
-                Hạn: {task.due}
+                Hạn: {task.deadline ? new Date(task.deadline).toLocaleDateString() : 'Chưa có'}
               </div>
             </Card>
           ))}
@@ -69,27 +120,24 @@ export default function ProjectDetail() {
     </div>
   );
 
-  // List component như bạn đã có
+  // List component sử dụng dữ liệu từ API
   const TaskList = (
     <List
       style={{ padding: 24 }}
       itemLayout="horizontal"
-      dataSource={tasks}
-      renderItem={item => (
+      dataSource={project.tasks || []}
+      renderItem={(item: any) => (
         <List.Item
           actions={[
-            <Tag color={
-              item.status === 'Hoàn thành' ? 'green' :
-                item.status === 'Đang làm' ? 'blue' : 'default'
-            }>{item.status}</Tag>
+            <Tag color={getStatusColor(item.status)}>{getStatusText(item.status)}</Tag>
           ]}
         >
           <List.Item.Meta
-            title={item.name}
+            title={item.title}
             description={
               <>
-                <span>Người thực hiện: <b>{item.assignee}</b></span><br />
-                <span>Hạn: {item.due}</span>
+                <span>Người thực hiện: <b>User ID: {item.assigned_to}</b></span><br />
+                <span>Hạn: {item.deadline ? new Date(item.deadline).toLocaleDateString() : 'Chưa có'}</span>
               </>
             }
           />
@@ -110,9 +158,11 @@ export default function ProjectDetail() {
               <Space direction="vertical" style={{ width: '100%' }} size={16}>
                 <Breadcrumb>
                   <Breadcrumb.Item>
-                    <a href="/projects"><ArrowLeftOutlined /> {t('projects')}</a>
+                    <a onClick={() => navigate('/projects')} style={{ cursor: 'pointer' }}>
+                      <ArrowLeftOutlined /> {t('projects')}
+                    </a>
                   </Breadcrumb.Item>
-                  <Breadcrumb.Item>{t('project')} ABC</Breadcrumb.Item>
+                  <Breadcrumb.Item>{project?.name || `Project ${id}`}</Breadcrumb.Item>
                 </Breadcrumb>
                 <div style={{
                   display: 'flex',
@@ -124,12 +174,39 @@ export default function ProjectDetail() {
                   marginBottom: 0,
                 }}>
                   <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontWeight: 700, fontSize: 28, color: '#222' }}>{t('project')} ABC</h1>
-                    <div style={{ marginTop: 8, color: '#888' }}>{t('description')}: TeamHub</div>
+                    <h1 style={{ margin: 0, fontWeight: 700, fontSize: 28, color: '#222' }}>{project?.name || `Project ${id}`}</h1>
+                    <div style={{ marginTop: 8, color: '#888' }}>{project?.description || t('noDescription')}</div>
                   </div>
-                  <Badge status="processing" text={<span style={{ fontWeight: 500, color: '#4B48E5' }}>{t('status')}: {t('processing')}</span>} />
-                  <Button icon={<EditOutlined />} type="primary" style={{ marginLeft: 24 }}>{t('edit')}</Button>
+                  <Badge 
+                    status={project.status === 'active' ? 'processing' : project.status === 'completed' ? 'success' : 'default'} 
+                    text={<span style={{ fontWeight: 500, color: '#4B48E5' }}>{t('status')}: {t(project.status)}</span>} 
+                  />
+                  <Button 
+                    icon={<EditOutlined />} 
+                    type="primary" 
+                    style={{ marginLeft: 24 }}
+                    onClick={() => navigate(`/projects/${id}/edit`)}
+                  >
+                    {t('edit')}
+                  </Button>
+                  <Button 
+                    icon={<UnorderedListOutlined />} 
+                    style={{ marginLeft: 12 }}
+                    onClick={() => navigate(`/projects/${id}/tasks`)}
+                  >
+                    {t('viewTasks')}
+                  </Button>
+                  <Button 
+                    icon={<AppstoreOutlined />} 
+                    style={{ marginLeft: 12 }}
+                    onClick={() => navigate(`/projects/${id}/kanban`)}
+                  >
+                    {t('viewKanban')}
+                  </Button>
                 </div>
+                
+                <ProjectStats project={project} t={t} />
+                
                 <Card
                   style={{
                     borderRadius: 12,
@@ -139,37 +216,9 @@ export default function ProjectDetail() {
                   bodyStyle={{ padding: 24 }}
                 >
                   <Descriptions column={1} labelStyle={{ fontWeight: 600, color: '#4B48E5' }}>
-                    <Descriptions.Item label={t('manager')}>Nguyễn Văn A</Descriptions.Item>
-                    <Descriptions.Item label={t('startDate')}>01/06/2024</Descriptions.Item>
-                    <Descriptions.Item label={t('endDate')}>30/09/2024</Descriptions.Item>
-                    <Descriptions.Item label={t('status')}>
-                      <Tag color="processing">{t('processing')}</Tag>
-                    </Descriptions.Item>
-                    <Descriptions.Item label={t('members')}>{members.length}</Descriptions.Item>
-                    <Descriptions.Item label={t('tasks')}>
-                      {t('total')}: {tasks.length} &nbsp;|&nbsp;
-                      {t('done')}: {tasks.filter(t => t.status === 'Hoàn thành').length} &nbsp;|&nbsp;
-                      {t('processing')}: {tasks.filter(t => t.status === 'Đang làm').length}
-                    </Descriptions.Item>
-                    <Descriptions.Item label={t('progress')}>
-                      <Progress
-                        percent={Math.round(
-                          (tasks.filter(t => t.status === 'Hoàn thành').length / tasks.length) * 100
-                        )}
-                        size="small"
-                        status="active"
-                        style={{ width: 200 }}
-                      />
-                    </Descriptions.Item>
-                    <Descriptions.Item label={t('docs')}>{documents.length}</Descriptions.Item>
-                    <Descriptions.Item label={t('priority')}>
-                      <Tag color="red">{t('high')}</Tag>
-                    </Descriptions.Item>
-                    <Descriptions.Item label={t('remainingTime')}>
-                      100 {t('days')}
-                    </Descriptions.Item>
+                    <Descriptions.Item label={t('owner')}>ID: {project.owner_id}</Descriptions.Item>
                     <Descriptions.Item label={t('description')}>
-                      {t('project')} TeamHub, {t('description')} nội bộ.
+                      {project.description || t('noDescription')}
                     </Descriptions.Item>
                   </Descriptions>
                 </Card>
@@ -198,13 +247,13 @@ export default function ProjectDetail() {
                         <List
                           style={{ padding: 24 }}
                           itemLayout="horizontal"
-                          dataSource={members}
-                          renderItem={item => (
+                          dataSource={project.members || []}
+                          renderItem={(item: any) => (
                             <List.Item>
                               <List.Item.Meta
-                                avatar={<Avatar style={{ background: '#4B48E5' }}>{item.name[0]}</Avatar>}
-                                title={<span style={{ fontWeight: 600 }}>{item.name}</span>}
-                                description={<Tag color={item.role === 'Quản trị viên' ? 'purple' : 'blue'}>{t(item.role === 'Quản trị viên' ? 'admin' : 'member')}</Tag>}
+                                avatar={<UserAvatar userId={item.user_id} size={32} showPosition={true} />}
+                                title={<span style={{ fontWeight: 600 }}>{item.name || `User ID: ${item.user_id}`}</span>}
+                                description={<Tag color={item.role === 'manager' ? 'purple' : item.role === 'editor' ? 'blue' : 'green'}>{t(item.role)}</Tag>}
                               />
                             </List.Item>
                           )}
@@ -228,13 +277,21 @@ export default function ProjectDetail() {
                                 <Radio.Button value="kanban"><AppstoreOutlined /> {t('kanban')}</Radio.Button>
                               </Radio.Group>
                             </div>
-                            <Button
-                              type="primary"
-                              icon={<AppstoreOutlined />}
-                              href="/projects/1/kanban"
-                            >
-                              {t('viewKanban')}
-                            </Button>
+                            <Space>
+                              <Button
+                                type="primary"
+                                icon={<UnorderedListOutlined />}
+                                onClick={() => navigate(`/projects/${id}/tasks`)}
+                              >
+                                Xem danh sách
+                              </Button>
+                              <Button
+                                icon={<AppstoreOutlined />}
+                                onClick={() => navigate(`/projects/${id}/kanban`)}
+                              >
+                                {t('viewKanban')}
+                              </Button>
+                            </Space>
                           </div>
                           {taskView === 'list' ? TaskList : KanbanBoard}
                         </div>
@@ -247,19 +304,19 @@ export default function ProjectDetail() {
                         <List
                           style={{ padding: 24 }}
                           itemLayout="horizontal"
-                          dataSource={documents}
-                          renderItem={item => (
+                          dataSource={project.documents || []}
+                          renderItem={(item: any) => (
                             <List.Item
                               actions={[
-                                <Tag>{item.type}</Tag>
+                                <Tag>{item.visibility}</Tag>
                               ]}
                             >
                               <List.Item.Meta
-                                title={<a href="#">{item.name}</a>}
+                                title={<a href="#">{item.title}</a>}
                                 description={
                                   <>
-                                    <span>Người upload: <b>{item.uploader}</b></span><br />
-                                    <span>Ngày: {item.date}</span>
+                                    <span>Người tạo: <b>User ID: {item.created_by}</b></span><br />
+                                    <span>Ngày: {new Date(item.created_at).toLocaleDateString()}</span>
                                   </>
                                 }
                               />
@@ -275,13 +332,18 @@ export default function ProjectDetail() {
                         <List
                           style={{ padding: 24 }}
                           itemLayout="horizontal"
-                          dataSource={activities}
-                          renderItem={item => (
+                          dataSource={project.edit_history || []}
+                          renderItem={(item: any) => (
                             <List.Item>
                               <List.Item.Meta
-                                avatar={<Avatar>{item.user[0]}</Avatar>}
-                                title={<span><b>{item.user}</b> {item.action}</span>}
-                                description={item.time}
+                                avatar={<UserAvatar userId={item.user_id} size={32} showPosition={true} />}
+                                title={<span><b>User ID: {item.user_id}</b> đã cập nhật dự án</span>}
+                                description={
+                                  <>
+                                    <div>Thay đổi: {item.changes ? JSON.stringify(JSON.parse(item.changes), null, 2) : 'Không có thông tin'}</div>
+                                    <div>Thời gian: {new Date(item.created_at).toLocaleString()}</div>
+                                  </>
+                                }
                               />
                             </List.Item>
                           )}

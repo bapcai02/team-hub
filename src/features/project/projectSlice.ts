@@ -101,6 +101,18 @@ const projectSlice = createSlice({
       .addCase(deleteProject.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error;
+      })
+      .addCase(getProjectDetail.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProjectDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.detail = action.payload.data;
+      })
+      .addCase(getProjectDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error;
       });
   }
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Avatar, Dropdown, Menu, Badge, Tooltip } from 'antd';
+import { Layout, Avatar, Dropdown, Menu, Badge, Tooltip, Typography } from 'antd';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -7,12 +7,15 @@ import {
   BulbOutlined,
   CheckSquareOutlined,
   MessageOutlined,
+  ProjectOutlined,
 } from '@ant-design/icons';
-import { List, Typography, Button as AntdButton, Tooltip as AntdTooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { List, Button as AntdButton, Tooltip as AntdTooltip } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { logout as apiLogout } from '../features/auth';
 import { message } from 'antd';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../app/store';
 
 const { Header } = Layout;
 
@@ -55,6 +58,7 @@ const notificationList = (
 
 const HeaderBar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const user = {
     name: 'Nguyễn Văn A',
@@ -62,6 +66,13 @@ const HeaderBar: React.FC = () => {
   };
   const myTaskCount = 5;
   const myMessageCount = 2;
+
+  // Get project info from Redux store
+  const project = useSelector((state: RootState) => state.project.detail);
+
+  // Check if we're in a project page
+  const isInProject = location.pathname.includes('/projects/') && location.pathname.split('/').length > 2;
+  const projectId = location.pathname.split('/')[2]; // Get project ID from URL
 
   const handleMenuClick = async (e: any) => {
     if (e.key === 'logout') {
@@ -89,12 +100,60 @@ const HeaderBar: React.FC = () => {
         padding: '0 24px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: isInProject && project ? 'space-between' : 'flex-end',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         position: 'relative',
         zIndex: 10,
       }}
     >
+      {/* Project Info */}
+      {isInProject && project && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 12, 
+              cursor: 'pointer',
+              padding: '8px 12px',
+              borderRadius: 8,
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#f5f5f5'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+            onClick={() => navigate(`/projects/${projectId}`)}
+          >
+            <ProjectOutlined style={{ color: '#4B48E5', fontSize: 20 }} />
+            <div>
+              <Typography.Text strong style={{ fontSize: 16, color: '#222' }}>
+                {project.name}
+              </Typography.Text>
+              <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+                {project.status && (
+                  <span style={{ 
+                    color: project.status === 'active' ? '#52c41a' : '#faad14',
+                    marginRight: 8 
+                  }}>
+                    ● {project.status === 'active' ? 'Đang hoạt động' : 'Tạm dừng'}
+                  </span>
+                )}
+                {project.total_tasks && (
+                  <span style={{ marginRight: 8 }}>
+                    📋 {project.total_tasks} tasks
+                  </span>
+                )}
+                {project.members && (
+                  <span>
+                    👥 {project.members.length} thành viên
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Right side icons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         <Tooltip title="Task của bạn">
           <Badge count={myTaskCount} size="small">

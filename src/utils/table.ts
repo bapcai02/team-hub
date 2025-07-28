@@ -9,10 +9,13 @@ export function getProjectTableColumns(t: any, navigate: any, handleEdit?: (proj
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: any) => (
-        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+        React.createElement('div', { 
+          style: { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' },
+          onClick: () => navigate(`/projects/${record.key}`)
+        },
           React.createElement(Avatar, { style: { backgroundColor: '#87d068' }, icon: React.createElement(PlusOutlined) }),
           React.createElement('div', null,
-            React.createElement('strong', null, text),
+            React.createElement('strong', { style: { color: '#1890ff' } }, text),
             React.createElement('br'),
             React.createElement('small', { style: { color: '#888' } }, record.category)
           )
@@ -64,7 +67,7 @@ export function getProjectTableColumns(t: any, navigate: any, handleEdit?: (proj
           React.createElement(Button, {
             type: 'link',
             icon: React.createElement(EditOutlined),
-            onClick: () => handleEdit ? handleEdit(record) : navigate(`/projects/${record.key}`)
+            onClick: () => handleEdit ? handleEdit(record) : navigate(`/projects/${record.key}/edit`)
           }, t('edit')),
           React.createElement(Button, {
             type: 'link',

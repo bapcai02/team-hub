@@ -11,6 +11,9 @@ export interface Project {
   total_members?: number;
   total_tasks?: number;
   members?: ProjectMember[];
+  tasks?: any[];
+  documents?: any[];
+  edit_history?: any[];
   created_at?: string;
   updated_at?: string;
 }
