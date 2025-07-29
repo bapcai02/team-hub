@@ -1,4 +1,5 @@
 import { Layout, Menu } from 'antd';
+import React, { useState, useEffect } from 'react';
 import {
   DashboardOutlined,
   TeamOutlined,
@@ -6,7 +7,10 @@ import {
   SettingOutlined,
   CalendarOutlined,
   FileOutlined,
-  MessageOutlined
+  MessageOutlined,
+  UserOutlined,
+  ClockCircleOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -15,21 +19,89 @@ export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: t('dashboard'), path: '/' },
-    { key: 'staff', icon: <TeamOutlined />, label: t('team') },
     { key: 'projects', icon: <ProjectOutlined />, label: t('projects'), path: '/projects' },
     { key: 'chat', icon: <MessageOutlined />, label: t('chat'), path: '/chat' },
+    { 
+      key: 'hrm', 
+      icon: <UserOutlined />, 
+      label: 'Quản lý nhân sự',
+      path: '/employees',
+      children: [
+        { key: 'employees', icon: <TeamOutlined />, label: 'Nhân viên', path: '/employees' },
+        { key: 'attendance', icon: <ClockCircleOutlined />, label: 'Chấm công', path: '/attendance' },
+        { key: 'leaves', icon: <FileTextOutlined />, label: 'Nghỉ phép', path: '/leaves' },
+      ]
+    },
     { key: 'schedule', icon: <CalendarOutlined />, label: t('schedule') },
     { key: 'docs', icon: <FileOutlined />, label: t('docs') },
     { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
   ];
-  const selectedKey =
-    menuItems
-      .filter(item => item.path)
-      .sort((a, b) => (b.path?.length || 0) - (a.path?.length || 0))
-      .find(item => location.pathname.startsWith(item.path!))
-      ?.key || 'dashboard';
+
+  // Tìm selected key cho menu
+  const findSelectedKey = (items: any[]): string => {
+    for (const item of items) {
+      if (item.path && location.pathname.startsWith(item.path)) {
+        return item.key;
+      }
+      if (item.children) {
+        const childKey = findSelectedKey(item.children);
+        if (childKey) return childKey;
+      }
+    }
+    return 'dashboard';
+  };
+
+  const selectedKey = findSelectedKey(menuItems);
+
+  // Tìm open keys cho submenu
+  const findOpenKeys = (items: any[]): string[] => {
+    const openKeys: string[] = [];
+    for (const item of items) {
+      if (item.children) {
+        const hasActiveChild = item.children.some((child: any) => 
+          child.path && location.pathname.startsWith(child.path)
+        );
+        if (hasActiveChild) {
+          openKeys.push(item.key);
+        }
+      }
+    }
+    return openKeys;
+  };
+
+  const initialOpenKeys = findOpenKeys(menuItems);
+  
+  // Set openKeys ban đầu nếu chưa có
+  useEffect(() => {
+    if (openKeys.length === 0) {
+      setOpenKeys(initialOpenKeys);
+    }
+  }, [initialOpenKeys, openKeys.length]);
+
+  // Chuyển đổi menuItems thành format cho Ant Design Menu
+  const convertToMenuItems = (items: any[]): any[] => {
+    return items.map(item => {
+      if (item.children) {
+        return {
+          key: item.key,
+          icon: item.icon,
+          label: item.label,
+          children: convertToMenuItems(item.children)
+        };
+      }
+      return {
+        key: item.key,
+        icon: item.icon,
+        label: item.label
+      };
+    });
+  };
+
+  const menuItemsForAntd = convertToMenuItems(menuItems);
 
   return (
     <Layout.Sider
@@ -111,9 +183,32 @@ export default function Sidebar() {
           </span>
         </span>
       </div>
+      
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}
+        openKeys={openKeys}
+        onOpenChange={setOpenKeys}
+        items={menuItemsForAntd}
+        onClick={({ key }) => {
+          const findPathByKey = (items: any[], targetKey: string): string | null => {
+            for (const item of items) {
+              if (item.key === targetKey && item.path) {
+                return item.path;
+              }
+              if (item.children) {
+                const path = findPathByKey(item.children, targetKey);
+                if (path) return path;
+              }
+            }
+            return null;
+          };
+          
+          const path = findPathByKey(menuItems, key);
+          if (path) {
+            navigate(path);
+          }
+        }}
         style={{
           fontSize: 17,
           fontWeight: 700,
@@ -122,47 +217,7 @@ export default function Sidebar() {
           background: 'transparent',
           overflow: 'hidden',
         }}
-      >
-        {menuItems.map(item => (
-          <Menu.Item
-            key={item.key}
-            icon={
-              <span
-                style={{
-                  fontSize: 32,
-                  color: selectedKey === item.key ? '#fff' : '#4B48E5',
-                  background: selectedKey === item.key
-                    ? 'linear-gradient(90deg, #4B48E5 60%, #7f7fff 100%)'
-                    : 'transparent',
-                  borderRadius: 10,
-                  padding: 6,
-                  marginRight: 14,
-                  transition: 'all 0.2s',
-                  boxShadow: selectedKey === item.key ? '0 4px 16px #4B48E540' : undefined,
-                  filter: selectedKey === item.key ? 'drop-shadow(0 0 8px #4B48E5AA)' : undefined,
-                }}
-              >
-                {item.icon}
-              </span>
-            }
-            style={{
-              borderRadius: 12,
-              margin: '10px 14px',
-              background: selectedKey === item.key
-                ? 'linear-gradient(90deg, #4B48E5 60%, #7f7fff 100%)'
-                : 'transparent',
-              color: selectedKey === item.key ? '#fff' : '#222',
-              boxShadow: selectedKey === item.key ? '0 4px 16px #4B48E540' : undefined,
-              fontWeight: selectedKey === item.key ? 900 : 700,
-              transition: 'all 0.2s',
-              overflow: 'hidden',
-            }}
-            onClick={() => item.path && navigate(item.path)}
-          >
-            {item.label}
-          </Menu.Item>
-        ))}
-      </Menu>
+      />
     </Layout.Sider>
   );
 }

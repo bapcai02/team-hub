@@ -4,39 +4,41 @@ import { UserOutlined } from '@ant-design/icons';
 import axios from '../services/axios';
 
 interface UserAvatarProps {
-  userId: number;
+  userId?: number;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    role_id?: number;
+    employee?: {
+      position?: string;
+      department?: {
+        name?: string;
+      };
+    };
+  };
   size?: number;
   showName?: boolean;
   showPosition?: boolean;
 }
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role_id?: number;
-  employee?: {
-    position?: string;
-    department?: {
-      name?: string;
-    };
-  };
-}
-
 const UserAvatar: React.FC<UserAvatarProps> = ({ 
-  userId, 
+  userId,
+  user: userProp,
   size = 32, 
   showName = false, 
   showPosition = false 
 }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState(userProp || null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (userId) {
+    if (userProp) {
+      setUser(userProp);
+    } else if (userId && !userProp) {
       fetchUser();
     }
-  }, [userId]);
+  }, [userId, userProp]);
 
   const fetchUser = async () => {
     setLoading(true);
@@ -62,7 +64,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   };
 
   const getTooltipContent = () => {
-    if (!user) return 'Loading...';
+    if (!user) return 'Unknown User';
     
     let content = user.name;
     if (showPosition && user.employee?.position) {

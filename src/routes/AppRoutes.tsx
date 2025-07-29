@@ -7,6 +7,10 @@ import TaskDetail from '../pages/project/TaskDetail';
 import TaskList from '../pages/project/TaskList';
 import TaskKanban from '../pages/project/TaskKanban';
 import Login from '../pages/auth/Login';
+import EmployeeList from '../pages/employee/EmployeeList';
+import EmployeeDetail from '../pages/employee/EmployeeDetail';
+import AttendanceList from '../pages/attendance/AttendanceList';
+import LeaveList from '../pages/leave/LeaveList';
 import ChatList from '../pages/chat/ChatList';
 import React from 'react';
 
@@ -74,6 +78,29 @@ export default function AppRoutes() {
           <ChatList />
         </PrivateRoute>
       } />
+      
+      {/* HRM Routes */}
+      <Route path="/employees" element={
+        <PrivateRoute>
+          <EmployeeList />
+        </PrivateRoute>
+      } />
+      <Route path="/employees/:id" element={
+        <PrivateRoute>
+          <EmployeeDetail />
+        </PrivateRoute>
+      } />
+      <Route path="/attendance" element={
+        <PrivateRoute>
+          <AttendanceList />
+        </PrivateRoute>
+      } />
+      <Route path="/leaves" element={
+        <PrivateRoute>
+          <LeaveList />
+        </PrivateRoute>
+      } />
+      
       <Route path="/admin" element={
         <AdminRoute>
           <div>Admin Site</div>
