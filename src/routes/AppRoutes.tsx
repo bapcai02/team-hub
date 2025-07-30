@@ -12,6 +12,7 @@ import EmployeeDetail from '../pages/employee/EmployeeDetail';
 import AttendanceList from '../pages/attendance/AttendanceList';
 import LeaveList from '../pages/leave/LeaveList';
 import ChatList from '../pages/chat/ChatList';
+import MeetingList from '../pages/meeting/MeetingList';
 import React from 'react';
 
 const useAuth = () => {
@@ -76,6 +77,11 @@ export default function AppRoutes() {
       <Route path="/chat" element={
         <PrivateRoute>
           <ChatList />
+        </PrivateRoute>
+      } />
+      <Route path="/meetings" element={
+        <PrivateRoute>
+          <MeetingList />
         </PrivateRoute>
       } />
       

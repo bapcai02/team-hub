@@ -60,6 +60,7 @@ const HeaderBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  
   const user = {
     name: 'Nguyễn Văn A',
     avatar: '',
@@ -85,6 +86,7 @@ const HeaderBar: React.FC = () => {
       }
     }
   };
+  
   const menu = (
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="profile" icon={<UserOutlined />}>{t('profile') || 'Trang cá nhân'}</Menu.Item>

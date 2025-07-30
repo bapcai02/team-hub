@@ -10,7 +10,8 @@ import {
   MessageOutlined,
   UserOutlined,
   ClockCircleOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  VideoCameraOutlined
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -25,11 +26,11 @@ export default function Sidebar() {
     { key: 'dashboard', icon: <DashboardOutlined />, label: t('dashboard'), path: '/' },
     { key: 'projects', icon: <ProjectOutlined />, label: t('projects'), path: '/projects' },
     { key: 'chat', icon: <MessageOutlined />, label: t('chat'), path: '/chat' },
+    { key: 'meetings', icon: <VideoCameraOutlined />, label: 'Meetings', path: '/meetings' },
     { 
       key: 'hrm', 
       icon: <UserOutlined />, 
       label: 'Quản lý nhân sự',
-      path: '/employees',
       children: [
         { key: 'employees', icon: <TeamOutlined />, label: 'Nhân viên', path: '/employees' },
         { key: 'attendance', icon: <ClockCircleOutlined />, label: 'Chấm công', path: '/attendance' },
@@ -41,29 +42,50 @@ export default function Sidebar() {
     { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
   ];
 
-  // Tìm selected key cho menu
+  // Tìm selected key cho menu - sửa logic này
   const findSelectedKey = (items: any[]): string => {
+    const currentPath = location.pathname;
+    
+    // Kiểm tra exact match trước
     for (const item of items) {
-      if (item.path && location.pathname.startsWith(item.path)) {
+      if (item.path === currentPath) {
         return item.key;
       }
       if (item.children) {
-        const childKey = findSelectedKey(item.children);
-        if (childKey) return childKey;
+        for (const child of item.children) {
+          if (child.path === currentPath) {
+            return child.key;
+          }
+        }
       }
     }
+    
+    // Nếu không có exact match, kiểm tra startsWith
+    for (const item of items) {
+      if (item.path && currentPath.startsWith(item.path)) {
+        return item.key;
+      }
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.path && currentPath.startsWith(child.path)) {
+            return child.key;
+          }
+        }
+      }
+    }
+    
     return 'dashboard';
   };
 
   const selectedKey = findSelectedKey(menuItems);
-
-  // Tìm open keys cho submenu
   const findOpenKeys = (items: any[]): string[] => {
     const openKeys: string[] = [];
+    const currentPath = location.pathname;
+    
     for (const item of items) {
       if (item.children) {
         const hasActiveChild = item.children.some((child: any) => 
-          child.path && location.pathname.startsWith(child.path)
+          child.path && currentPath.startsWith(child.path)
         );
         if (hasActiveChild) {
           openKeys.push(item.key);
@@ -75,12 +97,13 @@ export default function Sidebar() {
 
   const initialOpenKeys = findOpenKeys(menuItems);
   
-  // Set openKeys ban đầu nếu chưa có
+  // Set openKeys ban đầu nếu chưa có - SỬA LỖI INFINITE LOOP
   useEffect(() => {
-    if (openKeys.length === 0) {
-      setOpenKeys(initialOpenKeys);
+    const newOpenKeys = findOpenKeys(menuItems);
+    if (JSON.stringify(newOpenKeys) !== JSON.stringify(openKeys)) {
+      setOpenKeys(newOpenKeys);
     }
-  }, [initialOpenKeys, openKeys.length]);
+  }, [location.pathname]); // Chỉ dependency vào location.pathname
 
   // Chuyển đổi menuItems thành format cho Ant Design Menu
   const convertToMenuItems = (items: any[]): any[] => {
@@ -92,12 +115,13 @@ export default function Sidebar() {
           label: item.label,
           children: convertToMenuItems(item.children)
         };
+      } else {
+        return {
+          key: item.key,
+          icon: item.icon,
+          label: item.label
+        };
       }
-      return {
-        key: item.key,
-        icon: item.icon,
-        label: item.label
-      };
     });
   };
 
@@ -203,13 +227,13 @@ export default function Sidebar() {
             }
             return null;
           };
-          
+
           const path = findPathByKey(menuItems, key);
           if (path) {
             navigate(path);
           }
         }}
-        style={{
+        style={{ 
           fontSize: 17,
           fontWeight: 700,
           border: 'none',
