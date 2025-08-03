@@ -13,6 +13,11 @@ import AttendanceList from '../pages/attendance/AttendanceList';
 import LeaveList from '../pages/leave/LeaveList';
 import ChatList from '../pages/chat/ChatList';
 import MeetingList from '../pages/meeting/MeetingList';
+import CalendarPage from '../pages/calendar/CalendarPage';
+import DocumentsPage from '../pages/documents/DocumentsPage';
+import DevicesPage from '../pages/devices/DevicesPage';
+import DeviceCategoriesPage from '../pages/devices/DeviceCategoriesPage';
+import DeviceStatsPage from '../pages/devices/DeviceStatsPage';
 import React from 'react';
 
 const useAuth = () => {
@@ -84,6 +89,31 @@ export default function AppRoutes() {
           <MeetingList />
         </PrivateRoute>
       } />
+      <Route path="/calendar" element={
+        <PrivateRoute>
+          <CalendarPage />
+        </PrivateRoute>
+      } />
+      <Route path="/documents" element={
+        <PrivateRoute>
+          <DocumentsPage />
+        </PrivateRoute>
+      } />
+      <Route path="/devices" element={
+        <PrivateRoute>
+          <DevicesPage />
+        </PrivateRoute>
+      } />
+                        <Route path="/devices/categories" element={
+                    <PrivateRoute>
+                      <DeviceCategoriesPage />
+                    </PrivateRoute>
+                  } />
+                  <Route path="/devices/stats" element={
+                    <PrivateRoute>
+                      <DeviceStatsPage />
+                    </PrivateRoute>
+                  } />
       
       {/* HRM Routes */}
       <Route path="/employees" element={

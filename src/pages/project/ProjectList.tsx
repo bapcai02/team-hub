@@ -42,10 +42,10 @@ const ProjectList: React.FC = () => {
   const [memberRoles, setMemberRoles] = React.useState<{[key:string]: string}>({});
   const [fileList, setFileList] = React.useState<any[]>([]);
   const [dateRange, setDateRange] = React.useState<[Dayjs | null, Dayjs | null]>([null, null]);
-  const projects = useSelector((state: RootState) => state.project.list);
+  const projects = useSelector((state: RootState) => state.project.list) || [];
   const loading = useSelector((state: RootState) => state.project.loading);
   const dispatch = useDispatch<AppDispatch>();
-  const users = useSelector((state: RootState) => state.user.list) as any[]
+  const users = useSelector((state: RootState) => state.user.list) as any[] || []
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -95,7 +95,7 @@ const ProjectList: React.FC = () => {
     })
   }
 
-  const memberOptions = users.map((u: any) => ({ value: String(u.id), label: u.name }))
+  const memberOptions = (users || []).map((u: any) => ({ value: String(u.id), label: u.name }))
   const tableData = mapProjectsData(projects)
   const columns = getProjectTableColumns(t, navigate, handleEdit, handleDelete)
 

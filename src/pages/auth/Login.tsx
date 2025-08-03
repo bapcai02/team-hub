@@ -15,7 +15,15 @@ export default function Login() {
     try {
       const res = await login(values);
       const user = res.data.user || res.data;
+      const token = res.data.access_token || res.data.token;
+      
+      // Save user info and token to localStorage
       localStorage.setItem('user', JSON.stringify(user));
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('access_token', token);
+      }
+      
       message.success(t('loginSuccess'));
       setTimeout(() => {
         navigate('/');

@@ -11,7 +11,7 @@ i18n
       vi: { translation: vi },
     },
     lng: 'vi',
-    fallbackLng: 'en',
+    fallbackLng: 'vi',
     interpolation: { escapeValue: false },
   });
 

@@ -243,7 +243,7 @@ export default function EmployeeList() {
   };
 
   // Filter employees
-  const filteredEmployees = employees.filter(employee => {
+  const filteredEmployees = (employees || []).filter(employee => {
     const matchesSearch = 
       employee.user?.name?.toLowerCase().includes(searchText.toLowerCase()) ||
       employee.user?.email?.toLowerCase().includes(searchText.toLowerCase()) ||

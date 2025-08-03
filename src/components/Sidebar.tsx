@@ -6,12 +6,14 @@ import {
   ProjectOutlined,
   SettingOutlined,
   CalendarOutlined,
-  FileOutlined,
   MessageOutlined,
   UserOutlined,
   ClockCircleOutlined,
   FileTextOutlined,
-  VideoCameraOutlined
+  VideoCameraOutlined,
+  LaptopOutlined,
+  AppstoreOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +29,18 @@ export default function Sidebar() {
     { key: 'projects', icon: <ProjectOutlined />, label: t('projects'), path: '/projects' },
     { key: 'chat', icon: <MessageOutlined />, label: t('chat'), path: '/chat' },
     { key: 'meetings', icon: <VideoCameraOutlined />, label: 'Meetings', path: '/meetings' },
+    { key: 'calendar', icon: <CalendarOutlined />, label: t('calendar.title'), path: '/calendar' },
+    { key: 'documents', icon: <FileTextOutlined />, label: t('docs'), path: '/documents' },
+    { 
+      key: 'devices', 
+      icon: <LaptopOutlined />, 
+      label: 'Quản lý thiết bị',
+      children: [
+        { key: 'devices-list', icon: <LaptopOutlined />, label: 'Danh sách thiết bị', path: '/devices' },
+        { key: 'devices-categories', icon: <AppstoreOutlined />, label: 'Danh mục thiết bị', path: '/devices/categories' },
+        { key: 'devices-stats', icon: <BarChartOutlined />, label: 'Thống kê thiết bị', path: '/devices/stats' },
+      ]
+    },
     { 
       key: 'hrm', 
       icon: <UserOutlined />, 
@@ -37,8 +51,6 @@ export default function Sidebar() {
         { key: 'leaves', icon: <FileTextOutlined />, label: 'Nghỉ phép', path: '/leaves' },
       ]
     },
-    { key: 'schedule', icon: <CalendarOutlined />, label: t('schedule') },
-    { key: 'docs', icon: <FileOutlined />, label: t('docs') },
     { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
   ];
 

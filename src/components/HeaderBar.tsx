@@ -9,7 +9,7 @@ import {
   MessageOutlined,
   ProjectOutlined,
 } from '@ant-design/icons';
-import { List, Button as AntdButton, Tooltip as AntdTooltip } from 'antd';
+import { List } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { logout as apiLogout } from '../features/auth';
@@ -67,22 +67,23 @@ const HeaderBar: React.FC = () => {
   };
   const myTaskCount = 5;
   const myMessageCount = 2;
-
-  // Get project info from Redux store
   const project = useSelector((state: RootState) => state.project.detail);
-
-  // Check if we're in a project page
   const isInProject = location.pathname.includes('/projects/') && location.pathname.split('/').length > 2;
-  const projectId = location.pathname.split('/')[2]; // Get project ID from URL
+  const projectId = location.pathname.split('/')[2];
 
   const handleMenuClick = async (e: any) => {
     if (e.key === 'logout') {
       try {
         await apiLogout();
-        localStorage.removeItem('user');
-        navigate('/login');
+        message.success(t('logoutSuccess') || 'Đăng xuất thành công!');
       } catch (err: any) {
-        message.error(t('logoutFailed') || 'Đăng xuất thất bại!');
+        console.warn('Logout API failed, but continuing with local logout:', err);
+      } finally {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
+        sessionStorage.clear();
+        navigate('/login');
       }
     }
   };

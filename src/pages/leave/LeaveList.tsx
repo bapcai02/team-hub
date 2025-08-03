@@ -208,7 +208,7 @@ export default function LeaveList() {
   };
 
   // Filter leaves
-  const filteredLeaves = leaves.filter(leave => {
+  const filteredLeaves = (leaves || []).filter(leave => {
     const matchesSearch = 
       leave.employee?.full_name?.toLowerCase().includes(searchText.toLowerCase()) ||
       leave.employee?.employee_code?.toLowerCase().includes(searchText.toLowerCase());

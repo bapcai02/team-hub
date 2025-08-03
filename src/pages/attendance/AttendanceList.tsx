@@ -149,7 +149,7 @@ export default function AttendanceList() {
   };
 
   // Filter attendances
-  const filteredAttendances = attendances.filter(attendance => {
+  const filteredAttendances = (attendances || []).filter(attendance => {
     const matchesSearch = 
       attendance.employee?.full_name?.toLowerCase().includes(searchText.toLowerCase()) ||
       attendance.employee?.employee_code?.toLowerCase().includes(searchText.toLowerCase());
