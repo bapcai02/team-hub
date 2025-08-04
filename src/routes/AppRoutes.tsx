@@ -18,6 +18,9 @@ import DocumentsPage from '../pages/documents/DocumentsPage';
 import DevicesPage from '../pages/devices/DevicesPage';
 import DeviceCategoriesPage from '../pages/devices/DeviceCategoriesPage';
 import DeviceStatsPage from '../pages/devices/DeviceStatsPage';
+import PayrollPage from '../pages/finance/PayrollPage';
+import ExpensePage from '../pages/finance/ExpensePage';
+import SalaryComponentPage from '../pages/finance/SalaryComponentPage';
 import React from 'react';
 
 const useAuth = () => {
@@ -109,11 +112,28 @@ export default function AppRoutes() {
                       <DeviceCategoriesPage />
                     </PrivateRoute>
                   } />
-                  <Route path="/devices/stats" element={
-                    <PrivateRoute>
-                      <DeviceStatsPage />
-                    </PrivateRoute>
-                  } />
+                              <Route path="/devices/stats" element={
+              <PrivateRoute>
+                <DeviceStatsPage />
+              </PrivateRoute>
+            } />
+            
+            {/* Finance Routes */}
+            <Route path="/finance/payroll" element={
+              <PrivateRoute>
+                <PayrollPage />
+              </PrivateRoute>
+            } />
+            <Route path="/finance/expenses" element={
+              <PrivateRoute>
+                <ExpensePage />
+              </PrivateRoute>
+            } />
+            <Route path="/finance/salary-components" element={
+              <PrivateRoute>
+                <SalaryComponentPage />
+              </PrivateRoute>
+            } />
       
       {/* HRM Routes */}
       <Route path="/employees" element={

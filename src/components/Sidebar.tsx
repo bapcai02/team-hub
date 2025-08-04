@@ -13,7 +13,9 @@ import {
   VideoCameraOutlined,
   LaptopOutlined,
   AppstoreOutlined,
-  BarChartOutlined
+  BarChartOutlined,
+  DollarOutlined,
+  CreditCardOutlined,
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +51,16 @@ export default function Sidebar() {
         { key: 'employees', icon: <TeamOutlined />, label: 'Nhân viên', path: '/employees' },
         { key: 'attendance', icon: <ClockCircleOutlined />, label: 'Chấm công', path: '/attendance' },
         { key: 'leaves', icon: <FileTextOutlined />, label: 'Nghỉ phép', path: '/leaves' },
+      ]
+    },
+    { 
+      key: 'finance', 
+      icon: <DollarOutlined />, 
+      label: 'Quản lý tài chính',
+      children: [
+        { key: 'payroll', icon: <FileTextOutlined />, label: 'Tính lương', path: '/finance/payroll' },
+        { key: 'expenses', icon: <CreditCardOutlined />, label: 'Chi phí', path: '/finance/expenses' },
+        { key: 'salary-components', icon: <AppstoreOutlined />, label: 'Thành phần lương', path: '/finance/salary-components' },
       ]
     },
     { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
