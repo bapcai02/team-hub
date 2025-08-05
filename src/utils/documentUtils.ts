@@ -77,7 +77,7 @@ export const getMaxFileSize = (): number => {
   return 50 * 1024 * 1024;
 };
 
-export const validateFile = (file: File): { valid: boolean; error?: string } => {
+export const validateFile = (file: File): { valid: boolean; error: string } => {
   const maxSize = getMaxFileSize();
   
   if (file.size > maxSize) {
@@ -87,5 +87,5 @@ export const validateFile = (file: File): { valid: boolean; error?: string } => 
     };
   }
   
-  return { valid: true };
+  return { valid: true, error: '' };
 }; 

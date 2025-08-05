@@ -9,12 +9,20 @@ import {
   message, 
   Tag,
   Space,
-  Typography
+  Typography,
+  Progress,
+  Alert
 } from 'antd';
 import { 
   UploadOutlined, 
   InboxOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  FileTextOutlined,
+  FilePdfOutlined,
+  FileWordOutlined,
+  FileExcelOutlined,
+  FileImageOutlined,
+  FileUnknownOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../app/store';
@@ -42,8 +50,10 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleUpload = async (values: any) => {
     if (fileList.length === 0) {
@@ -60,6 +70,20 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     }
 
     setUploading(true);
+    setUploadProgress(0);
+    setUploadError(null);
+
+    // Simulate upload progress
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return prev + 10;
+      });
+    }, 200);
+
     try {
       const documentData: CreateDocumentRequest = {
         title: values.title,
@@ -71,10 +95,18 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
       };
 
       await dispatch(createDocument(documentData)).unwrap();
-      message.success(t('documents.uploadSuccess'));
-      handleCancel();
-      onSuccess();
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      
+      setTimeout(() => {
+        message.success(t('documents.uploadSuccess'));
+        handleCancel();
+        onSuccess();
+      }, 500);
     } catch (error: any) {
+      clearInterval(progressInterval);
+      setUploadError(error || t('documents.uploadFailed'));
       message.error(error || t('documents.uploadFailed'));
     } finally {
       setUploading(false);
@@ -86,11 +118,24 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     setFileList([]);
     setTags([]);
     setTagInput('');
+    setUploadProgress(0);
+    setUploadError(null);
     onCancel();
   };
 
   const handleFileChange = (info: any) => {
     setFileList(info.fileList.slice(-1)); // Only allow one file
+    setUploadError(null);
+    
+    if (info.fileList.length > 0) {
+      const file = info.fileList[0];
+      const validation = validateFile(file.originFileObj);
+      
+      if (!validation.valid) {
+        setUploadError(validation.error);
+        setFileList([]);
+      }
+    }
   };
 
   const handleAddTag = () => {
@@ -108,7 +153,23 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     beforeUpload: () => false, // Prevent auto upload
     fileList,
     onChange: handleFileChange,
-    accept: '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.rtf,.jpg,.jpeg,.png,.gif,.bmp',
+    accept: '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.rtf,.jpg,.jpeg,.png,.gif,.bmp,.zip,.rar',
+    maxSize: 50 * 1024 * 1024, // 50MB
+  };
+
+  const getFileTypeIcon = (fileType: string) => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'application/pdf': <FilePdfOutlined style={{ color: '#ff4d4f' }} />,
+      'application/msword': <FileWordOutlined style={{ color: '#1890ff' }} />,
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': <FileWordOutlined style={{ color: '#1890ff' }} />,
+      'application/vnd.ms-excel': <FileExcelOutlined style={{ color: '#52c41a' }} />,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': <FileExcelOutlined style={{ color: '#52c41a' }} />,
+      'image/jpeg': <FileImageOutlined style={{ color: '#faad14' }} />,
+      'image/png': <FileImageOutlined style={{ color: '#faad14' }} />,
+      'image/gif': <FileImageOutlined style={{ color: '#faad14' }} />,
+      'text/plain': <FileTextOutlined style={{ color: '#722ed1' }} />,
+    };
+    return iconMap[fileType] || <FileUnknownOutlined style={{ color: '#666' }} />;
   };
 
   return (
@@ -117,7 +178,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
       open={visible}
       onCancel={handleCancel}
       footer={null}
-      width={600}
+      width={700}
     >
       <Form
         form={form}
@@ -217,13 +278,22 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
           </Upload.Dragger>
         </Form.Item>
 
+        {uploadError && (
+          <Alert
+            message={uploadError}
+            type="error"
+            showIcon
+            style={{ marginBottom: 16 }}
+          />
+        )}
+
         {fileList.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <Text strong>{t('documents.selectedFile')}:</Text>
             <div style={{ marginTop: 8, padding: 12, background: '#f5f5f5', borderRadius: 6 }}>
               <Space>
-                {getFileIcon(fileList[0]?.type || '')}
-                <div>
+                {getFileTypeIcon(fileList[0]?.type || '')}
+                <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 500 }}>{fileList[0].name}</div>
                   <Text type="secondary" style={{ fontSize: 12 }}>
                     {formatFileSize(fileList[0].size)}
@@ -240,13 +310,24 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
           </div>
         )}
 
+        {uploading && (
+          <div style={{ marginBottom: 16 }}>
+            <Text strong>{t('documents.uploading')}:</Text>
+            <Progress 
+              percent={uploadProgress} 
+              status={uploadError ? 'exception' : 'active'}
+              style={{ marginTop: 8 }}
+            />
+          </div>
+        )}
+
         <Form.Item>
           <Space>
             <Button 
               type="primary" 
               htmlType="submit" 
               loading={uploading}
-              disabled={fileList.length === 0}
+              disabled={fileList.length === 0 || !!uploadError}
             >
               {uploading ? t('documents.uploading') : t('documents.upload')}
             </Button>

@@ -66,10 +66,13 @@ export interface DocumentComment {
   user_id: number;
   content: string;
   created_at: string;
+  likes_count?: number;
+  is_edited?: boolean;
   user?: {
     id: number;
     name: string;
     email: string;
+    avatar?: string;
   };
 }
 
