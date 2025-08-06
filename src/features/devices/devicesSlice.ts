@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import devicesApi from './api';
-import { Device, DeviceStats, CreateDeviceRequest, UpdateDeviceRequest } from './types';
+import { Device, DeviceStats, CreateDeviceRequest, UpdateDeviceRequest, DeviceCategory, CreateDeviceCategoryRequest, UpdateDeviceCategoryRequest } from './types';
 
 export interface DevicesState {
   devices: Device[];
+  categories: DeviceCategory[];
   selectedDevice: Device | null;
   stats: DeviceStats | null;
   loading: boolean;
@@ -18,6 +19,7 @@ export interface DevicesState {
 
 const initialState: DevicesState = {
   devices: [],
+  categories: [],
   selectedDevice: null,
   stats: null,
   loading: false,
@@ -131,6 +133,71 @@ export const unassignDevice = createAsyncThunk(
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to unassign device');
+    }
+  }
+);
+
+// Device Category Async thunks
+export const fetchDeviceCategories = createAsyncThunk(
+  'devices/fetchDeviceCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await devicesApi.getCategories();
+      return response?.data?.data || [];
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch device categories');
+    }
+  }
+);
+
+export const createDeviceCategory = createAsyncThunk(
+  'devices/createDeviceCategory',
+  async (data: CreateDeviceCategoryRequest, { rejectWithValue }) => {
+    try {
+      const response = await devicesApi.createCategory(data);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create device category');
+    }
+  }
+);
+
+export const updateDeviceCategory = createAsyncThunk(
+  'devices/updateDeviceCategory',
+  async ({ id, ...data }: { id: number } & UpdateDeviceCategoryRequest, { rejectWithValue }) => {
+    try {
+      const response = await devicesApi.updateCategory(id, data);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update device category');
+    }
+  }
+);
+
+export const deleteDeviceCategory = createAsyncThunk(
+  'devices/deleteDeviceCategory',
+  async (id: number, { rejectWithValue }) => {
+    try {
+      await devicesApi.deleteCategory(id);
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete device category');
+    }
+  }
+);
+
+export const searchDeviceCategories = createAsyncThunk(
+  'devices/searchDeviceCategories',
+  async (query: string, { rejectWithValue }) => {
+    try {
+      const response = await devicesApi.getCategories();
+      const categories = response.data.data || [];
+      return categories.filter((category: DeviceCategory) => 
+        category.name.toLowerCase().includes(query.toLowerCase()) ||
+        category.code.toLowerCase().includes(query.toLowerCase())
+      );
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to search device categories');
     }
   }
 );
@@ -303,6 +370,91 @@ const devicesSlice = createSlice({
         if (state.selectedDevice?.id === action.payload.id) {
           state.selectedDevice = action.payload;
         }
+      });
+
+    // Fetch device categories
+    builder
+      .addCase(fetchDeviceCategories.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDeviceCategories.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categories = action.payload || [];
+      })
+      .addCase(fetchDeviceCategories.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Create device category
+    builder
+      .addCase(createDeviceCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createDeviceCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        if (!state.categories) {
+          state.categories = [];
+        }
+        state.categories.unshift(action.payload);
+      })
+      .addCase(createDeviceCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Update device category
+    builder
+      .addCase(updateDeviceCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDeviceCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.categories) {
+          const index = state.categories.findIndex(category => category.id === action.payload.id);
+          if (index !== -1) {
+            state.categories[index] = action.payload;
+          }
+        }
+      })
+      .addCase(updateDeviceCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Delete device category
+    builder
+      .addCase(deleteDeviceCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteDeviceCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.categories) {
+          state.categories = state.categories.filter(category => category.id !== action.payload);
+        }
+      })
+      .addCase(deleteDeviceCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Search device categories
+    builder
+      .addCase(searchDeviceCategories.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(searchDeviceCategories.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categories = action.payload || [];
+      })
+      .addCase(searchDeviceCategories.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

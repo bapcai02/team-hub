@@ -8,6 +8,8 @@ import meetingReducer from '../features/meeting/meetingSlice';
 import calendarReducer from '../features/calendar/calendarSlice';
 import documentsReducer from '../features/documents/documentsSlice';
 import devicesReducer from '../features/devices/devicesSlice';
+import attendanceReducer from '../features/attendance/attendanceSlice';
+import dashboardReducer from '../features/dashboard/dashboardSlice';
 import financeReducer from '../features/finance/financeSlice';
 
 export const store = configureStore({
@@ -19,6 +21,8 @@ export const store = configureStore({
     calendar: calendarReducer,
     documents: documentsReducer,
     devices: devicesReducer,
+    attendance: attendanceReducer,
+    dashboard: dashboardReducer,
     finance: financeReducer,
   },
 });

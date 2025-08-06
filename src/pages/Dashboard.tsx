@@ -1,426 +1,426 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Statistic, 
-  Progress, 
-  List, 
-  Avatar, 
-  Tag, 
-  Button, 
+import React, { useEffect } from 'react';
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Progress,
+  List,
+  Button,
   Space,
-  Calendar,
-  Badge,
-  Divider,
   Typography,
-  Select
+  Spin,
+  Alert
 } from 'antd';
 import {
-  TeamOutlined,
-  ProjectOutlined,
   UserOutlined,
-  ClockCircleOutlined,
-  FileTextOutlined,
+  ProjectOutlined,
   DollarOutlined,
-  TrophyOutlined,
-  CalendarOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
+  ClockCircleOutlined,
   PlusOutlined,
-  EyeOutlined
+  EyeOutlined,
+  BarChartOutlined,
+  PieChartOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAppDispatch, useAppSelector } from '../app/store';
+import { fetchDashboardData, fetchRecentActivities, clearError } from '../features/dashboard/dashboardSlice';
 import HeaderBar from '../components/HeaderBar';
 import Sidebar from '../components/Sidebar';
-import UserAvatar from '../components/UserAvatar';
-import axios from '../services/axios';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-const { Title, Text } = Typography;
+dayjs.extend(relativeTime);
 
-interface DashboardStats {
-  projects: {
-    total: number;
-    active: number;
-    completed: number;
-    overdue: number;
-  };
-  employees: {
-    total: number;
-    active: number;
-    inactive: number;
-    new_this_month: number;
-  };
-  attendance: {
-    present_today: number;
-    absent_today: number;
-    late_today: number;
-    attendance_rate: number;
-  };
-  leaves: {
-    pending: number;
-    approved: number;
-    rejected: number;
-    total_this_month: number;
-  };
-}
+const { Title } = Typography;
 
-interface RecentActivity {
-  id: number;
-  type: 'project' | 'employee' | 'attendance' | 'leave';
-  title: string;
-  description: string;
-  user_id: number;
-  created_at: string;
-}
+// Simple Chart Component
+const SimpleChart = ({ data }: any) => {
+  const { labels = [], datasets = [] } = data;
+  
+  return (
+    <div style={{ height: 200 }}>
+      <div style={{ display: 'flex', alignItems: 'end', height: 150, gap: 8 }}>
+        {labels.map((label: string, index: number) => {
+          const value = datasets[0]?.data[index] || 0;
+          const maxValue = Math.max(...(datasets[0]?.data || [1]));
+          const height = (value / maxValue) * 100;
+          const color = datasets[0]?.backgroundColor?.[index] || '#1890ff';
+          
+          return (
+            <div key={index} style={{ flex: 1, textAlign: 'center' }}>
+              <div
+                style={{
+                  height: `${height}%`,
+                  backgroundColor: color,
+                  minHeight: '20px',
+                  borderRadius: '4px 4px 0 0'
+                }}
+              />
+              <div style={{ fontSize: '12px', marginTop: '8px' }}>{label}</div>
+              <div style={{ fontSize: '10px', color: '#666' }}>{value}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [stats, setStats] = useState<DashboardStats>({
-    projects: { total: 0, active: 0, completed: 0, overdue: 0 },
-    employees: { total: 0, active: 0, inactive: 0, new_this_month: 0 },
-    attendance: { present_today: 0, absent_today: 0, late_today: 0, attendance_rate: 0 },
-    leaves: { pending: 0, approved: 0, rejected: 0, total_this_month: 0 }
-  });
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const { dashboardData, recentActivities, loading, error } = useAppSelector(state => state.dashboard);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    dispatch(fetchDashboardData());
+    dispatch(fetchRecentActivities(10));
+  }, [dispatch]);
 
-  const fetchDashboardData = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get('/dashboard');
-      if (response.data.success) {
-        setStats(response.data.data.stats);
-        setRecentActivities(response.data.data.recent_activities || []);
-      }
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (error) {
+      dispatch(clearError());
     }
-  };
+  }, [error, dispatch]);
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'project': return <ProjectOutlined />;
-      case 'employee': return <UserOutlined />;
-      case 'attendance': return <ClockCircleOutlined />;
-      case 'leave': return <FileTextOutlined />;
-      default: return <UserOutlined />;
-    }
-  };
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
-  const getActivityColor = (type: string) => {
-    switch (type) {
-      case 'project': return '#1890ff';
-      case 'employee': return '#52c41a';
-      case 'attendance': return '#faad14';
-      case 'leave': return '#722ed1';
-      default: return '#666';
-    }
-  };
+  if (error) {
+    return (
+      <div style={{ padding: '20px' }}>
+        <Alert message={t('dashboard.error')} type="error" showIcon />
+      </div>
+    );
+  }
+
+  const overview = dashboardData?.overview || {} as any;
+  const attendance = dashboardData?.attendance || {} as any;
+  const employees = dashboardData?.employees || {} as any;
+  const projects = dashboardData?.projects || {} as any;
+  const finance = dashboardData?.finance || {} as any;
+  const charts = dashboardData?.charts || {} as any;
 
   return (
-    <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
-      <HeaderBar />
-      <div style={{ display: 'flex', flex: 1 }}>
-        <Sidebar />
-        <div style={{ flex: 1, background: '#f6f8fa', overflow: 'auto', padding: '32px 0' }}>
-          <div style={{ margin: '0 auto', padding: '0 40px' }}>
-            <div style={{ marginBottom: 32 }}>
-              <Title level={2} style={{ margin: 0, color: '#222' }}>
-                Dashboard
-              </Title>
-              <Text type="secondary">
-                Chào mừng trở lại! Đây là tổng quan về hoạt động của công ty.
-              </Text>
-            </div>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <HeaderBar />
+        <div style={{ padding: '24px', backgroundColor: '#f0f2f5', flex: 1 }}>
+          <Title level={2} style={{ marginBottom: '24px' }}>
+            {t('dashboard.title')}
+          </Title>
 
-            {/* Main Statistics */}
-            <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
-              <Col span={6}>
-                <Card>
-                  <Statistic
-                    title="Dự án đang thực hiện"
-                    value={stats.projects.active}
-                    prefix={<ProjectOutlined />}
-                    valueStyle={{ color: '#1890ff' }}
-                    suffix={`/ ${stats.projects.total}`}
-                  />
-                  <Progress 
-                    percent={stats.projects.total > 0 ? Math.round((stats.projects.active / stats.projects.total) * 100) : 0} 
-                    size="small" 
-                    style={{ marginTop: 8 }}
-                  />
-                </Card>
-              </Col>
-              <Col span={6}>
-                <Card>
-                  <Statistic
-                    title="Nhân viên đang làm việc"
-                    value={stats.employees.active}
-                    prefix={<TeamOutlined />}
-                    valueStyle={{ color: '#52c41a' }}
-                    suffix={`/ ${stats.employees.total}`}
-                  />
-                  <Progress 
-                    percent={stats.employees.total > 0 ? Math.round((stats.employees.active / stats.employees.total) * 100) : 0} 
-                    size="small" 
-                    style={{ marginTop: 8 }}
-                  />
-                </Card>
-              </Col>
-              <Col span={6}>
-                <Card>
-                  <Statistic
-                    title="Chấm công hôm nay"
-                    value={stats.attendance.present_today}
-                    prefix={<ClockCircleOutlined />}
-                    valueStyle={{ color: '#faad14' }}
-                    suffix={`/ ${stats.attendance.present_today + stats.attendance.absent_today}`}
-                  />
-                  <Progress 
-                    percent={stats.attendance.attendance_rate} 
-                    size="small" 
-                    style={{ marginTop: 8 }}
-                  />
-                </Card>
-              </Col>
-              <Col span={6}>
-                <Card>
-                  <Statistic
-                    title="Đơn nghỉ phép chờ duyệt"
-                    value={stats.leaves.pending}
-                    prefix={<FileTextOutlined />}
-                    valueStyle={{ color: '#722ed1' }}
-                  />
-                  <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-                    {stats.leaves.approved} đã duyệt • {stats.leaves.rejected} từ chối
-                  </div>
-                </Card>
-              </Col>
-            </Row>
+          {/* Overview Stats */}
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col xs={24} sm={12} lg={6}>
+              <Card>
+                <Statistic
+                  title={t('dashboard.totalEmployees')}
+                  value={overview.total_employees || 0}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: '#1890ff' }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <Card>
+                <Statistic
+                  title={t('dashboard.activeProjects')}
+                  value={overview.active_projects || 0}
+                  prefix={<ProjectOutlined />}
+                  valueStyle={{ color: '#52c41a' }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <Card>
+                <Statistic
+                  title={t('dashboard.totalExpenses')}
+                  value={overview.total_expenses || 0}
+                  prefix={<DollarOutlined />}
+                  valueStyle={{ color: '#faad14' }}
+                  formatter={(value) => `$${(Number(value) / 1000000).toFixed(1)}M`}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <Card>
+                <Statistic
+                  title={t('dashboard.totalPayroll')}
+                  value={overview.total_payroll || 0}
+                  prefix={<DollarOutlined />}
+                  valueStyle={{ color: '#722ed1' }}
+                  formatter={(value) => `$${(Number(value) / 1000000).toFixed(1)}M`}
+                />
+              </Card>
+            </Col>
+          </Row>
 
-            {/* Detailed Statistics */}
-            <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
-              {/* Projects Section */}
-              <Col span={12}>
-                <Card 
-                  title={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>Dự án</span>
-                      <Button 
-                        type="link" 
-                        onClick={() => navigate('/projects')}
-                        icon={<EyeOutlined />}
-                      >
-                        Xem tất cả
-                      </Button>
-                    </div>
-                  }
-                  style={{ height: '100%' }}
-                >
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Statistic
-                        title="Hoàn thành"
-                        value={stats.projects.completed}
-                        valueStyle={{ color: '#52c41a' }}
-                        prefix={<ArrowUpOutlined />}
-                      />
-                    </Col>
-                    <Col span={12}>
-                      <Statistic
-                        title="Quá hạn"
-                        value={stats.projects.overdue}
-                        valueStyle={{ color: '#ff4d4f' }}
-                        prefix={<ArrowDownOutlined />}
-                      />
-                    </Col>
-                  </Row>
-                  <Divider />
-                  <div style={{ textAlign: 'center' }}>
-                    <Button 
-                      type="primary" 
-                      icon={<PlusOutlined />}
-                      onClick={() => navigate('/projects')}
-                    >
-                      Tạo dự án mới
-                    </Button>
-                  </div>
-                </Card>
-              </Col>
-
-              {/* HRM Section */}
-              <Col span={12}>
-                <Card 
-                  title={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>Nhân sự</span>
-                      <Button 
-                        type="link" 
-                        onClick={() => navigate('/employees')}
-                        icon={<EyeOutlined />}
-                      >
-                        Xem tất cả
-                      </Button>
-                    </div>
-                  }
-                  style={{ height: '100%' }}
-                >
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Statistic
-                        title="Nhân viên mới tháng này"
-                        value={stats.employees.new_this_month}
-                        valueStyle={{ color: '#1890ff' }}
-                        prefix={<UserOutlined />}
-                      />
-                    </Col>
-                    <Col span={12}>
-                      <Statistic
-                        title="Tỷ lệ có mặt"
-                        value={stats.attendance.attendance_rate}
-                        valueStyle={{ color: '#52c41a' }}
-                        suffix="%"
-                        prefix={<ClockCircleOutlined />}
-                      />
-                    </Col>
-                  </Row>
-                  <Divider />
+          {/* Charts Row */}
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col xs={24} lg={12}>
+              <Card 
+                title={
                   <Space>
-                    <Button 
-                      type="primary" 
-                      onClick={() => navigate('/employees')}
-                    >
-                      Quản lý nhân viên
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/attendance')}
-                    >
-                      Chấm công
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/leaves')}
-                    >
-                      Nghỉ phép
-                    </Button>
+                    <BarChartOutlined />
+                    {t('dashboard.attendanceTrend')}
                   </Space>
-                </Card>
-              </Col>
-            </Row>
+                }
+              >
+                <SimpleChart 
+                  data={charts.attendance_trend || {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                    datasets: [{
+                      label: 'Present',
+                      data: [22, 24, 23, 25, 22],
+                      backgroundColor: ['#52c41a', '#52c41a', '#52c41a', '#52c41a', '#52c41a']
+                    }]
+                  }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} lg={12}>
+              <Card 
+                title={
+                  <Space>
+                    <PieChartOutlined />
+                    {t('dashboard.departmentStats')}
+                  </Space>
+                }
+              >
+                <SimpleChart 
+                  data={charts.department_stats || {
+                    labels: ['IT', 'HR', 'Finance', 'Marketing', 'Sales'],
+                    datasets: [{
+                      label: 'Employees',
+                      data: [8, 3, 4, 5, 5],
+                      backgroundColor: ['#1890ff', '#52c41a', '#faad14', '#ff4d4f', '#722ed1']
+                    }]
+                  }}
+                />
+              </Card>
+            </Col>
+          </Row>
 
-            {/* Recent Activities & Calendar */}
-            <Row gutter={[24, 24]}>
-              <Col span={16}>
-                <Card title="Hoạt động gần đây">
-                  <List
-                    dataSource={recentActivities}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <List.Item.Meta
-                          avatar={
-                            <Avatar 
-                              style={{ 
-                                backgroundColor: getActivityColor(item.type),
-                                color: '#fff'
-                              }}
-                              icon={getActivityIcon(item.type)}
-                            />
-                          }
-                          title={item.title}
-                          description={
-                            <div>
-                              <div>{item.description}</div>
-                              <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                                {dayjs(item.created_at).format('DD/MM/YYYY HH:mm')}
-                              </div>
-                            </div>
-                          }
-                        />
-                      </List.Item>
-                    )}
-                    locale={{
-                      emptyText: 'Không có hoạt động nào gần đây'
-                    }}
-                  />
-                </Card>
-              </Col>
+          {/* More Charts Row */}
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col xs={24} lg={12}>
+              <Card 
+                title={
+                  <Space>
+                    <PieChartOutlined />
+                    {t('dashboard.expenseByCategory')}
+                  </Space>
+                }
+              >
+                <SimpleChart 
+                  data={charts.expense_by_category || {
+                    labels: ['Travel', 'Office', 'Marketing', 'Training'],
+                    datasets: [{
+                      label: 'Expenses',
+                      data: [5000000, 3000000, 4000000, 3000000],
+                      backgroundColor: ['#1890ff', '#52c41a', '#faad14', '#ff4d4f']
+                    }]
+                  }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} lg={12}>
+              <Card 
+                title={
+                  <Space>
+                    <BarChartOutlined />
+                    {t('dashboard.projectProgress')}
+                  </Space>
+                }
+              >
+                <SimpleChart 
+                  data={charts.project_progress || {
+                    labels: ['Active', 'Completed', 'Overdue'],
+                    datasets: [{
+                      label: 'Projects',
+                      data: [8, 3, 1],
+                      backgroundColor: ['#52c41a', '#faad14', '#ff4d4f']
+                    }]
+                  }}
+                />
+              </Card>
+            </Col>
+          </Row>
 
-              <Col span={8}>
-                <Card title="Lịch làm việc">
-                  <Calendar
-                    fullscreen={false}
-                    headerRender={({ value, onChange }) => {
-                      const start = 0;
-                      const current = value.month();
-                      const end = 11;
-                      const monthOptions = [];
-                      for (let i = start; i < end; i++) {
-                        monthOptions.push(
-                          <Select.Option key={i} value={i}>
-                            {dayjs().month(i).format('MMMM')}
-                          </Select.Option>
-                        );
-                      }
-                      return (
-                        <div style={{ padding: '8px' }}>
-                          <Select
-                            size="small"
-                            dropdownMatchSelectWidth={false}
-                            value={current}
-                            style={{ width: 80 }}
-                            onChange={(newMonth) => {
-                              const now = value.clone().month(newMonth);
-                              onChange(now);
-                            }}
-                          >
-                            {monthOptions}
-                          </Select>
-                        </div>
-                      );
-                    }}
-                    dateCellRender={(date) => {
-                      // Mock data for calendar events
-                      const day = date.date();
-                      if (day === 15) {
-                        return (
-                          <div style={{ height: '100%', padding: '4px 8px' }}>
-                            <Badge 
-                              status="processing" 
-                              text="Họp dự án" 
-                              style={{ fontSize: '10px' }}
-                            />
-                          </div>
-                        );
-                      }
-                      if (day === 20) {
-                        return (
-                          <div style={{ height: '100%', padding: '4px 8px' }}>
-                            <Badge 
-                              status="success" 
-                              text="Deadline" 
-                              style={{ fontSize: '10px' }}
-                            />
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                </Card>
-              </Col>
-            </Row>
-          </div>
+          {/* Attendance Stats */}
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col xs={24} lg={12}>
+              <Card title={t('dashboard.todayAttendance')}>
+                <Row gutter={16}>
+                  <Col span={8}>
+                    <Statistic
+                      title="Present"
+                      value={attendance.today?.present || 0}
+                      valueStyle={{ color: '#52c41a' }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Absent"
+                      value={attendance.today?.absent || 0}
+                      valueStyle={{ color: '#ff4d4f' }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Late"
+                      value={attendance.today?.late || 0}
+                      valueStyle={{ color: '#faad14' }}
+                    />
+                  </Col>
+                </Row>
+                <Progress 
+                  percent={attendance.today?.total ? Math.round((attendance.today.present / attendance.today.total) * 100) : 0}
+                  status="active"
+                  style={{ marginTop: '16px' }}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} lg={12}>
+              <Card title={t('dashboard.projectProgress')}>
+                <Row gutter={16}>
+                  <Col span={8}>
+                    <Statistic
+                      title="Active"
+                      value={projects.active || 0}
+                      valueStyle={{ color: '#52c41a' }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Completed"
+                      value={projects.completed || 0}
+                      valueStyle={{ color: '#1890ff' }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Overdue"
+                      value={projects.overdue || 0}
+                      valueStyle={{ color: '#ff4d4f' }}
+                    />
+                  </Col>
+                </Row>
+                <Progress 
+                  percent={projects.completion_rate || 0}
+                  status="active"
+                  style={{ marginTop: '16px' }}
+                />
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Employee Stats */}
+          <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+            <Col xs={24} lg={12}>
+              <Card title={t('dashboard.employeeStats')}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Statistic
+                      title="Total"
+                      value={employees.total || 0}
+                      valueStyle={{ color: '#1890ff' }}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title={t('dashboard.newThisMonth')}
+                      value={employees.new_this_month || 0}
+                      valueStyle={{ color: '#52c41a' }}
+                    />
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
+            <Col xs={24} lg={12}>
+              <Card title={t('dashboard.financeOverview')}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Statistic
+                      title={t('dashboard.monthlyExpenses')}
+                      value={finance.monthly_expenses || 0}
+                      valueStyle={{ color: '#faad14' }}
+                      formatter={(value) => `$${(Number(value) / 1000000).toFixed(1)}M`}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title={t('dashboard.monthlyPayroll')}
+                      value={finance.monthly_payroll || 0}
+                      valueStyle={{ color: '#722ed1' }}
+                      formatter={(value) => `$${(Number(value) / 1000000).toFixed(1)}M`}
+                    />
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Recent Activities and Quick Actions */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} lg={16}>
+              <Card 
+                title={
+                  <Space>
+                    <ClockCircleOutlined />
+                    {t('dashboard.recentActivities')}
+                  </Space>
+                }
+              >
+                <List
+                  dataSource={recentActivities || []}
+                  renderItem={(activity: any) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        avatar={<ClockCircleOutlined style={{ color: '#1890ff' }} />}
+                        title={activity.message || 'Activity'}
+                        description={dayjs(activity.timestamp).fromNow()}
+                      />
+                    </List.Item>
+                  )}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} lg={8}>
+              <Card 
+                title={
+                  <Space>
+                    <PlusOutlined />
+                    {t('dashboard.quickActions')}
+                  </Space>
+                }
+              >
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <Button type="primary" block icon={<UserOutlined />}>
+                    {t('dashboard.addEmployee')}
+                  </Button>
+                  <Button block icon={<ProjectOutlined />}>
+                    {t('dashboard.createProject')}
+                  </Button>
+                  <Button block icon={<DollarOutlined />}>
+                    {t('dashboard.addExpense')}
+                  </Button>
+                  <Button block icon={<EyeOutlined />}>
+                    {t('dashboard.viewAttendance')}
+                  </Button>
+                </Space>
+              </Card>
+            </Col>
+          </Row>
         </div>
       </div>
     </div>
   );
-}
+} 

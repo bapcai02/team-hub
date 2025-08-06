@@ -23,9 +23,9 @@ import {
   TabletOutlined,
   MobileOutlined,
   PrinterOutlined,
-  ScannerOutlined,
-  NetworkOutlined,
-  DeviceOutlined,
+  ScanOutlined,
+  WifiOutlined,
+  MonitorOutlined,
   PlusOutlined,
   SearchOutlined,
   EditOutlined,
@@ -55,6 +55,22 @@ const DeviceCategoriesPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { categories, loading, stats } = useAppSelector(state => state.devices);
+  
+  // Debug: Log what categories actually contains
+  console.log('Categories from Redux:', categories);
+  console.log('Categories type:', typeof categories);
+  console.log('Is categories array?', Array.isArray(categories));
+  
+  // Ensure categories is always an array
+  const categoriesArray = Array.isArray(categories) ? categories : [];
+  
+  // Calculate category statistics
+  const categoryStats = {
+    total_categories: categoriesArray.length,
+    active_categories: categoriesArray.filter(cat => cat.is_active).length,
+    total_devices: stats?.total_devices || 0,
+    assigned_devices: stats?.in_use_devices || 0,
+  };
   
   const [searchValue, setSearchValue] = useState('');
   const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -117,7 +133,7 @@ const DeviceCategoriesPage: React.FC = () => {
         ...values,
       };
 
-      await dispatch(updateDeviceCategory({ id: selectedCategory.id, data: categoryData })).unwrap();
+      await dispatch(updateDeviceCategory({ id: selectedCategory.id, ...categoryData })).unwrap();
       message.success(t('devices.categoryUpdated'));
       setEditModalVisible(false);
       setSelectedCategory(null);
@@ -140,7 +156,7 @@ const DeviceCategoriesPage: React.FC = () => {
     try {
       await dispatch(updateDeviceCategory({ 
         id: category.id, 
-        data: { is_active: !category.is_active } 
+        is_active: !category.is_active 
       })).unwrap();
       message.success(t('devices.statusUpdated'));
     } catch (error: any) {
@@ -155,11 +171,11 @@ const DeviceCategoriesPage: React.FC = () => {
       tablet: <TabletOutlined />,
       mobile: <MobileOutlined />,
       printer: <PrinterOutlined />,
-      scanner: <ScannerOutlined />,
-      network: <NetworkOutlined />,
-      device: <DeviceOutlined />,
+      scanner: <ScanOutlined />,
+      network: <WifiOutlined />,
+      device: <MonitorOutlined />,
     };
-    return iconMap[icon] || <DeviceOutlined />;
+    return iconMap[icon] || <MonitorOutlined />;
   };
 
   const columns = [
@@ -169,7 +185,7 @@ const DeviceCategoriesPage: React.FC = () => {
       key: 'name',
       render: (text: string, record: DeviceCategory) => (
         <Space>
-          {getCategoryIcon(record.icon)}
+          {getCategoryIcon(record.icon || 'device')}
           <div>
             <div style={{ fontWeight: 500 }}>{text}</div>
             <Text type="secondary" style={{ fontSize: 12 }}>
@@ -257,8 +273,8 @@ const DeviceCategoriesPage: React.FC = () => {
                 <Card>
                   <Statistic
                     title={t('devices.totalCategories')}
-                    value={stats?.total_categories || 0}
-                    prefix={<DeviceOutlined />}
+                    value={categoryStats.total_categories}
+                    prefix={<MonitorOutlined />}
                     valueStyle={{ color: '#1890ff' }}
                   />
                 </Card>
@@ -267,8 +283,8 @@ const DeviceCategoriesPage: React.FC = () => {
                 <Card>
                   <Statistic
                     title={t('devices.activeCategories')}
-                    value={stats?.active_categories || 0}
-                    prefix={<DeviceOutlined />}
+                    value={categoryStats.active_categories}
+                    prefix={<MonitorOutlined />}
                     valueStyle={{ color: '#52c41a' }}
                   />
                 </Card>
@@ -277,7 +293,7 @@ const DeviceCategoriesPage: React.FC = () => {
                 <Card>
                   <Statistic
                     title={t('devices.totalDevices')}
-                    value={stats?.total_devices || 0}
+                    value={categoryStats.total_devices}
                     prefix={<LaptopOutlined />}
                     valueStyle={{ color: '#faad14' }}
                   />
@@ -287,7 +303,7 @@ const DeviceCategoriesPage: React.FC = () => {
                 <Card>
                   <Statistic
                     title={t('devices.assignedDevices')}
-                    value={stats?.assigned_devices || 0}
+                    value={categoryStats.assigned_devices}
                     prefix={<LaptopOutlined />}
                     valueStyle={{ color: '#722ed1' }}
                   />
@@ -323,11 +339,11 @@ const DeviceCategoriesPage: React.FC = () => {
             <Card>
               <Table
                 columns={columns}
-                dataSource={categories || []}
+                dataSource={categoriesArray}
                 rowKey="id"
                 loading={loading}
                 pagination={{
-                  total: (categories || []).length,
+                  total: categoriesArray.length,
                   pageSize: 10,
                   showSizeChanger: true,
                   showQuickJumper: true,

@@ -52,16 +52,16 @@ const devicesApi = {
 
   // Device Categories
   getCategories: () => 
-    api.get<DeviceCategory[]>('/device-categories'),
+    api.get<{ data: DeviceCategory[] }>('/device-categories'),
 
   getCategory: (id: number) => 
-    api.get<DeviceCategory>(`/device-categories/${id}`),
+    api.get<{ data: DeviceCategory }>(`/device-categories/${id}`),
 
   createCategory: (data: CreateDeviceCategoryRequest) => 
-    api.post<DeviceCategory>('/device-categories', data),
+    api.post<{ data: DeviceCategory }>('/device-categories', data),
 
   updateCategory: (id: number, data: UpdateDeviceCategoryRequest) => 
-    api.put<DeviceCategory>(`/device-categories/${id}`, data),
+    api.put<{ data: DeviceCategory }>(`/device-categories/${id}`, data),
 
   deleteCategory: (id: number) => 
     api.delete(`/device-categories/${id}`),
