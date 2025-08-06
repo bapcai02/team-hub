@@ -42,6 +42,7 @@ import {
   ReloadOutlined,
   UploadOutlined,
   PaperClipOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons';
 import { RootState, useAppDispatch } from '../../app/store';
 import {
@@ -225,6 +226,47 @@ const ExpensePage: React.FC = () => {
   const handleRejectModal = (record: Expense) => {
     dispatch(setSelectedExpense(record));
     setRejectModalVisible(true);
+  };
+
+  // Handle export to CSV
+  const handleExportToCsv = () => {
+    try {
+      const token = localStorage.getItem('token');
+      const queryParams = new URLSearchParams(filters).toString();
+      const url = `${process.env.REACT_APP_API_URL}/api/expenses/export?${queryParams}`;
+      
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Export failed');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `expenses_report_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        message.success(t('expense.exportSuccess'));
+      })
+      .catch(error => {
+        console.error('Export error:', error);
+        message.error(t('expense.exportError'));
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      message.error(t('expense.exportError'));
+    }
   };
 
   // Table columns
@@ -443,6 +485,12 @@ const ExpensePage: React.FC = () => {
                 onClick={() => setCreateModalVisible(true)}
               >
                 {t('expense.create_expense')}
+              </Button>
+              <Button
+                icon={<DownloadOutlined />}
+                onClick={handleExportToCsv}
+              >
+                {t('expense.export_csv')}
               </Button>
               <Button
                 icon={<ReloadOutlined />}

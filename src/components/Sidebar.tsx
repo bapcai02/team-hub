@@ -16,6 +16,7 @@ import {
   BarChartOutlined,
   DollarOutlined,
   CreditCardOutlined,
+  RiseOutlined,
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,7 @@ export default function Sidebar() {
   
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: t('dashboard'), path: '/' },
+    { key: 'analytics', icon: <RiseOutlined />, label: t('analytics.title'), path: '/analytics' },
     { key: 'projects', icon: <ProjectOutlined />, label: t('projects'), path: '/projects' },
     { key: 'chat', icon: <MessageOutlined />, label: t('chat'), path: '/chat' },
     { key: 'meetings', icon: <VideoCameraOutlined />, label: 'Meetings', path: '/meetings' },

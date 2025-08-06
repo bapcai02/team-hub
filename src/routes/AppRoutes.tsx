@@ -21,6 +21,7 @@ import DeviceStatsPage from '../pages/devices/DeviceStatsPage';
 import PayrollPage from '../pages/finance/PayrollPage';
 import ExpensePage from '../pages/finance/ExpensePage';
 import SalaryComponentPage from '../pages/finance/SalaryComponentPage';
+import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import React from 'react';
 
 const useAuth = () => {
@@ -132,6 +133,13 @@ export default function AppRoutes() {
             <Route path="/finance/salary-components" element={
               <PrivateRoute>
                 <SalaryComponentPage />
+              </PrivateRoute>
+            } />
+            
+            {/* Analytics Routes */}
+            <Route path="/analytics" element={
+              <PrivateRoute>
+                <AnalyticsPage />
               </PrivateRoute>
             } />
       

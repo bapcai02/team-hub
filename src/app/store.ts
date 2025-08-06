@@ -11,6 +11,7 @@ import devicesReducer from '../features/devices/devicesSlice';
 import attendanceReducer from '../features/attendance/attendanceSlice';
 import dashboardReducer from '../features/dashboard/dashboardSlice';
 import financeReducer from '../features/finance/financeSlice';
+import analyticsReducer from '../features/analytics/analyticsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     attendance: attendanceReducer,
     dashboard: dashboardReducer,
     finance: financeReducer,
+    analytics: analyticsReducer,
   },
 });
 
