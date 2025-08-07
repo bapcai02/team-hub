@@ -29,7 +29,7 @@ export default function Sidebar() {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   
   const menuItems = [
-    { key: 'dashboard', icon: <DashboardOutlined />, label: t('dashboard'), path: '/' },
+    { key: 'dashboard', icon: <DashboardOutlined />, label: t('dashboard.title'), path: '/' },
     { key: 'analytics', icon: <RiseOutlined />, label: t('analytics.title'), path: '/analytics' },
     { key: 'projects', icon: <ProjectOutlined />, label: t('projects'), path: '/projects' },
     { key: 'chat', icon: <MessageOutlined />, label: t('chat'), path: '/chat' },
@@ -55,6 +55,7 @@ export default function Sidebar() {
         { key: 'employees', icon: <TeamOutlined />, label: 'Nhân viên', path: '/employees' },
         { key: 'attendance', icon: <ClockCircleOutlined />, label: 'Chấm công', path: '/attendance' },
         { key: 'leaves', icon: <FileTextOutlined />, label: 'Nghỉ phép', path: '/leaves' },
+        { key: 'holidays', icon: <CalendarOutlined />, label: 'Ngày nghỉ lễ', path: '/holidays' },
       ]
     },
     { 

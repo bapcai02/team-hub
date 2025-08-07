@@ -85,6 +85,8 @@ const HeaderBar: React.FC = () => {
         sessionStorage.clear();
         navigate('/login');
       }
+    } else if (e.key === 'profile') {
+      navigate('/profile');
     }
   };
   

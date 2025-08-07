@@ -13,6 +13,7 @@ import dashboardReducer from '../features/dashboard/dashboardSlice';
 import financeReducer from '../features/finance/financeSlice';
 import analyticsReducer from '../features/analytics/analyticsSlice';
 import guestReducer from '../features/guest/guestSlice';
+import holidayReducer from '../features/holiday/holidaySlice';
 
 export const store = configureStore({
   reducer: {
@@ -28,6 +29,7 @@ export const store = configureStore({
     finance: financeReducer,
     analytics: analyticsReducer,
     guest: guestReducer,
+    holiday: holidayReducer,
   },
 });
 

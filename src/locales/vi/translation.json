@@ -90,6 +90,8 @@
     "cancel": "Hủy",
     "yes": "Có",
     "no": "Không",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
     "create": "Tạo",
     "update": "Cập nhật",
     "delete": "Xóa",
@@ -834,6 +836,38 @@
         "description": "Bắt đầu bằng cách thêm khách mời đầu tiên vào hệ thống"
       },
       "visits": "Không có lần thăm nào được ghi nhận"
+    }
+  },
+  "holiday": {
+    "management": {
+      "title": "Quản lý ngày nghỉ lễ"
+    },
+    "add": "Thêm ngày nghỉ lễ",
+    "add.title": "Thêm ngày nghỉ lễ mới",
+    "edit.title": "Chỉnh sửa ngày nghỉ lễ",
+    "delete": {
+      "confirm": "Bạn có chắc chắn muốn xóa ngày nghỉ lễ này?"
+    },
+    "form": {
+      "name": "Tên ngày nghỉ lễ",
+      "date": "Ngày",
+      "type": "Loại",
+      "description": "Mô tả",
+      "is_paid": "Có lương",
+      "is_active": "Hoạt động"
+    },
+    "table": {
+      "name": "Tên",
+      "date": "Ngày",
+      "type": "Loại",
+      "description": "Mô tả",
+      "is_paid": "Có lương",
+      "status": "Trạng thái"
+    },
+    "type": {
+      "national": "Quốc gia",
+      "company": "Công ty",
+      "regional": "Địa phương"
     }
   }
 } 
