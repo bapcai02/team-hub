@@ -630,5 +630,210 @@
     "createProject": "Tạo dự án",
     "addExpense": "Thêm chi phí",
     "viewAttendance": "Xem chấm công"
+  },
+  "analytics": {
+    "title": "Phân tích & Báo cáo nâng cao",
+    "overview": "Tổng quan",
+    "employee_analytics": "Phân tích nhân viên",
+    "financial_analytics": "Phân tích tài chính",
+    "project_analytics": "Phân tích dự án",
+    "attendance_analytics": "Phân tích chấm công",
+    "trend_analysis": "Phân tích xu hướng",
+    "total_employees": "Tổng nhân viên",
+    "active_projects": "Dự án đang hoạt động",
+    "total_revenue": "Tổng doanh thu",
+    "avg_attendance": "Tỷ lệ chấm công trung bình",
+    "project_completion_rate": "Tỷ lệ hoàn thành dự án",
+    "revenue_growth": "Tăng trưởng doanh thu",
+    "performance_distribution": "Phân bố hiệu suất",
+    "productivity_trends": "Xu hướng năng suất",
+    "skill_gaps": "Khoảng trống kỹ năng",
+    "technical_skills": "Kỹ năng kỹ thuật",
+    "soft_skills": "Kỹ năng mềm",
+    "certifications": "Chứng chỉ",
+    "revenue_trends": "Xu hướng doanh thu",
+    "expense_categories": "Danh mục chi phí",
+    "profit_margins": "Tỷ suất lợi nhuận",
+    "profit_margin_description": "Tỷ lệ lợi nhuận hiện tại",
+    "cash_flow_analysis": "Phân tích dòng tiền",
+    "operating": "Hoạt động",
+    "investing": "Đầu tư",
+    "financing": "Tài chính",
+    "operating_cash_flow": "Dòng tiền hoạt động",
+    "investing_cash_flow": "Dòng tiền đầu tư",
+    "financing_cash_flow": "Dòng tiền tài chính",
+    "project_status": "Trạng thái dự án",
+    "timeline_performance": "Hiệu suất thời gian",
+    "cost_variance": "Chênh lệch chi phí",
+    "resource_utilization": "Sử dụng tài nguyên",
+    "utilization_rate": "Tỷ lệ sử dụng",
+    "overallocation": "Phân bổ quá mức",
+    "underallocation": "Phân bổ thiếu",
+    "attendance_trends": "Xu hướng chấm công",
+    "department_comparison": "So sánh phòng ban",
+    "attendance_patterns": "Mẫu chấm công",
+    "overtime_analysis": "Phân tích làm thêm giờ",
+    "total_overtime_hours": "Tổng giờ làm thêm",
+    "average_overtime_per_employee": "Giờ làm thêm trung bình/nhân viên",
+    "overtime_cost": "Chi phí làm thêm giờ",
+    "early_arrivals": "Đến sớm",
+    "on_time": "Đúng giờ",
+    "late_arrivals": "Đến muộn",
+    "employee_growth": "Tăng trưởng nhân viên",
+    "project_completion": "Hoàn thành dự án",
+    "employee_kpis": "KPI nhân viên",
+    "financial_kpis": "KPI tài chính",
+    "operational_kpis": "KPI vận hành",
+    "roi": "ROI",
+    "profit_margin": "Tỷ suất lợi nhuận",
+    "cash_flow_ratio": "Tỷ lệ dòng tiền",
+    "project_success_rate": "Tỷ lệ thành công dự án",
+    "customer_satisfaction": "Sự hài lòng khách hàng",
+    "productivity_index": "Chỉ số năng suất",
+    "employee_retention_rate": "Tỷ lệ giữ chân nhân viên",
+    "training_completion_rate": "Tỷ lệ hoàn thành đào tạo",
+    "employee_satisfaction": "Sự hài lòng nhân viên",
+    "turnover_rate": "Tỷ lệ nghỉ việc",
+    "training_completion": "Hoàn thành đào tạo",
+    "performance_average": "Hiệu suất trung bình",
+    "expense_ratio": "Tỷ lệ chi phí",
+    "on_time_delivery": "Giao hàng đúng hạn",
+    "budget_adherence": "Tuân thủ ngân sách",
+    "quality_score": "Điểm chất lượng",
+    "export_report": "Xuất báo cáo",
+    "period": {
+      "week": "Tuần",
+      "month": "Tháng",
+      "quarter": "Quý",
+      "year": "Năm"
+    },
+    "performance": {
+      "excellent": "Xuất sắc",
+      "good": "Tốt",
+      "average": "Trung bình",
+      "below_average": "Dưới trung bình"
+    },
+    "project_status": {
+      "active": "Đang hoạt động",
+      "completed": "Hoàn thành",
+      "on_hold": "Tạm dừng",
+      "cancelled": "Đã hủy"
+    },
+    "under_budget": "Dưới ngân sách",
+    "over_budget": "Vượt ngân sách",
+    "on_budget": "Đúng ngân sách",
+    "ahead_of_schedule": "Trước tiến độ",
+    "behind_schedule": "Chậm tiến độ",
+    "on_schedule": "Đúng tiến độ",
+    "high_performance": "Hiệu suất cao",
+    "medium_performance": "Hiệu suất trung bình",
+    "low_performance": "Hiệu suất thấp",
+    "total_expenses": "Tổng chi phí",
+    "attendance_rate": "Tỷ lệ chấm công",
+    "calendar": {
+      "title": "Lịch"
+    }
+  },
+  "guest": {
+    "title": "Quản lý khách mời",
+    "management": {
+      "title": "Quản lý khách mời"
+    },
+    "add": {
+      "new": "Thêm khách mời mới",
+      "title": "Thêm khách mời"
+    },
+    "edit": {
+      "title": "Chỉnh sửa khách mời",
+      "profile": "Chỉnh sửa hồ sơ"
+    },
+    "detail": {
+      "title": "Chi tiết khách mời"
+    },
+    "delete": {
+      "confirm": "Bạn có chắc chắn muốn xóa khách mời này?"
+    },
+    "search": {
+      "placeholder": "Tìm kiếm khách mời..."
+    },
+    "filter": {
+      "type": "Lọc theo loại",
+      "status": "Lọc theo trạng thái"
+    },
+    "table": {
+      "name": "Tên",
+      "company": "Công ty",
+      "type": "Loại",
+      "status": "Trạng thái",
+      "contact": "Liên hệ",
+      "last_visit": "Lần thăm cuối"
+    },
+    "form": {
+      "name": "Tên",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "company": "Công ty",
+      "position": "Chức vụ",
+      "address": "Địa chỉ",
+      "type": "Loại",
+      "status": "Trạng thái",
+      "notes": "Ghi chú",
+      "avatar_url": "URL ảnh đại diện",
+      "notes": {
+        "placeholder": "Nhập ghi chú bổ sung về khách mời này..."
+      }
+    },
+    "type": {
+      "guest": "Khách mời",
+      "partner": "Đối tác",
+      "vendor": "Nhà cung cấp",
+      "client": "Khách hàng"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động",
+      "blocked": "Bị chặn"
+    },
+    "basic": {
+      "information": "Thông tin cơ bản"
+    },
+    "company": {
+      "information": "Thông tin công ty"
+    },
+    "additional": {
+      "information": "Thông tin bổ sung"
+    },
+    "avatar": {
+      "description": "Thêm ảnh đại diện cho khách mời này"
+    },
+    "contacts": "Liên hệ",
+    "primary": {
+      "contact": "Liên hệ chính"
+    },
+    "recent": {
+      "visits": "Lần thăm gần đây"
+    },
+    "first": {
+      "visit": "Lần thăm đầu tiên"
+    },
+    "last": {
+      "visit": "Lần thăm cuối cùng"
+    },
+    "host": "Chủ nhà",
+    "visit": {
+      "status": {
+        "scheduled": "Đã lên lịch",
+        "checked_in": "Đã check-in",
+        "checked_out": "Đã check-out",
+        "cancelled": "Đã hủy"
+      }
+    },
+    "no": {
+      "guests": "Không tìm thấy khách mời",
+      "guests": {
+        "description": "Bắt đầu bằng cách thêm khách mời đầu tiên vào hệ thống"
+      },
+      "visits": "Không có lần thăm nào được ghi nhận"
+    }
   }
 } 

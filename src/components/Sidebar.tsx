@@ -17,6 +17,7 @@ import {
   DollarOutlined,
   CreditCardOutlined,
   RiseOutlined,
+  UsergroupAddOutlined,
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +36,7 @@ export default function Sidebar() {
     { key: 'meetings', icon: <VideoCameraOutlined />, label: 'Meetings', path: '/meetings' },
     { key: 'calendar', icon: <CalendarOutlined />, label: t('calendar.title'), path: '/calendar' },
     { key: 'documents', icon: <FileTextOutlined />, label: t('docs'), path: '/documents' },
+    { key: 'guests', icon: <UsergroupAddOutlined />, label: t('guest.management.title'), path: '/guests' },
     { 
       key: 'devices', 
       icon: <LaptopOutlined />, 

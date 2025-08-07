@@ -1,11 +1,13 @@
 export interface AnalyticsData {
-  overview: OverviewMetrics;
-  employee_analytics: EmployeeAnalytics;
-  financial_analytics: FinancialAnalytics;
-  project_analytics: ProjectAnalytics;
-  attendance_analytics: AttendanceAnalytics;
-  trends: TrendAnalysis;
-  kpis: KPIMetrics;
+  analytics: {
+    overview: OverviewMetrics;
+    employee_analytics: EmployeeAnalytics;
+    financial_analytics: FinancialAnalytics;
+    project_analytics: ProjectAnalytics;
+    attendance_analytics: AttendanceAnalytics;
+    trends: TrendAnalysis;
+    kpis: KPIMetrics;
+  };
 }
 
 export interface OverviewMetrics {
@@ -158,56 +160,64 @@ export interface AnalyticsFilters {
 }
 
 export interface EmployeePerformanceData {
-  employee_id: number;
-  name: string;
-  department: string;
-  attendance_rate: number;
-  total_hours: number;
-  overtime_hours: number;
+  analytics: {
+    employee_id: number;
+    name: string;
+    department: string;
+    attendance_rate: number;
+    total_hours: number;
+    overtime_hours: number;
+  };
 }
 
 export interface FinancialData {
-  expenses: {
-    total: number;
-    by_category: Record<string, number>;
-    monthly_trend: Record<string, number>;
-  };
-  payroll: {
-    total: number;
-    count: number;
-  };
-  summary: {
-    total_expenses: number;
-    total_payroll: number;
-    net_outflow: number;
+  analytics: {
+    expenses: {
+      total: number;
+      by_category: Record<string, number>;
+      monthly_trend: Record<string, number>;
+    };
+    payroll: {
+      total: number;
+      count: number;
+    };
+    summary: {
+      total_expenses: number;
+      total_payroll: number;
+      net_outflow: number;
+    };
   };
 }
 
 export interface ProjectData {
-  projects: {
-    total: number;
-    by_status: Record<string, number>;
-    monthly_trend: Record<string, number>;
-  };
-  summary: {
-    total_projects: number;
-    active_projects: number;
-    completed_projects: number;
-    delayed_projects: number;
+  analytics: {
+    projects: {
+      total: number;
+      by_status: Record<string, number>;
+      monthly_trend: Record<string, number>;
+    };
+    summary: {
+      total_projects: number;
+      active_projects: number;
+      completed_projects: number;
+      delayed_projects: number;
+    };
   };
 }
 
 export interface AttendanceData {
-  attendance: {
-    total_records: number;
-    daily_data: Record<string, DailyAttendance>;
-    by_department: Record<string, DepartmentAttendance>;
-  };
-  summary: {
-    total_days: number;
-    average_attendance_rate: number;
-    total_overtime_hours: number;
-    total_late_arrivals: number;
+  analytics: {
+    attendance: {
+      total_records: number;
+      daily_data: Record<string, DailyAttendance>;
+      by_department: Record<string, DepartmentAttendance>;
+    };
+    summary: {
+      total_days: number;
+      average_attendance_rate: number;
+      total_overtime_hours: number;
+      total_late_arrivals: number;
+    };
   };
 }
 
@@ -225,13 +235,15 @@ export interface DepartmentAttendance {
 }
 
 export interface CustomReport {
-  summary: Record<string, any>;
-  details: Record<string, any>;
-  recommendations?: Record<string, any>;
-  projections?: Record<string, any>;
-  risks?: Record<string, any>;
-  trends?: Record<string, any>;
-  categories?: Record<string, any>;
+  analytics: {
+    summary: Record<string, any>;
+    details: Record<string, any>;
+    recommendations?: Record<string, any>;
+    projections?: Record<string, any>;
+    risks?: Record<string, any>;
+    trends?: Record<string, any>;
+    categories?: Record<string, any>;
+  };
 }
 
 export interface TrendAnalysisRequest {

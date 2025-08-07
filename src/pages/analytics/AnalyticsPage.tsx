@@ -11,6 +11,7 @@ import {
   setFilters,
   clearFilters
 } from '../../features/analytics/analyticsSlice';
+import MainLayout from '../../layouts/MainLayout';
 import {
   Card,
   Row,
@@ -108,14 +109,14 @@ const AnalyticsPage: React.FC = () => {
   };
 
   const handleExport = (reportType: string) => {
-    // Implementation for export functionality
+    // Export functionality
     console.log('Exporting:', reportType);
   };
 
   const renderOverviewMetrics = () => {
-    if (!analyticsData?.overview) return null;
+    if (!analyticsData?.analytics?.overview) return null;
 
-    const { overview } = analyticsData;
+    const { overview } = analyticsData.analytics;
 
     return (
       <Row gutter={[16, 16]}>
@@ -125,7 +126,7 @@ const AnalyticsPage: React.FC = () => {
               title={t('analytics.total_employees')}
               value={overview.total_employees}
               prefix={<UserOutlined />}
-              valueStyle={{ color: '#3f8600' }}
+              valueStyle={{ color: '#1890ff' }}
             />
           </Card>
         </Col>
@@ -135,25 +136,25 @@ const AnalyticsPage: React.FC = () => {
               title={t('analytics.active_projects')}
               value={overview.active_projects}
               prefix={<ProjectOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: '#52c41a' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title={t('analytics.total_expenses')}
+              title={t('analytics.total_revenue')}
               value={overview.total_expenses}
               prefix={<DollarOutlined />}
-              precision={2}
-              valueStyle={{ color: '#cf1322' }}
+              valueStyle={{ color: '#faad14' }}
+              formatter={(value) => `$${value?.toLocaleString()}`}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title={t('analytics.attendance_rate')}
+              title={t('analytics.avg_attendance')}
               value={overview.attendance_rate}
               suffix="%"
               prefix={<ClockCircleOutlined />}
@@ -166,20 +167,20 @@ const AnalyticsPage: React.FC = () => {
   };
 
   const renderEmployeeAnalytics = () => {
-    if (!analyticsData?.employee_analytics) return null;
+    if (!analyticsData?.analytics?.employee_analytics) return null;
 
-    const { employee_analytics } = analyticsData;
+    const { employee_analytics } = analyticsData.analytics;
 
     // Prepare data for charts
     const performanceData = Object.entries(employee_analytics.performance_distribution).map(([key, value]) => ({
-      name: t(`analytics.performance.${key}`),
-      value
+      name: key,
+      value: value
     }));
 
-    const productivityData = employee_analytics.productivity_trends.labels.map((label, index) => ({
+    const productivityData = employee_analytics.productivity_trends?.labels?.map((label: string, index: number) => ({
       name: label,
-      productivity: employee_analytics.productivity_trends.data[index]
-    }));
+      productivity: employee_analytics.productivity_trends?.data?.[index] || 0
+    })) || [];
 
     return (
       <Row gutter={[16, 16]}>
@@ -192,7 +193,7 @@ const AnalyticsPage: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -224,7 +225,7 @@ const AnalyticsPage: React.FC = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} md={8}>
                 <Title level={5}>{t('analytics.technical_skills')}</Title>
-                {employee_analytics.skill_gaps.technical_skills.map((skill, index) => (
+                {employee_analytics.skill_gaps.technical_skills.map((skill: string, index: number) => (
                   <Tag key={index} color="blue" style={{ margin: '4px' }}>
                     {skill}
                   </Tag>
@@ -232,7 +233,7 @@ const AnalyticsPage: React.FC = () => {
               </Col>
               <Col xs={24} md={8}>
                 <Title level={5}>{t('analytics.soft_skills')}</Title>
-                {employee_analytics.skill_gaps.soft_skills.map((skill, index) => (
+                {employee_analytics.skill_gaps.soft_skills.map((skill: string, index: number) => (
                   <Tag key={index} color="green" style={{ margin: '4px' }}>
                     {skill}
                   </Tag>
@@ -240,7 +241,7 @@ const AnalyticsPage: React.FC = () => {
               </Col>
               <Col xs={24} md={8}>
                 <Title level={5}>{t('analytics.certifications')}</Title>
-                {employee_analytics.skill_gaps.certifications.map((cert, index) => (
+                {employee_analytics.skill_gaps.certifications.map((cert: string, index: number) => (
                   <Tag key={index} color="purple" style={{ margin: '4px' }}>
                     {cert}
                   </Tag>
@@ -254,15 +255,15 @@ const AnalyticsPage: React.FC = () => {
   };
 
   const renderFinancialAnalytics = () => {
-    if (!analyticsData?.financial_analytics) return null;
+    if (!analyticsData?.analytics?.financial_analytics) return null;
 
-    const { financial_analytics } = analyticsData;
+    const { financial_analytics } = analyticsData.analytics;
 
     // Prepare data for charts
-    const revenueData = financial_analytics.revenue_trends.labels.map((label, index) => ({
+    const revenueData = financial_analytics.revenue_trends?.labels?.map((label: string, index: number) => ({
       name: label,
-      revenue: financial_analytics.revenue_trends.data[index]
-    }));
+      revenue: financial_analytics.revenue_trends?.data?.[index] || 0
+    })) || [];
 
     const expenseData = Object.entries(financial_analytics.expense_categories).map(([key, value]) => ({
       name: key,
@@ -293,45 +294,54 @@ const AnalyticsPage: React.FC = () => {
         <Col xs={24} lg={12}>
           <Card title={t('analytics.expense_categories')}>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={expenseData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+              <PieChart>
+                <Pie
+                  data={expenseData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="amount"
+                >
+                  {expenseData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
                 <RechartsTooltip />
-                <Bar dataKey="amount" fill="#82ca9d" />
-              </BarChart>
+              </PieChart>
             </ResponsiveContainer>
           </Card>
         </Col>
-        <Col xs={24} lg={12}>
+        <Col xs={24}>
           <Card title={t('analytics.cash_flow_analysis')}>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={cashFlowData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <RechartsTooltip />
-                <Bar dataKey="value" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Card title={t('analytics.profit_margins')}>
-            <div style={{ textAlign: 'center', padding: '20px' }}>
-              <Progress
-                type="circle"
-                percent={financial_analytics.profit_margins}
-                format={(percent) => `${percent}%`}
-                strokeColor={{
-                  '0%': '#108ee9',
-                  '100%': '#87d068',
-                }}
-              />
-              <Text style={{ display: 'block', marginTop: '16px' }}>
-                {t('analytics.profit_margin_description')}
-              </Text>
-            </div>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={8}>
+                <Statistic
+                  title={t('analytics.operating_cash_flow')}
+                  value={financial_analytics.cash_flow_analysis.operating_cash_flow}
+                  prefix="$"
+                  valueStyle={{ color: '#3f8600' }}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Statistic
+                  title={t('analytics.investing_cash_flow')}
+                  value={financial_analytics.cash_flow_analysis.investing_cash_flow}
+                  prefix="$"
+                  valueStyle={{ color: '#cf1322' }}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Statistic
+                  title={t('analytics.financing_cash_flow')}
+                  value={financial_analytics.cash_flow_analysis.financing_cash_flow}
+                  prefix="$"
+                  valueStyle={{ color: '#1890ff' }}
+                />
+              </Col>
+            </Row>
           </Card>
         </Col>
       </Row>
@@ -339,14 +349,14 @@ const AnalyticsPage: React.FC = () => {
   };
 
   const renderProjectAnalytics = () => {
-    if (!analyticsData?.project_analytics) return null;
+    if (!analyticsData?.analytics?.project_analytics) return null;
 
-    const { project_analytics } = analyticsData;
+    const { project_analytics } = analyticsData.analytics;
 
     // Prepare data for charts
     const statusData = Object.entries(project_analytics.project_status_distribution).map(([key, value]) => ({
-      name: t(`analytics.project_status.${key}`),
-      value
+      name: key,
+      value: value
     }));
 
     const timelineData = [
@@ -364,7 +374,7 @@ const AnalyticsPage: React.FC = () => {
     return (
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={8}>
-          <Card title={t('analytics.project_status_distribution')}>
+          <Card title={t('analytics.project_status')}>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -372,7 +382,7 @@ const AnalyticsPage: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -447,15 +457,15 @@ const AnalyticsPage: React.FC = () => {
   };
 
   const renderAttendanceAnalytics = () => {
-    if (!analyticsData?.attendance_analytics) return null;
+    if (!analyticsData?.analytics?.attendance_analytics) return null;
 
-    const { attendance_analytics } = analyticsData;
+    const { attendance_analytics } = analyticsData.analytics;
 
     // Prepare data for charts
-    const attendanceData = attendance_analytics.attendance_trends.labels.map((label, index) => ({
+    const attendanceData = attendance_analytics.attendance_trends?.labels?.map((label: string, index: number) => ({
       name: label,
-      rate: attendance_analytics.attendance_trends.data[index]
-    }));
+      rate: attendance_analytics.attendance_trends?.data?.[index] || 0
+    })) || [];
 
     const departmentData = Object.entries(attendance_analytics.department_comparison).map(([key, value]) => ({
       name: key,
@@ -484,19 +494,6 @@ const AnalyticsPage: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title={t('analytics.department_comparison')}>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={departmentData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <RechartsTooltip />
-                <Bar dataKey="rate" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-        <Col xs={24} lg={12}>
           <Card title={t('analytics.attendance_patterns')}>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -505,7 +502,7 @@ const AnalyticsPage: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -552,19 +549,19 @@ const AnalyticsPage: React.FC = () => {
   };
 
   const renderTrendAnalysis = () => {
-    if (!analyticsData?.trends) return null;
+    if (!analyticsData?.analytics?.trends) return null;
 
-    const { trends } = analyticsData;
+    const { trends } = analyticsData.analytics;
 
     return (
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={12}>
           <Card title={t('analytics.employee_growth')}>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trends.employee_growth.labels.map((label, index) => ({
+              <LineChart data={trends.employee_growth?.labels?.map((label: string, index: number) => ({
                 name: label,
-                growth: trends.employee_growth.data[index]
-              }))}>
+                growth: trends.employee_growth?.data?.[index] || 0
+              })) || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -577,10 +574,10 @@ const AnalyticsPage: React.FC = () => {
         <Col xs={24} lg={12}>
           <Card title={t('analytics.revenue_growth')}>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={trends.revenue_growth.labels.map((label, index) => ({
+              <AreaChart data={trends.revenue_growth?.labels?.map((label: string, index: number) => ({
                 name: label,
-                revenue: trends.revenue_growth.data[index]
-              }))}>
+                revenue: trends.revenue_growth?.data?.[index] || 0
+              })) || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -593,10 +590,10 @@ const AnalyticsPage: React.FC = () => {
         <Col xs={24}>
           <Card title={t('analytics.project_completion')}>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={trends.project_completion.labels.map((label, index) => ({
+              <BarChart data={trends.project_completion?.labels?.map((label: string, index: number) => ({
                 name: label,
-                completed: trends.project_completion.data[index]
-              }))}>
+                completed: trends.project_completion?.data?.[index] || 0
+              })) || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -611,75 +608,80 @@ const AnalyticsPage: React.FC = () => {
   };
 
   const renderKPIMetrics = () => {
-    if (!kpiMetrics) return null;
+    if (!analyticsData?.analytics?.kpis) return null;
+
+    const { kpis } = analyticsData.analytics;
 
     return (
       <Row gutter={[16, 16]}>
-        <Col xs={24} lg={6}>
-          <Card title={t('analytics.employee_kpis')}>
-            <Statistic
-              title={t('analytics.employee_satisfaction')}
-              value={kpiMetrics.employee_kpis?.employee_satisfaction}
-              suffix="%"
-              valueStyle={{ color: '#3f8600' }}
-            />
-            <Divider />
-            <Statistic
-              title={t('analytics.turnover_rate')}
-              value={kpiMetrics.employee_kpis?.turnover_rate}
-              suffix="%"
-              valueStyle={{ color: '#cf1322' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} lg={6}>
+        <Col xs={24} lg={8}>
           <Card title={t('analytics.financial_kpis')}>
             <Statistic
-              title={t('analytics.revenue_growth')}
-              value={kpiMetrics.financial_kpis?.revenue_growth}
+              title={t('analytics.roi')}
+              value={kpis.financial_kpis?.revenue_growth}
               suffix="%"
               valueStyle={{ color: '#3f8600' }}
             />
             <Divider />
             <Statistic
               title={t('analytics.profit_margin')}
-              value={kpiMetrics.financial_kpis?.profit_margin}
+              value={kpis.financial_kpis?.profit_margin}
               suffix="%"
               valueStyle={{ color: '#1890ff' }}
             />
-          </Card>
-        </Col>
-        <Col xs={24} lg={6}>
-          <Card title={t('analytics.project_kpis')}>
-            <Statistic
-              title={t('analytics.project_completion_rate')}
-              value={kpiMetrics.project_kpis?.project_completion_rate}
-              suffix="%"
-              valueStyle={{ color: '#3f8600' }}
-            />
             <Divider />
             <Statistic
-              title={t('analytics.on_time_delivery')}
-              value={kpiMetrics.project_kpis?.on_time_delivery}
-              suffix="%"
+              title={t('analytics.cash_flow_ratio')}
+              value={kpis.financial_kpis?.cash_flow_ratio}
               valueStyle={{ color: '#722ed1' }}
             />
           </Card>
         </Col>
-        <Col xs={24} lg={6}>
+        <Col xs={24} lg={8}>
           <Card title={t('analytics.operational_kpis')}>
             <Statistic
-              title={t('analytics.attendance_rate')}
-              value={kpiMetrics.operational_kpis?.attendance_rate}
+              title={t('analytics.project_success_rate')}
+              value={kpis.operational_kpis?.productivity_index}
+              suffix="%"
+              valueStyle={{ color: '#52c41a' }}
+            />
+            <Divider />
+            <Statistic
+              title={t('analytics.customer_satisfaction')}
+              value={kpis.operational_kpis?.quality_score}
+              suffix="%"
+              valueStyle={{ color: '#faad14' }}
+            />
+            <Divider />
+            <Statistic
+              title={t('analytics.productivity_index')}
+              value={kpis.operational_kpis?.productivity_index}
+              suffix="%"
+              valueStyle={{ color: '#1890ff' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} lg={8}>
+          <Card title={t('analytics.employee_kpis')}>
+            <Statistic
+              title={t('analytics.employee_retention_rate')}
+              value={kpis.employee_kpis?.employee_satisfaction}
               suffix="%"
               valueStyle={{ color: '#3f8600' }}
             />
             <Divider />
             <Statistic
-              title={t('analytics.productivity_index')}
-              value={kpiMetrics.operational_kpis?.productivity_index}
+              title={t('analytics.training_completion_rate')}
+              value={kpis.employee_kpis?.training_completion}
               suffix="%"
               valueStyle={{ color: '#1890ff' }}
+            />
+            <Divider />
+            <Statistic
+              title={t('analytics.employee_satisfaction')}
+              value={kpis.employee_kpis?.employee_satisfaction}
+              suffix="%"
+              valueStyle={{ color: '#722ed1' }}
             />
           </Card>
         </Col>
@@ -689,86 +691,96 @@ const AnalyticsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <Spin size="large" />
-        <div style={{ marginTop: '16px' }}>{t('common.loading')}</div>
-      </div>
+      <MainLayout>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: '16px' }}>{t('common.loading')}</div>
+        </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <Title level={2}>
-          <RiseOutlined style={{ marginRight: '8px' }} />
-          {t('analytics.title')}
-        </Title>
-        
-        <Space style={{ marginBottom: '16px' }}>
-          <Select
-            value={period}
-            onChange={setPeriod}
-            style={{ width: 120 }}
-            options={[
-              { label: t('analytics.period.week'), value: 'week' },
-              { label: t('analytics.period.month'), value: 'month' },
-              { label: t('analytics.period.quarter'), value: 'quarter' },
-              { label: t('analytics.period.year'), value: 'year' }
-            ]}
+    <MainLayout>
+      <div style={{ padding: '24px' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <Title level={2}>
+            <RiseOutlined style={{ marginRight: '8px' }} />
+            {t('analytics.title')}
+          </Title>
+          
+          <Space style={{ marginBottom: '16px' }}>
+            <Select
+              value={period}
+              onChange={setPeriod}
+              style={{ width: 120 }}
+              options={[
+                { label: t('analytics.period.week'), value: 'week' },
+                { label: t('analytics.period.month'), value: 'month' },
+                { label: t('analytics.period.quarter'), value: 'quarter' },
+                { label: t('analytics.period.year'), value: 'year' }
+              ]}
+            />
+            <RangePicker
+              value={dateRange}
+              onChange={(dates) => {
+                if (dates && dates[0] && dates[1]) {
+                  setDateRange([dates[0], dates[1]]);
+                } else {
+                  setDateRange(null);
+                }
+              }}
+              style={{ width: 240 }}
+            />
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={loadAnalytics}
+              loading={loading}
+            >
+              {t('common.refresh')}
+            </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={() => handleExport('comprehensive')}
+            >
+              {t('analytics.export_report')}
+            </Button>
+          </Space>
+        </div>
+
+        {error && (
+          <Alert
+            message={t('common.error')}
+            description={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: '16px' }}
           />
-          <RangePicker
-            value={dateRange}
-            onChange={setDateRange}
-            style={{ width: 240 }}
-          />
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={loadAnalytics}
-            loading={loading}
-          >
-            {t('common.refresh')}
-          </Button>
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={() => handleExport('comprehensive')}
-          >
-            {t('analytics.export_report')}
-          </Button>
-        </Space>
+        )}
+
+        <Tabs activeKey={activeTab} onChange={setActiveTab}>
+          <TabPane tab={t('analytics.overview')} key="overview">
+            {renderOverviewMetrics()}
+            {renderKPIMetrics()}
+          </TabPane>
+          <TabPane tab={t('analytics.employee_analytics')} key="employee">
+            {renderEmployeeAnalytics()}
+          </TabPane>
+          <TabPane tab={t('analytics.financial_analytics')} key="financial">
+            {renderFinancialAnalytics()}
+          </TabPane>
+          <TabPane tab={t('analytics.project_analytics')} key="project">
+            {renderProjectAnalytics()}
+          </TabPane>
+          <TabPane tab={t('analytics.attendance_analytics')} key="attendance">
+            {renderAttendanceAnalytics()}
+          </TabPane>
+          <TabPane tab={t('analytics.trend_analysis')} key="trends">
+            {renderTrendAnalysis()}
+          </TabPane>
+        </Tabs>
       </div>
-
-      {error && (
-        <Alert
-          message={t('common.error')}
-          description={error}
-          type="error"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
-      )}
-
-      <Tabs activeKey={activeTab} onChange={setActiveTab}>
-        <TabPane tab={t('analytics.overview')} key="overview">
-          {renderOverviewMetrics()}
-          {renderKPIMetrics()}
-        </TabPane>
-        <TabPane tab={t('analytics.employee_analytics')} key="employee">
-          {renderEmployeeAnalytics()}
-        </TabPane>
-        <TabPane tab={t('analytics.financial_analytics')} key="financial">
-          {renderFinancialAnalytics()}
-        </TabPane>
-        <TabPane tab={t('analytics.project_analytics')} key="project">
-          {renderProjectAnalytics()}
-        </TabPane>
-        <TabPane tab={t('analytics.attendance_analytics')} key="attendance">
-          {renderAttendanceAnalytics()}
-        </TabPane>
-        <TabPane tab={t('analytics.trend_analysis')} key="trends">
-          {renderTrendAnalysis()}
-        </TabPane>
-      </Tabs>
-    </div>
+    </MainLayout>
   );
 };
 

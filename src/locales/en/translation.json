@@ -98,6 +98,9 @@
     "refresh": "Refresh",
     "all": "All",
     "notes": "Notes",
+    "clear": {
+      "filters": "Clear Filters"
+    },
     "description": "Description",
     "no_description": "No description",
     "dashboard": "Dashboard"
@@ -641,8 +644,8 @@
     "trend_analysis": "Trend Analysis",
     "total_employees": "Total Employees",
     "active_projects": "Active Projects",
-    "total_expenses": "Total Expenses",
-    "attendance_rate": "Attendance Rate",
+    "total_revenue": "Total Revenue",
+    "avg_attendance": "Average Attendance",
     "project_completion_rate": "Project Completion Rate",
     "revenue_growth": "Revenue Growth",
     "performance_distribution": "Performance Distribution",
@@ -659,7 +662,10 @@
     "operating": "Operating",
     "investing": "Investing",
     "financing": "Financing",
-    "project_status_distribution": "Project Status Distribution",
+    "operating_cash_flow": "Operating Cash Flow",
+    "investing_cash_flow": "Investing Cash Flow",
+    "financing_cash_flow": "Financing Cash Flow",
+    "project_status": "Project Status",
     "timeline_performance": "Timeline Performance",
     "cost_variance": "Cost Variance",
     "resource_utilization": "Resource Utilization",
@@ -680,15 +686,20 @@
     "project_completion": "Project Completion",
     "employee_kpis": "Employee KPIs",
     "financial_kpis": "Financial KPIs",
-    "project_kpis": "Project KPIs",
     "operational_kpis": "Operational KPIs",
+    "roi": "ROI",
+    "profit_margin": "Profit Margin",
+    "cash_flow_ratio": "Cash Flow Ratio",
+    "project_success_rate": "Project Success Rate",
+    "customer_satisfaction": "Customer Satisfaction",
+    "productivity_index": "Productivity Index",
+    "employee_retention_rate": "Employee Retention Rate",
+    "training_completion_rate": "Training Completion Rate",
     "employee_satisfaction": "Employee Satisfaction",
     "turnover_rate": "Turnover Rate",
     "training_completion": "Training Completion",
     "performance_average": "Performance Average",
-    "profit_margin": "Profit Margin",
     "expense_ratio": "Expense Ratio",
-    "cash_flow_ratio": "Cash Flow Ratio",
     "project_completion_rate": "Project Completion Rate",
     "on_time_delivery": "On-Time Delivery",
     "budget_adherence": "Budget Adherence",
@@ -720,5 +731,109 @@
     "over_budget": "Over Budget",
     "ahead_of_schedule": "Ahead of Schedule",
     "delayed": "Delayed"
+  },
+  "calendar": {
+    "title": "Calendar"
+  },
+  "guest": {
+    "management": {
+      "title": "Guest Management"
+    },
+    "add": {
+      "new": "Add New Guest",
+      "title": "Add Guest"
+    },
+    "edit": {
+      "title": "Edit Guest",
+      "profile": "Edit Profile"
+    },
+    "detail": {
+      "title": "Guest Details"
+    },
+    "delete": {
+      "confirm": "Are you sure you want to delete this guest?"
+    },
+    "search": {
+      "placeholder": "Search guests..."
+    },
+    "filter": {
+      "type": "Filter by Type",
+      "status": "Filter by Status"
+    },
+    "table": {
+      "name": "Name",
+      "company": "Company",
+      "type": "Type",
+      "status": "Status",
+      "contact": "Contact",
+      "last_visit": "Last Visit"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "position": "Position",
+      "address": "Address",
+      "type": "Type",
+      "status": "Status",
+      "notes": "Notes",
+      "avatar_url": "Avatar URL",
+      "notes": {
+        "placeholder": "Enter additional notes about this guest..."
+      }
+    },
+    "type": {
+      "guest": "Guest",
+      "partner": "Partner",
+      "vendor": "Vendor",
+      "client": "Client"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "blocked": "Blocked"
+    },
+    "basic": {
+      "information": "Basic Information"
+    },
+    "company": {
+      "information": "Company Information"
+    },
+    "additional": {
+      "information": "Additional Information"
+    },
+    "avatar": {
+      "description": "Add a profile picture for this guest"
+    },
+    "contacts": "Contacts",
+    "primary": {
+      "contact": "Primary Contact"
+    },
+    "recent": {
+      "visits": "Recent Visits"
+    },
+    "first": {
+      "visit": "First Visit"
+    },
+    "last": {
+      "visit": "Last Visit"
+    },
+    "host": "Host",
+    "visit": {
+      "status": {
+        "scheduled": "Scheduled",
+        "checked_in": "Checked In",
+        "checked_out": "Checked Out",
+        "cancelled": "Cancelled"
+      }
+    },
+    "no": {
+      "guests": "No guests found",
+      "guests": {
+        "description": "Start by adding your first guest to the system"
+      },
+      "visits": "No visits recorded"
+    }
   }
 } 

@@ -12,6 +12,7 @@ import attendanceReducer from '../features/attendance/attendanceSlice';
 import dashboardReducer from '../features/dashboard/dashboardSlice';
 import financeReducer from '../features/finance/financeSlice';
 import analyticsReducer from '../features/analytics/analyticsSlice';
+import guestReducer from '../features/guest/guestSlice';
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     dashboard: dashboardReducer,
     finance: financeReducer,
     analytics: analyticsReducer,
+    guest: guestReducer,
   },
 });
 

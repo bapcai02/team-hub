@@ -1,29 +1,23 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { analyticsApi } from './api';
 import {
-  AnalyticsData,
   AnalyticsFilters,
-  EmployeePerformanceData,
-  FinancialData,
-  ProjectData,
-  AttendanceData,
-  CustomReport,
   TrendAnalysisRequest,
   ExportRequest
 } from './types';
 
 export interface AnalyticsState {
-  analyticsData: AnalyticsData | null;
-  employeeAnalytics: EmployeePerformanceData | null;
-  financialAnalytics: FinancialData | null;
-  projectAnalytics: ProjectData | null;
-  attendanceAnalytics: AttendanceData | null;
+  analyticsData: any | null;
+  employeeAnalytics: any | null;
+  financialAnalytics: any | null;
+  projectAnalytics: any | null;
+  attendanceAnalytics: any | null;
   kpiMetrics: any;
   trendAnalysis: any;
-  customReport: CustomReport | null;
+  customReport: any | null;
   loading: boolean;
   error: string | null;
-  filters: AnalyticsFilters;
+  filters: any;
 }
 
 const initialState: AnalyticsState = {
@@ -45,7 +39,7 @@ export const fetchAnalytics = createAsyncThunk(
   'analytics/fetchAnalytics',
   async (filters: AnalyticsFilters = {}, { rejectWithValue }) => {
     try {
-      const response = await analyticsApi.getAnalytics(filters);
+      const response = await analyticsApi.getAnalytics(filters);      
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch analytics');
@@ -106,7 +100,7 @@ export const fetchKPIMetrics = createAsyncThunk(
   async (period: string = 'month', { rejectWithValue }) => {
     try {
       const response = await analyticsApi.getKPIMetrics(period);
-      return response.data.data;
+      return response.data.data.kpis;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch KPI metrics');
     }
@@ -197,7 +191,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchEmployeeAnalytics.fulfilled, (state, action) => {
         state.loading = false;
-        state.employeeAnalytics = action.payload;
+        state.employeeAnalytics = action.payload.analytics;
       })
       .addCase(fetchEmployeeAnalytics.rejected, (state, action) => {
         state.loading = false;
@@ -212,7 +206,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchFinancialAnalytics.fulfilled, (state, action) => {
         state.loading = false;
-        state.financialAnalytics = action.payload;
+        state.financialAnalytics = action.payload.analytics;
       })
       .addCase(fetchFinancialAnalytics.rejected, (state, action) => {
         state.loading = false;
@@ -227,7 +221,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchProjectAnalytics.fulfilled, (state, action) => {
         state.loading = false;
-        state.projectAnalytics = action.payload;
+        state.projectAnalytics = action.payload.analytics;
       })
       .addCase(fetchProjectAnalytics.rejected, (state, action) => {
         state.loading = false;
@@ -242,7 +236,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchAttendanceAnalytics.fulfilled, (state, action) => {
         state.loading = false;
-        state.attendanceAnalytics = action.payload;
+        state.attendanceAnalytics = action.payload.analytics;
       })
       .addCase(fetchAttendanceAnalytics.rejected, (state, action) => {
         state.loading = false;
@@ -257,7 +251,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchKPIMetrics.fulfilled, (state, action) => {
         state.loading = false;
-        state.kpiMetrics = action.payload;
+        state.kpiMetrics = action.payload.kpis;
       })
       .addCase(fetchKPIMetrics.rejected, (state, action) => {
         state.loading = false;
@@ -272,7 +266,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchTrendAnalysis.fulfilled, (state, action) => {
         state.loading = false;
-        state.trendAnalysis = action.payload;
+        state.trendAnalysis = action.payload.analytics;
       })
       .addCase(fetchTrendAnalysis.rejected, (state, action) => {
         state.loading = false;
@@ -287,7 +281,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchCustomReport.fulfilled, (state, action) => {
         state.loading = false;
-        state.customReport = action.payload;
+        state.customReport = action.payload.analytics;
       })
       .addCase(fetchCustomReport.rejected, (state, action) => {
         state.loading = false;

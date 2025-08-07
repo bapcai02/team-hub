@@ -22,6 +22,7 @@ import PayrollPage from '../pages/finance/PayrollPage';
 import ExpensePage from '../pages/finance/ExpensePage';
 import SalaryComponentPage from '../pages/finance/SalaryComponentPage';
 import AnalyticsPage from '../pages/analytics/AnalyticsPage';
+import GuestManagement from '../pages/guest/GuestManagement';
 import React from 'react';
 
 const useAuth = () => {
@@ -162,6 +163,13 @@ export default function AppRoutes() {
       <Route path="/leaves" element={
         <PrivateRoute>
           <LeaveList />
+        </PrivateRoute>
+      } />
+      
+      {/* Guest Management Routes */}
+      <Route path="/guests" element={
+        <PrivateRoute>
+          <GuestManagement />
         </PrivateRoute>
       } />
       
