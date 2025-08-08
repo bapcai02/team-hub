@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Avatar, Dropdown, Menu, Badge, Tooltip, Typography } from 'antd';
+import { Layout, Avatar, Dropdown, Menu, Badge, Tooltip, Typography, Button } from 'antd';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -8,6 +8,7 @@ import {
   CheckSquareOutlined,
   MessageOutlined,
   ProjectOutlined,
+  BulbFilled,
 } from '@ant-design/icons';
 import { List } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -16,6 +17,8 @@ import { logout as apiLogout } from '../features/auth';
 import { message } from 'antd';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
+import GlobalSearch from './GlobalSearch';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { Header } = Layout;
 
@@ -60,6 +63,7 @@ const HeaderBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const { isDarkMode, toggleTheme } = useTheme();
   
   const user = {
     name: 'Nguyễn Văn A',
@@ -160,6 +164,7 @@ const HeaderBar: React.FC = () => {
 
       {/* Right side icons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <GlobalSearch />
         <Tooltip title="Task của bạn">
           <Badge count={myTaskCount} size="small">
             <CheckSquareOutlined style={{ fontSize: 22, color: '#4B48E5', cursor: 'pointer' }} />
@@ -182,8 +187,19 @@ const HeaderBar: React.FC = () => {
             </Badge>
           </span>
         </Dropdown>
-        <Tooltip title="Chuyển chế độ sáng/tối">
-          <BulbOutlined style={{ fontSize: 22, color: '#4B48E5', cursor: 'pointer' }} />
+        <Tooltip title={isDarkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}>
+          <Button
+            type="text"
+            icon={isDarkMode ? <BulbOutlined /> : <BulbFilled />}
+            onClick={toggleTheme}
+            style={{ 
+              fontSize: 22, 
+              color: '#4B48E5', 
+              border: 'none',
+              padding: '4px 8px',
+              height: 'auto'
+            }}
+          />
         </Tooltip>
         <Dropdown overlay={menu} placement="bottomRight" trigger={['click']}>
           <Avatar

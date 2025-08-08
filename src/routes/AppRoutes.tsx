@@ -25,6 +25,7 @@ import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import GuestManagement from '../pages/guest/GuestManagement';
 import HolidayManagement from '../pages/holiday/HolidayManagement';
 import ProfilePage from '../pages/profile/ProfilePage';
+import RBACManagement from '../pages/rbac/RBACManagement';
 import React from 'react';
 
 const useAuth = () => {
@@ -185,6 +186,13 @@ export default function AppRoutes() {
       <Route path="/profile" element={
         <PrivateRoute>
           <ProfilePage />
+        </PrivateRoute>
+      } />
+      
+      {/* RBAC Routes */}
+      <Route path="/rbac" element={
+        <PrivateRoute>
+          <RBACManagement />
         </PrivateRoute>
       } />
       

@@ -1,16 +1,43 @@
 import { Layout } from 'antd';
 import Sidebar from '../components/Sidebar';
 import HeaderBar from '../components/HeaderBar';
+import { useTheme } from '../contexts/ThemeContext';
+
+const { Content } = Layout;
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme();
+  
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout 
+      style={{ 
+        minHeight: '100vh',
+        background: theme === 'dark' ? '#141414' : '#F3F4F6'
+      }}
+    >
       <Sidebar />
       <Layout>
         <HeaderBar />
-        <Layout.Content style={{ padding: 24, background: '#F3F4F6' }}>
-          {children}
-        </Layout.Content>
+        <Content 
+          style={{ 
+            padding: '24px',
+            background: theme === 'dark' ? '#141414' : '#F3F4F6',
+            transition: 'background-color 0.3s',
+            overflow: 'auto'
+          }}
+          role="main"
+          aria-label="Main content"
+        >
+          <div 
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              minHeight: 'calc(100vh - 120px)'
+            }}
+          >
+            {children}
+          </div>
+        </Content>
       </Layout>
     </Layout>
   );

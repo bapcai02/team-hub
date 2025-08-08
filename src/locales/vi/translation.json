@@ -869,5 +869,159 @@
       "company": "Công ty",
       "regional": "Địa phương"
     }
+  },
+  "search": {
+    "placeholder": "Tìm kiếm dự án, nhân viên, tài liệu...",
+    "no_results": "Không tìm thấy kết quả",
+    "searching": "Đang tìm kiếm...",
+    "type": {
+      "project": "Dự án",
+      "employee": "Nhân viên",
+      "document": "Tài liệu",
+      "task": "Công việc",
+      "meeting": "Cuộc họp"
+    }
+  },
+  "theme": {
+    "light": "Chế độ sáng",
+    "dark": "Chế độ tối",
+    "toggle": "Chuyển đổi giao diện"
+  },
+  "accessibility": {
+    "skip_to_content": "Chuyển đến nội dung chính",
+    "menu": "Menu điều hướng chính",
+    "search": "Chức năng tìm kiếm",
+    "notifications": "Thông báo"
+  },
+  "rbac": {
+    "title": "Kiểm soát truy cập",
+    "management": {
+      "title": "Kiểm soát truy cập dựa trên vai trò",
+      "description": "Quản lý vai trò, quyền hạn và kiểm soát truy cập cho hệ thống"
+    },
+    "tabs": {
+      "roles": "Vai trò",
+      "permissions": "Quyền hạn",
+      "user_assignment": "Gán người dùng",
+      "audit_logs": "Nhật ký kiểm toán"
+    },
+    "roles": {
+      "title": "Quản lý vai trò",
+      "description": "Tạo và quản lý vai trò người dùng với quyền hạn cụ thể",
+      "create": "Tạo vai trò",
+      "create_title": "Tạo vai trò mới",
+      "edit_title": "Chỉnh sửa vai trò",
+      "basic_info": "Thông tin cơ bản",
+      "permissions": "Quyền hạn",
+      "permissions_description": "Chọn quyền hạn mà vai trò này nên có",
+      "create_success": "Tạo vai trò thành công",
+      "update_success": "Cập nhật vai trò thành công",
+      "delete_success": "Xóa vai trò thành công",
+      "create_error": "Không thể tạo vai trò",
+      "update_error": "Không thể cập nhật vai trò",
+      "delete_error": "Không thể xóa vai trò",
+      "delete_confirm": "Bạn có chắc muốn xóa vai trò này?",
+      "form": {
+        "name": "Tên vai trò",
+        "name_required": "Tên vai trò là bắt buộc",
+        "name_max": "Tên vai trò không được vượt quá 255 ký tự",
+        "name_placeholder": "Nhập tên vai trò",
+        "description": "Mô tả",
+        "description_placeholder": "Nhập mô tả vai trò",
+        "status": "Trạng thái",
+        "active": "Hoạt động"
+      },
+      "table": {
+        "name": "Tên",
+        "description": "Mô tả",
+        "permissions": "Quyền hạn",
+        "status": "Trạng thái",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "view": "Xem chi tiết",
+        "edit": "Chỉnh sửa vai trò",
+        "delete": "Xóa vai trò"
+      }
+    },
+    "permissions": {
+      "title": "Quản lý quyền hạn",
+      "description": "Quản lý quyền hạn hệ thống được tổ chức theo module",
+      "create": "Tạo quyền hạn",
+      "create_title": "Tạo quyền hạn mới",
+      "edit_title": "Chỉnh sửa quyền hạn",
+      "basic_info": "Thông tin cơ bản",
+      "create_success": "Tạo quyền hạn thành công",
+      "update_success": "Cập nhật quyền hạn thành công",
+      "delete_success": "Xóa quyền hạn thành công",
+      "create_error": "Không thể tạo quyền hạn",
+      "update_error": "Không thể cập nhật quyền hạn",
+      "delete_error": "Không thể xóa quyền hạn",
+      "delete_confirm": "Bạn có chắc muốn xóa quyền hạn này?",
+      "form": {
+        "name": "Tên quyền hạn",
+        "name_required": "Tên quyền hạn là bắt buộc",
+        "name_max": "Tên quyền hạn không được vượt quá 255 ký tự",
+        "name_placeholder": "Nhập tên quyền hạn",
+        "description": "Mô tả",
+        "description_placeholder": "Nhập mô tả quyền hạn",
+        "module": "Module",
+        "module_required": "Module là bắt buộc",
+        "module_placeholder": "Chọn module",
+        "status": "Trạng thái",
+        "active": "Hoạt động"
+      },
+      "table": {
+        "name": "Tên",
+        "description": "Mô tả",
+        "module": "Module",
+        "status": "Trạng thái",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "view": "Xem chi tiết",
+        "edit": "Chỉnh sửa quyền hạn",
+        "delete": "Xóa quyền hạn"
+      }
+    },
+    "user_assignment": {
+      "title": "Gán vai trò cho người dùng",
+      "description": "Gán vai trò cho người dùng để kiểm soát quyền truy cập",
+      "success": "Gán vai trò thành công",
+      "error": "Không thể gán vai trò",
+      "table": {
+        "user": "Người dùng",
+        "roles": "Vai trò hiện tại",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa vai trò",
+        "edit_roles": "Chỉnh sửa vai trò"
+      },
+      "modal": {
+        "title": "Gán vai trò cho người dùng",
+        "select_roles": "Chọn vai trò",
+        "placeholder": "Chọn vai trò để gán",
+        "current_roles": "Vai trò hiện tại:"
+      }
+    },
+    "audit_logs": {
+      "title": "Nhật ký kiểm toán",
+      "description": "Theo dõi tất cả hoạt động hệ thống và sự kiện bảo mật",
+      "table": {
+        "timestamp": "Thời gian",
+        "user": "Người dùng",
+        "action": "Hành động",
+        "target": "Đối tượng",
+        "details": "Chi tiết",
+        "ip": "Địa chỉ IP"
+      },
+      "filters": {
+        "action": "Hành động",
+        "table": "Bảng",
+        "start_date": "Ngày bắt đầu",
+        "end_date": "Ngày kết thúc"
+      }
+    }
   }
 } 

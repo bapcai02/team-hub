@@ -18,6 +18,7 @@ import {
   CreditCardOutlined,
   RiseOutlined,
   UsergroupAddOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -69,6 +70,7 @@ export default function Sidebar() {
       ]
     },
     { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
+    { key: 'rbac', icon: <SafetyCertificateOutlined />, label: t('rbac.title') || 'Access Control', path: '/rbac' },
   ];
 
   // Tìm selected key cho menu - sửa logic này
