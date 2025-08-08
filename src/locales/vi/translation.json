@@ -1034,6 +1034,19 @@
       "templates": "Mẫu hợp đồng",
       "stats": "Thống kê"
     },
+    "number": "Số hợp đồng",
+    "title": "Tiêu đề",
+    "type": "Loại",
+    "value": "Giá trị",
+    "status": "Trạng thái",
+    "signatureStatus": "Trạng thái chữ ký",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "createdAt": "Ngày tạo",
+    "description": "Mô tả",
+    "terms": "Điều khoản",
+    "template": "Mẫu hợp đồng",
+    "creator": "Người tạo",
     "fields": {
       "contract_number": "Số hợp đồng",
       "title": "Tiêu đề",
@@ -1062,7 +1075,9 @@
       "signer_email": "Email người ký",
       "signer_title": "Chức danh người ký",
       "signature_type": "Loại chữ ký",
-      "signed_at": "Thời gian ký"
+      "signed_at": "Thời gian ký",
+      "ip_address": "Địa chỉ IP",
+      "user_agent": "User Agent"
     },
     "types": {
       "employment": "Hợp đồng lao động",
@@ -1072,7 +1087,7 @@
       "vendor": "Hợp đồng nhà cung cấp",
       "other": "Khác"
     },
-    "status": {
+    "statuses": {
       "draft": "Nháp",
       "pending": "Chờ duyệt",
       "active": "Hoạt động",
@@ -1080,15 +1095,43 @@
       "terminated": "Chấm dứt",
       "completed": "Hoàn thành"
     },
-    "signature_status": {
+    "signatureStatuses": {
       "unsigned": "Chưa ký",
       "partially_signed": "Ký một phần",
       "fully_signed": "Đã ký đầy đủ"
     },
-    "signature_types": {
+    "signatureTypes": {
       "digital": "Chữ ký số",
       "electronic": "Chữ ký điện tử",
       "handwritten": "Chữ ký tay"
+    },
+    "party": {
+      "primary": "Bên chính",
+      "secondary": "Bên phụ",
+      "name": "Tên bên tham gia",
+      "type": "Loại bên tham gia",
+      "email": "Email bên tham gia",
+      "phone": "Số điện thoại bên tham gia",
+      "company": "Công ty",
+      "representative": "Người đại diện",
+      "address": "Địa chỉ",
+      "types": {
+        "client": "Khách hàng",
+        "vendor": "Nhà cung cấp",
+        "partner": "Đối tác",
+        "employee": "Nhân viên"
+      }
+    },
+    "template": {
+      "name": "Tên mẫu",
+      "type": "Loại mẫu",
+      "description": "Mô tả mẫu",
+      "content": "Nội dung mẫu",
+      "status": "Trạng thái mẫu"
+    },
+    "creator": {
+      "name": "Tên người tạo",
+      "email": "Email người tạo"
     },
     "stats": {
       "total": "Tổng hợp đồng",
@@ -1114,17 +1157,14 @@
     "sections": {
       "parties": "Các bên tham gia hợp đồng"
     },
-    "party": {
-      "primary": "Bên chính",
-      "secondary": "Bên phụ"
-    },
     "detail": {
       "title": "Chi tiết hợp đồng",
-      "basic_info": "Thông tin cơ bản",
+      "basicInfo": "Thông tin cơ bản",
       "template_info": "Thông tin mẫu hợp đồng",
       "parties": "Các bên tham gia",
       "signatures": "Chữ ký số",
-      "terms": "Điều khoản và điều kiện"
+      "terms": "Điều khoản và điều kiện",
+      "creator": "Người tạo hợp đồng"
     },
     "create": {
       "title": "Tạo hợp đồng mới",
@@ -1184,6 +1224,61 @@
       "service_scope": "Phạm vi dịch vụ",
       "timeline": "Thời gian",
       "milestones": "Cột mốc"
+    },
+    "list": "Danh sách hợp đồng",
+    "searchPlaceholder": "Tìm kiếm hợp đồng...",
+    "filterByStatus": "Lọc theo trạng thái",
+    "generatePDF": "Tạo PDF",
+    "pdfGenerationComingSoon": "Tính năng tạo PDF sẽ có sớm",
+    "deleteConfirm": "Bạn có chắc muốn xóa hợp đồng này?",
+    "createSuccess": "Tạo hợp đồng thành công",
+    "updateSuccess": "Cập nhật hợp đồng thành công",
+    "deleteSuccess": "Xóa hợp đồng thành công",
+    "saveError": "Không thể lưu hợp đồng",
+    "deleteError": "Không thể xóa hợp đồng",
+    "titleRequired": "Tiêu đề là bắt buộc",
+    "typeRequired": "Loại hợp đồng là bắt buộc",
+    "startDateRequired": "Ngày bắt đầu là bắt buộc",
+    "statusRequired": "Trạng thái là bắt buộc",
+    "valueRequired": "Giá trị là bắt buộc",
+    "currencyRequired": "Tiền tệ là bắt buộc",
+    "descriptionRequired": "Mô tả là bắt buộc",
+    "titlePlaceholder": "Nhập tiêu đề hợp đồng",
+    "typePlaceholder": "Chọn loại hợp đồng",
+    "templatePlaceholder": "Chọn mẫu hợp đồng",
+    "statusPlaceholder": "Chọn trạng thái",
+    "startDatePlaceholder": "Chọn ngày bắt đầu",
+    "endDatePlaceholder": "Chọn ngày kết thúc",
+    "valuePlaceholder": "Nhập giá trị hợp đồng",
+    "currencyPlaceholder": "Chọn tiền tệ",
+    "descriptionPlaceholder": "Nhập mô tả hợp đồng",
+    "termsPlaceholder": "Nhập điều khoản hợp đồng",
+    "template": {
+      "management": "Quản lý mẫu hợp đồng",
+      "create": "Tạo mẫu hợp đồng",
+      "edit": "Chỉnh sửa mẫu hợp đồng",
+      "delete": "Xóa mẫu hợp đồng",
+      "name": "Tên mẫu hợp đồng",
+      "type": "Loại mẫu hợp đồng",
+      "description": "Mô tả mẫu hợp đồng",
+      "content": "Nội dung mẫu hợp đồng",
+      "status": "Trạng thái mẫu hợp đồng",
+      "variables": "Biến mẫu hợp đồng",
+      "searchPlaceholder": "Tìm kiếm mẫu hợp đồng...",
+      "deleteConfirm": "Bạn có chắc muốn xóa mẫu hợp đồng này?",
+      "createSuccess": "Tạo mẫu hợp đồng thành công",
+      "updateSuccess": "Cập nhật mẫu hợp đồng thành công",
+      "deleteSuccess": "Xóa mẫu hợp đồng thành công",
+      "saveError": "Không thể lưu mẫu hợp đồng",
+      "deleteError": "Không thể xóa mẫu hợp đồng",
+      "nameRequired": "Tên mẫu hợp đồng là bắt buộc",
+      "typeRequired": "Loại mẫu hợp đồng là bắt buộc",
+      "descriptionRequired": "Mô tả mẫu hợp đồng là bắt buộc",
+      "contentRequired": "Nội dung mẫu hợp đồng là bắt buộc",
+      "namePlaceholder": "Nhập tên mẫu hợp đồng",
+      "typePlaceholder": "Chọn loại mẫu hợp đồng",
+      "descriptionPlaceholder": "Nhập mô tả mẫu hợp đồng",
+      "contentPlaceholder": "Nhập nội dung mẫu hợp đồng"
     }
   }
 } 

@@ -141,7 +141,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
               label={t('contract.template')}
             >
               <Select placeholder={t('contract.templatePlaceholder')} allowClear>
-                {templates.map(template => (
+                {(templates || []).map(template => (
                   <Option key={template.id} value={template.id}>
                     {template.name}
                   </Option>

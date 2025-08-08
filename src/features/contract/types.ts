@@ -1,3 +1,22 @@
+// Import common types
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  position?: string;
+  department?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ContractTemplate {
   id: number;
   name: string;

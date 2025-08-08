@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { 
   Table, 
   Button, 
@@ -23,7 +23,7 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { RootState } from '../../app/store';
+import { RootState, useAppDispatch } from '../../app/store';
 import { 
   fetchContractTemplates, 
   deleteTemplate, 
@@ -39,7 +39,7 @@ const { TextArea } = Input;
 
 const TemplateManagement: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { templates, loading } = useSelector((state: RootState) => state.contract);
   const [searchText, setSearchText] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -155,7 +155,7 @@ const TemplateManagement: React.FC = () => {
     {
       title: t('common.actions'),
       key: 'actions',
-      render: (_, record: ContractTemplate) => (
+      render: (_: any, record: ContractTemplate) => (
         <Space size="small">
           <Tooltip title={t('common.view')}>
             <Button
@@ -213,9 +213,9 @@ const TemplateManagement: React.FC = () => {
     },
   ];
 
-  const filteredTemplates = templates.filter(template => 
+  const filteredTemplates = (templates || []).filter(template => 
     template.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    template.description.toLowerCase().includes(searchText.toLowerCase())
+    (template.description && template.description.toLowerCase().includes(searchText.toLowerCase()))
   );
 
   return (

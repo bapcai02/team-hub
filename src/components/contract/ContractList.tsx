@@ -171,7 +171,7 @@ const ContractList: React.FC<ContractListProps> = ({ onEdit, onView, onCreate })
     {
       title: t('common.actions'),
       key: 'actions',
-      render: (_, record: Contract) => (
+      render: (_: any, record: Contract) => (
         <Space size="small">
           <Tooltip title={t('common.view')}>
             <Button

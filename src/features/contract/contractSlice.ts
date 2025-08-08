@@ -33,6 +33,8 @@ export const fetchContractTemplates = createAsyncThunk(
   'contract/fetchTemplates',
   async () => {
     const response = await contractApi.getTemplates();
+    console.log('API Response for templates:', response);
+    console.log('API Response data:', response.data);
     return response.data;
   }
 );
@@ -116,7 +118,9 @@ const contractSlice = createSlice({
       })
       .addCase(fetchContracts.fulfilled, (state, action) => {
         state.loading = false;
-        state.contracts = action.payload.data || [];
+        // Handle paginated response structure
+        const contracts = action.payload.data?.data || action.payload.data || [];
+        state.contracts = contracts;
       })
       .addCase(fetchContracts.rejected, (state, action) => {
         state.loading = false;
@@ -131,7 +135,9 @@ const contractSlice = createSlice({
       })
       .addCase(fetchContractTemplates.fulfilled, (state, action) => {
         state.loading = false;
-        state.templates = action.payload.data || [];
+        // Handle paginated response structure
+        const templates = action.payload.data?.data || action.payload.data || [];
+        state.templates = templates;
       })
       .addCase(fetchContractTemplates.rejected, (state, action) => {
         state.loading = false;
@@ -146,7 +152,7 @@ const contractSlice = createSlice({
       })
       .addCase(fetchContractStats.fulfilled, (state, action) => {
         state.loading = false;
-        state.stats = action.payload;
+        state.stats = action.payload.data;
       })
       .addCase(fetchContractStats.rejected, (state, action) => {
         state.loading = false;
@@ -156,7 +162,8 @@ const contractSlice = createSlice({
     // Create contract
     builder
       .addCase(createContract.fulfilled, (state, action) => {
-        state.contracts.unshift(action.payload);
+        const newContract = action.payload.data || action.payload;
+        state.contracts.unshift(newContract);
       })
       .addCase(createContract.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to create contract';
@@ -165,9 +172,10 @@ const contractSlice = createSlice({
     // Update contract
     builder
       .addCase(updateContract.fulfilled, (state, action) => {
-        const index = state.contracts.findIndex(c => c.id === action.payload.id);
+        const updatedContract = action.payload.data || action.payload;
+        const index = state.contracts.findIndex(c => c.id === updatedContract.id);
         if (index !== -1) {
-          state.contracts[index] = action.payload;
+          state.contracts[index] = updatedContract;
         }
       })
       .addCase(updateContract.rejected, (state, action) => {
@@ -186,7 +194,8 @@ const contractSlice = createSlice({
     // Create template
     builder
       .addCase(createTemplate.fulfilled, (state, action) => {
-        state.templates.unshift(action.payload);
+        const newTemplate = action.payload.data || action.payload;
+        state.templates.unshift(newTemplate);
       })
       .addCase(createTemplate.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to create template';
@@ -195,9 +204,10 @@ const contractSlice = createSlice({
     // Update template
     builder
       .addCase(updateTemplate.fulfilled, (state, action) => {
-        const index = state.templates.findIndex(t => t.id === action.payload.id);
+        const updatedTemplate = action.payload.data || action.payload;
+        const index = state.templates.findIndex(t => t.id === updatedTemplate.id);
         if (index !== -1) {
-          state.templates[index] = action.payload;
+          state.templates[index] = updatedTemplate;
         }
       })
       .addCase(updateTemplate.rejected, (state, action) => {
