@@ -71,6 +71,7 @@ export default function Sidebar() {
     },
     { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
     { key: 'rbac', icon: <SafetyCertificateOutlined />, label: t('rbac.title') || 'Access Control', path: '/rbac' },
+    { key: 'contracts', icon: <FileTextOutlined />, label: t('contract.management.title') || 'Contract Management', path: '/contracts' },
   ];
 
   // Tìm selected key cho menu - sửa logic này

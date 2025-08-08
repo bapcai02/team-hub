@@ -1023,5 +1023,167 @@
         "end_date": "End Date"
       }
     }
+  },
+  "contract": {
+    "management": {
+      "title": "Contract Management",
+      "description": "Manage contracts, templates, and digital signatures"
+    },
+    "tabs": {
+      "contracts": "Contracts",
+      "templates": "Templates",
+      "stats": "Statistics"
+    },
+    "fields": {
+      "contract_number": "Contract Number",
+      "title": "Title",
+      "description": "Description",
+      "type": "Type",
+      "template": "Template",
+      "template_name": "Template Name",
+      "template_type": "Template Type",
+      "template_description": "Template Description",
+      "template_status": "Template Status",
+      "value": "Value",
+      "currency": "Currency",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "status": "Status",
+      "signature_status": "Signature Status",
+      "client_name": "Client Name",
+      "client_email": "Client Email",
+      "party_name": "Party Name",
+      "party_email": "Party Email",
+      "party_phone": "Party Phone",
+      "party_company": "Party Company",
+      "party_representative": "Party Representative",
+      "party_representative_title": "Party Representative Title",
+      "signer_name": "Signer Name",
+      "signer_email": "Signer Email",
+      "signer_title": "Signer Title",
+      "signature_type": "Signature Type",
+      "signed_at": "Signed At"
+    },
+    "types": {
+      "employment": "Employment",
+      "service": "Service",
+      "partnership": "Partnership",
+      "client": "Client",
+      "vendor": "Vendor",
+      "other": "Other"
+    },
+    "status": {
+      "draft": "Draft",
+      "pending": "Pending",
+      "active": "Active",
+      "expired": "Expired",
+      "terminated": "Terminated",
+      "completed": "Completed"
+    },
+    "signature_status": {
+      "unsigned": "Unsigned",
+      "partially_signed": "Partially Signed",
+      "fully_signed": "Fully Signed"
+    },
+    "signature_types": {
+      "digital": "Digital",
+      "electronic": "Electronic",
+      "handwritten": "Handwritten"
+    },
+    "stats": {
+      "total": "Total Contracts",
+      "active": "Active Contracts",
+      "pending": "Pending Contracts",
+      "expired": "Expired Contracts",
+      "expiring_soon": "Expiring Soon",
+      "unsigned": "Unsigned",
+      "partially_signed": "Partially Signed",
+      "fully_signed": "Fully Signed",
+      "total_contracts": "Total Contracts",
+      "active_contracts": "Active Contracts",
+      "pending_contracts": "Pending Contracts",
+      "signed_contracts": "Signed Contracts"
+    },
+    "actions": {
+      "create": "Create Contract",
+      "edit": "Edit Contract",
+      "delete": "Delete Contract",
+      "approve": "Approve Contract",
+      "download_pdf": "Download PDF"
+    },
+    "sections": {
+      "parties": "Contract Parties"
+    },
+    "party": {
+      "primary": "Primary Party",
+      "secondary": "Secondary Party"
+    },
+    "detail": {
+      "title": "Contract Details",
+      "basic_info": "Basic Information",
+      "template_info": "Template Information",
+      "parties": "Contract Parties",
+      "signatures": "Digital Signatures",
+      "terms": "Terms and Conditions"
+    },
+    "create": {
+      "title": "Create New Contract",
+      "success": "Contract created successfully",
+      "error": "Failed to create contract"
+    },
+    "update": {
+      "title": "Update Contract",
+      "success": "Contract updated successfully",
+      "error": "Failed to update contract"
+    },
+    "delete": {
+      "confirm_title": "Delete Contract",
+      "confirm_message": "Are you sure you want to delete this contract?",
+      "success": "Contract deleted successfully",
+      "error": "Failed to delete contract"
+    },
+    "approve": {
+      "success": "Contract approved successfully",
+      "error": "Failed to approve contract"
+    },
+    "pdf": {
+      "success": "PDF generated successfully",
+      "error": "Failed to generate PDF"
+    },
+    "placeholder": {
+      "title": "Enter contract title",
+      "description": "Enter contract description",
+      "type": "Select contract type",
+      "template": "Select template (optional)",
+      "value": "Enter contract value",
+      "currency": "Select currency",
+      "start_date": "Select start date",
+      "end_date": "Select end date (optional)",
+      "status": "Select status",
+      "client_name": "Enter client name",
+      "client_email": "Enter client email"
+    },
+    "validation": {
+      "title_required": "Title is required",
+      "type_required": "Type is required",
+      "start_date_required": "Start date is required",
+      "status_required": "Status is required"
+    },
+    "terms": {
+      "working_hours": "Working Hours",
+      "probation_period": "Probation Period",
+      "benefits": "Benefits",
+      "service_description": "Service Description",
+      "payment_terms": "Payment Terms",
+      "deliverables": "Deliverables",
+      "partnership_type": "Partnership Type",
+      "profit_sharing": "Profit Sharing",
+      "roles": "Roles",
+      "delivery_schedule": "Delivery Schedule",
+      "quality_standards": "Quality Standards",
+      "service_scope": "Service Scope",
+      "timeline": "Timeline",
+      "milestones": "Milestones"
+    }
   }
 } 

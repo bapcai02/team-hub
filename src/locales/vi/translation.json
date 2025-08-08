@@ -1023,5 +1023,167 @@
         "end_date": "Ngày kết thúc"
       }
     }
+  },
+  "contract": {
+    "management": {
+      "title": "Quản lý hợp đồng",
+      "description": "Quản lý hợp đồng, mẫu hợp đồng và chữ ký số"
+    },
+    "tabs": {
+      "contracts": "Hợp đồng",
+      "templates": "Mẫu hợp đồng",
+      "stats": "Thống kê"
+    },
+    "fields": {
+      "contract_number": "Số hợp đồng",
+      "title": "Tiêu đề",
+      "description": "Mô tả",
+      "type": "Loại",
+      "template": "Mẫu hợp đồng",
+      "template_name": "Tên mẫu",
+      "template_type": "Loại mẫu",
+      "template_description": "Mô tả mẫu",
+      "template_status": "Trạng thái mẫu",
+      "value": "Giá trị",
+      "currency": "Tiền tệ",
+      "start_date": "Ngày bắt đầu",
+      "end_date": "Ngày kết thúc",
+      "status": "Trạng thái",
+      "signature_status": "Trạng thái chữ ký",
+      "client_name": "Tên khách hàng",
+      "client_email": "Email khách hàng",
+      "party_name": "Tên bên tham gia",
+      "party_email": "Email bên tham gia",
+      "party_phone": "Số điện thoại bên tham gia",
+      "party_company": "Công ty bên tham gia",
+      "party_representative": "Người đại diện",
+      "party_representative_title": "Chức danh người đại diện",
+      "signer_name": "Tên người ký",
+      "signer_email": "Email người ký",
+      "signer_title": "Chức danh người ký",
+      "signature_type": "Loại chữ ký",
+      "signed_at": "Thời gian ký"
+    },
+    "types": {
+      "employment": "Hợp đồng lao động",
+      "service": "Hợp đồng dịch vụ",
+      "partnership": "Hợp đồng đối tác",
+      "client": "Hợp đồng khách hàng",
+      "vendor": "Hợp đồng nhà cung cấp",
+      "other": "Khác"
+    },
+    "status": {
+      "draft": "Nháp",
+      "pending": "Chờ duyệt",
+      "active": "Hoạt động",
+      "expired": "Hết hạn",
+      "terminated": "Chấm dứt",
+      "completed": "Hoàn thành"
+    },
+    "signature_status": {
+      "unsigned": "Chưa ký",
+      "partially_signed": "Ký một phần",
+      "fully_signed": "Đã ký đầy đủ"
+    },
+    "signature_types": {
+      "digital": "Chữ ký số",
+      "electronic": "Chữ ký điện tử",
+      "handwritten": "Chữ ký tay"
+    },
+    "stats": {
+      "total": "Tổng hợp đồng",
+      "active": "Hợp đồng hoạt động",
+      "pending": "Hợp đồng chờ duyệt",
+      "expired": "Hợp đồng hết hạn",
+      "expiring_soon": "Sắp hết hạn",
+      "unsigned": "Chưa ký",
+      "partially_signed": "Ký một phần",
+      "fully_signed": "Đã ký đầy đủ",
+      "total_contracts": "Tổng hợp đồng",
+      "active_contracts": "Hợp đồng hoạt động",
+      "pending_contracts": "Hợp đồng chờ duyệt",
+      "signed_contracts": "Hợp đồng đã ký"
+    },
+    "actions": {
+      "create": "Tạo hợp đồng",
+      "edit": "Chỉnh sửa hợp đồng",
+      "delete": "Xóa hợp đồng",
+      "approve": "Duyệt hợp đồng",
+      "download_pdf": "Tải PDF"
+    },
+    "sections": {
+      "parties": "Các bên tham gia hợp đồng"
+    },
+    "party": {
+      "primary": "Bên chính",
+      "secondary": "Bên phụ"
+    },
+    "detail": {
+      "title": "Chi tiết hợp đồng",
+      "basic_info": "Thông tin cơ bản",
+      "template_info": "Thông tin mẫu hợp đồng",
+      "parties": "Các bên tham gia",
+      "signatures": "Chữ ký số",
+      "terms": "Điều khoản và điều kiện"
+    },
+    "create": {
+      "title": "Tạo hợp đồng mới",
+      "success": "Tạo hợp đồng thành công",
+      "error": "Không thể tạo hợp đồng"
+    },
+    "update": {
+      "title": "Cập nhật hợp đồng",
+      "success": "Cập nhật hợp đồng thành công",
+      "error": "Không thể cập nhật hợp đồng"
+    },
+    "delete": {
+      "confirm_title": "Xóa hợp đồng",
+      "confirm_message": "Bạn có chắc muốn xóa hợp đồng này?",
+      "success": "Xóa hợp đồng thành công",
+      "error": "Không thể xóa hợp đồng"
+    },
+    "approve": {
+      "success": "Duyệt hợp đồng thành công",
+      "error": "Không thể duyệt hợp đồng"
+    },
+    "pdf": {
+      "success": "Tạo PDF thành công",
+      "error": "Không thể tạo PDF"
+    },
+    "placeholder": {
+      "title": "Nhập tiêu đề hợp đồng",
+      "description": "Nhập mô tả hợp đồng",
+      "type": "Chọn loại hợp đồng",
+      "template": "Chọn mẫu hợp đồng (tùy chọn)",
+      "value": "Nhập giá trị hợp đồng",
+      "currency": "Chọn tiền tệ",
+      "start_date": "Chọn ngày bắt đầu",
+      "end_date": "Chọn ngày kết thúc (tùy chọn)",
+      "status": "Chọn trạng thái",
+      "client_name": "Nhập tên khách hàng",
+      "client_email": "Nhập email khách hàng"
+    },
+    "validation": {
+      "title_required": "Tiêu đề là bắt buộc",
+      "type_required": "Loại hợp đồng là bắt buộc",
+      "start_date_required": "Ngày bắt đầu là bắt buộc",
+      "status_required": "Trạng thái là bắt buộc"
+    },
+    "terms": {
+      "working_hours": "Giờ làm việc",
+      "probation_period": "Thời gian thử việc",
+      "benefits": "Phúc lợi",
+      "service_description": "Mô tả dịch vụ",
+      "payment_terms": "Điều khoản thanh toán",
+      "deliverables": "Sản phẩm giao",
+      "partnership_type": "Loại đối tác",
+      "profit_sharing": "Chia sẻ lợi nhuận",
+      "roles": "Vai trò",
+      "delivery_schedule": "Lịch giao hàng",
+      "quality_standards": "Tiêu chuẩn chất lượng",
+      "service_scope": "Phạm vi dịch vụ",
+      "timeline": "Thời gian",
+      "milestones": "Cột mốc"
+    }
   }
 } 

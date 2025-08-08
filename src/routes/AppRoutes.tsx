@@ -26,6 +26,7 @@ import GuestManagement from '../pages/guest/GuestManagement';
 import HolidayManagement from '../pages/holiday/HolidayManagement';
 import ProfilePage from '../pages/profile/ProfilePage';
 import RBACManagement from '../pages/rbac/RBACManagement';
+import ContractManagement from '../pages/contract/ContractManagement';
 import React from 'react';
 
 const useAuth = () => {
@@ -193,6 +194,13 @@ export default function AppRoutes() {
       <Route path="/rbac" element={
         <PrivateRoute>
           <RBACManagement />
+        </PrivateRoute>
+      } />
+      
+      {/* Contract Management Routes */}
+      <Route path="/contracts" element={
+        <PrivateRoute>
+          <ContractManagement />
         </PrivateRoute>
       } />
       
