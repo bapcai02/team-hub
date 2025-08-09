@@ -18,6 +18,7 @@ export const documentsApi = {
     formData.append('title', data.title);
     if (data.description) formData.append('description', data.description);
     formData.append('category', data.category);
+    formData.append('status', data.status);
     if (data.tags) formData.append('tags', JSON.stringify(data.tags));
     if (data.project_id) formData.append('project_id', data.project_id.toString());
     formData.append('file', data.file);
@@ -81,5 +82,58 @@ export const documentsApi = {
   // Get recent documents
   getRecentDocuments: (limit: number = 10) => {
     return axios.get('/documents/recent', { params: { limit } });
+  },
+
+  // Document versions
+  getVersions: (documentId: number) => {
+    return axios.get(`/documents/${documentId}/versions`);
+  },
+
+  createVersion: (documentId: number, file: File, changeLog?: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (changeLog) formData.append('change_log', changeLog);
+
+    return axios.post(`/documents/${documentId}/versions`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  deleteVersion: (documentId: number, versionId: number) => {
+    return axios.delete(`/documents/${documentId}/versions/${versionId}`);
+  },
+
+  // Document sharing
+  getSharedUsers: (documentId: number) => {
+    return axios.get(`/documents/${documentId}/shares`);
+  },
+
+  shareDocument: (documentId: number, userIds: number[], permission: string, expiresAt?: string) => {
+    return axios.post(`/documents/${documentId}/share`, {
+      user_ids: userIds,
+      permission,
+      expires_at: expiresAt,
+    });
+  },
+
+  unshareDocument: (documentId: number, userId: number) => {
+    return axios.delete(`/documents/${documentId}/unshare`, {
+      data: { user_id: userId }
+    });
+  },
+
+  updateSharePermission: (documentId: number, userId: number, permission: string) => {
+    return axios.put(`/documents/${documentId}/share/permission`, {
+      user_id: userId,
+      permission,
+    });
+  },
+
+  searchUsers: (query: string, excludeUserIds: number[] = []) => {
+    return axios.get('/users/search', {
+      params: { q: query, exclude: excludeUserIds }
+    });
   },
 }; 

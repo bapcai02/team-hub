@@ -49,6 +49,7 @@ import HeaderBar from '../../components/HeaderBar';
 import Sidebar from '../../components/Sidebar';
 import DocumentUploadModal from '../../components/documents/DocumentUploadModal';
 import DocumentDetailModal from '../../components/documents/DocumentDetailModal';
+import DocumentEditModal from '../../components/documents/DocumentEditModal';
 import { Document } from '../../features/documents/types';
 import { formatFileSize, getFileIcon } from '../../utils/documentUtils';
 
@@ -64,6 +65,7 @@ const DocumentsPage: React.FC = () => {
   
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [searchValue, setSearchValue] = useState('');
 
@@ -98,8 +100,13 @@ const DocumentsPage: React.FC = () => {
   };
 
   const handleEditDocument = (document: Document) => {
-    // Navigate to edit page or open edit modal
-    navigate(`/documents/${document.id}/edit`);
+    setSelectedDocument(document);
+    setEditModalVisible(true);
+  };
+
+  const handleEditSuccess = () => {
+    dispatch(fetchDocuments(undefined));
+    dispatch(fetchDocumentStats());
   };
 
   const handleDeleteDocument = async (document: Document) => {
@@ -134,17 +141,23 @@ const DocumentsPage: React.FC = () => {
       title: t('documents.title'),
       dataIndex: 'title',
       key: 'title',
-      render: (text: string, record: Document) => (
-        <Space>
-          {getFileIcon(record.file_type || '')}
-          <div>
-            <div style={{ fontWeight: 500 }}>{text}</div>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {record.file_name}
-            </Text>
-          </div>
-        </Space>
-      ),
+      render: (text: string, record: Document) => {
+        const upload = record.uploads && record.uploads.length > 0 ? record.uploads[0] : null;
+        const fileName = upload?.original_name || record.file_name || '';
+        const fileType = upload?.mime_type?.split('/')[1] || record.file_type || '';
+        
+        return (
+          <Space>
+            {getFileIcon(fileType)}
+            <div>
+              <div style={{ fontWeight: 500 }}>{text}</div>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {fileName}
+              </Text>
+            </div>
+          </Space>
+        );
+      },
     },
     {
       title: t('documents.category'),
@@ -171,13 +184,23 @@ const DocumentsPage: React.FC = () => {
       title: t('documents.size'),
       dataIndex: 'file_size',
       key: 'file_size',
-      render: (size: number) => formatFileSize(size),
+      render: (size: number, record: Document) => {
+        // Get size from uploads relationship
+        const uploadSize = record.uploads && record.uploads.length > 0 
+          ? record.uploads[0].size 
+          : size || 0;
+        return formatFileSize(uploadSize);
+      },
     },
     {
       title: t('documents.uploadedBy'),
       dataIndex: 'user',
       key: 'user',
-      render: (user: any) => user?.name || '-',
+      render: (user: any, record: Document) => {
+        // Try to get name from creator relationship first, then user, then fallback
+        const creatorName = record.creator?.name || user?.name || 'Unknown User';
+        return creatorName;
+      },
     },
     {
       title: t('documents.uploadedAt'),
@@ -266,7 +289,7 @@ const DocumentsPage: React.FC = () => {
                 <Card>
                   <Statistic
                     title={t('documents.totalDocuments')}
-                    value={stats?.total || 0}
+                    value={stats?.total_documents || 0}
                     prefix={<FileTextOutlined />}
                     valueStyle={{ color: '#1890ff' }}
                   />
@@ -411,6 +434,16 @@ const DocumentsPage: React.FC = () => {
           setDetailModalVisible(false);
           handleEditDocument(document);
         }}
+      />
+
+      <DocumentEditModal
+        visible={editModalVisible}
+        document={selectedDocument}
+        onCancel={() => {
+          setEditModalVisible(false);
+          setSelectedDocument(null);
+        }}
+        onSuccess={handleEditSuccess}
       />
     </div>
   );

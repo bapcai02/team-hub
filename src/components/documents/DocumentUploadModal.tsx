@@ -89,6 +89,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
         title: values.title,
         description: values.description,
         category: values.category,
+        status: values.status,
         tags: tags,
         file: file,
         project_id: values.project_id,
@@ -186,6 +187,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
         onFinish={handleUpload}
         initialValues={{
           category: 'other',
+          status: 'draft',
         }}
       >
         <Form.Item
@@ -217,6 +219,18 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             <Option value="policy">{t('documents.categories.policy')}</Option>
             <Option value="template">{t('documents.categories.template')}</Option>
             <Option value="other">{t('documents.categories.other')}</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="status"
+          label={t('documents.status')}
+          rules={[{ required: true, message: t('documents.statusRequired') }]}
+        >
+          <Select placeholder={t('documents.selectStatus')}>
+            <Option value="draft">{t('documents.statuses.draft')}</Option>
+            <Option value="published">{t('documents.statuses.published')}</Option>
+            <Option value="archived">{t('documents.statuses.archived')}</Option>
           </Select>
         </Form.Item>
 

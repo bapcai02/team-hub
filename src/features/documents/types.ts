@@ -9,6 +9,7 @@ export interface Document {
   category: 'project' | 'meeting' | 'policy' | 'template' | 'other';
   status: 'draft' | 'published' | 'archived';
   tags: string[];
+  project_id?: number;
   created_by: number;
   updated_by?: number;
   created_at: string;
@@ -18,14 +19,28 @@ export interface Document {
     name: string;
     email: string;
   };
+  creator?: {
+    id: number;
+    name: string;
+    email: string;
+  };
   project?: {
     id: number;
     name: string;
   };
+  uploads?: {
+    id: number;
+    file_path: string;
+    original_name: string;
+    mime_type: string;
+    size: number;
+    created_at: string;
+  }[];
 }
 
 export interface DocumentStats {
   total: number;
+  total_documents: number;
   by_category: {
     project?: number;
     meeting?: number;
@@ -46,6 +61,7 @@ export interface CreateDocumentRequest {
   title: string;
   description?: string;
   category: 'project' | 'meeting' | 'policy' | 'template' | 'other';
+  status: 'draft' | 'published' | 'archived';
   tags?: string[];
   project_id?: number;
   file: File;

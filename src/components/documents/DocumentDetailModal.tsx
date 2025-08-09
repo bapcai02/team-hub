@@ -153,17 +153,33 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
 
           <Descriptions.Item label={t('documents.fileName')}>
             <Space>
-              {getFileIcon(document.file_type || '')}
-              <Text>{document.file_name}</Text>
+              {getFileIcon(
+                document.uploads && document.uploads.length > 0 
+                  ? document.uploads[0].mime_type?.split('/')[1] || ''
+                  : document.file_type || ''
+              )}
+              <Text>
+                {document.uploads && document.uploads.length > 0 
+                  ? document.uploads[0].original_name 
+                  : document.file_name}
+              </Text>
             </Space>
           </Descriptions.Item>
 
           <Descriptions.Item label={t('documents.fileType')}>
-            {getFileTypeName(document.file_type)}
+            {getFileTypeName(
+              document.uploads && document.uploads.length > 0 
+                ? document.uploads[0].mime_type?.split('/')[1] || ''
+                : document.file_type
+            )}
           </Descriptions.Item>
 
           <Descriptions.Item label={t('documents.fileSize')}>
-            {formatFileSize(document.file_size)}
+            {formatFileSize(
+              document.uploads && document.uploads.length > 0 
+                ? document.uploads[0].size 
+                : document.file_size || 0
+            )}
           </Descriptions.Item>
 
           <Descriptions.Item label={t('documents.category')}>
@@ -181,7 +197,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
           <Descriptions.Item label={t('documents.uploadedBy')}>
             <Space>
               <Avatar icon={<UserOutlined />} size="small" />
-              <Text>{document.user?.name || '-'}</Text>
+              <Text>{document.creator?.name || document.user?.name || 'Unknown User'}</Text>
             </Space>
           </Descriptions.Item>
 

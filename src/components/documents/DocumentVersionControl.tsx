@@ -25,6 +25,11 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../app/store';
 import { Document } from '../../features/documents/types';
 import { formatFileSize } from '../../utils/documentUtils';
+import { 
+  fetchDocumentVersions,
+  createDocumentVersion,
+  deleteDocumentVersion
+} from '../../features/documents/documentsSlice';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -76,53 +81,32 @@ const DocumentVersionControl: React.FC<DocumentVersionControlProps> = ({
     
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      const mockVersions: DocumentVersion[] = [
-        {
-          id: 1,
-          version: '1.0',
-          file_name: 'document_v1.0.pdf',
-          file_size: 1024000,
-          file_type: 'application/pdf',
-          created_at: '2024-01-15T10:30:00Z',
-          created_by: { id: 1, name: 'John Doe' },
-          change_log: 'Initial version',
-          is_current: true,
-        },
-        {
-          id: 2,
-          version: '1.1',
-          file_name: 'document_v1.1.pdf',
-          file_size: 1056000,
-          file_type: 'application/pdf',
-          created_at: '2024-01-20T14:45:00Z',
-          created_by: { id: 2, name: 'Jane Smith' },
-          change_log: 'Updated section 3 with new requirements',
-          is_current: false,
-        },
-        {
-          id: 3,
-          version: '1.2',
-          file_name: 'document_v1.2.pdf',
-          file_size: 1088000,
-          file_type: 'application/pdf',
-          created_at: '2024-01-25T09:15:00Z',
-          created_by: { id: 1, name: 'John Doe' },
-          change_log: 'Fixed typos and updated formatting',
-          is_current: false,
-        },
-      ];
-      setVersions(mockVersions);
+      const result = await dispatch(fetchDocumentVersions(document.id)).unwrap();
+      setVersions(result || []);
     } catch (error) {
       message.error(t('documents.failedToLoadVersions'));
+      setVersions([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleUploadNewVersion = async (values: any) => {
+    if (!document || !values.file || values.file.length === 0) {
+      message.error(t('documents.fileRequired'));
+      return;
+    }
+
     try {
-      // TODO: Implement API call to upload new version
+      const file = values.file[0].originFileObj;
+      const changeLog = values.change_log;
+
+      await dispatch(createDocumentVersion({
+        documentId: document.id,
+        file,
+        changeLog
+      })).unwrap();
+
       message.success(t('documents.versionUploaded'));
       setUploadModalVisible(false);
       form.resetFields();
@@ -146,8 +130,14 @@ const DocumentVersionControl: React.FC<DocumentVersionControlProps> = ({
   };
 
   const handleDeleteVersion = async (version: DocumentVersion) => {
+    if (!document) return;
+
     try {
-      // TODO: Implement delete logic
+      await dispatch(deleteDocumentVersion({
+        documentId: document.id,
+        versionId: version.id
+      })).unwrap();
+
       message.success(t('documents.versionDeleted'));
       fetchVersions();
     } catch (error) {

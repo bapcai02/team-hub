@@ -315,7 +315,7 @@ export default function ProjectDetail() {
                                 title={<a href="#">{item.title}</a>}
                                 description={
                                   <>
-                                    <span>Người tạo: <b>User ID: {item.created_by}</b></span><br />
+                                    <span>Người tạo: <b>{item.creator?.name || item.user?.name || `User ID: ${item.created_by}`}</b></span><br />
                                     <span>Ngày: {new Date(item.created_at).toLocaleDateString()}</span>
                                   </>
                                 }
