@@ -16,6 +16,7 @@ import guestReducer from '../features/guest/guestSlice';
 import holidayReducer from '../features/holiday/holidaySlice';
 import rbacReducer from '../features/rbac/rbacSlice';
 import contractReducer from '../features/contract/contractSlice';
+import notificationReducer from '../features/notifications/notificationSlice';
 
 export const store = configureStore({
   reducer: {
@@ -34,6 +35,7 @@ export const store = configureStore({
     holiday: holidayReducer,
     rbac: rbacReducer,
     contract: contractReducer,
+    notifications: notificationReducer,
   },
 });
 

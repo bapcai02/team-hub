@@ -27,6 +27,7 @@ import HolidayManagement from '../pages/holiday/HolidayManagement';
 import ProfilePage from '../pages/profile/ProfilePage';
 import RBACManagement from '../pages/rbac/RBACManagement';
 import ContractManagement from '../pages/contract/ContractManagement';
+import NotificationManagement from '../pages/notifications/NotificationManagement';
 import React from 'react';
 
 const useAuth = () => {
@@ -201,6 +202,13 @@ export default function AppRoutes() {
       <Route path="/contracts" element={
         <PrivateRoute>
           <ContractManagement />
+        </PrivateRoute>
+      } />
+      
+      {/* Notification Management Routes */}
+      <Route path="/notifications" element={
+        <PrivateRoute>
+          <NotificationManagement />
         </PrivateRoute>
       } />
       

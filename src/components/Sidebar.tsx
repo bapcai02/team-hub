@@ -19,6 +19,7 @@ import {
   RiseOutlined,
   UsergroupAddOutlined,
   SafetyCertificateOutlined,
+  BellOutlined,
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +39,7 @@ export default function Sidebar() {
     { key: 'calendar', icon: <CalendarOutlined />, label: t('calendar.title'), path: '/calendar' },
     { key: 'documents', icon: <FileTextOutlined />, label: t('docs'), path: '/documents' },
     { key: 'guests', icon: <UsergroupAddOutlined />, label: t('guest.management.title'), path: '/guests' },
+    { key: 'notifications', icon: <BellOutlined />, label: t('notifications.management.title'), path: '/notifications' },
     { 
       key: 'devices', 
       icon: <LaptopOutlined />, 
