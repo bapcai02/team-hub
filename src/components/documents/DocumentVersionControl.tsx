@@ -92,14 +92,25 @@ const DocumentVersionControl: React.FC<DocumentVersionControlProps> = ({
   };
 
   const handleUploadNewVersion = async (values: any) => {
-    if (!document || !values.file || values.file.length === 0) {
+        if (!document) {
+      message.error('No document selected');
+      return;
+    }
+
+    if (!values.file || values.file.length === 0) {
       message.error(t('documents.fileRequired'));
       return;
     }
 
     try {
-      const file = values.file[0].originFileObj;
+      const fileObj = values.file[0];
+      const file = fileObj.originFileObj || fileObj;
       const changeLog = values.change_log;
+
+      if (!file) {
+        message.error(t('documents.fileRequired'));
+        return;
+      }
 
       await dispatch(createDocumentVersion({
         documentId: document.id,
@@ -111,8 +122,9 @@ const DocumentVersionControl: React.FC<DocumentVersionControlProps> = ({
       setUploadModalVisible(false);
       form.resetFields();
       fetchVersions();
-    } catch (error) {
-      message.error(t('documents.failedToUploadVersion'));
+    } catch (error: any) {
+      const errorMessage = typeof error === 'string' ? error : (error?.message || t('documents.failedToUploadVersion'));
+      message.error(errorMessage);
     }
   };
 
@@ -285,14 +297,6 @@ const DocumentVersionControl: React.FC<DocumentVersionControlProps> = ({
           onFinish={handleUploadNewVersion}
         >
           <Form.Item
-            name="version"
-            label={t('documents.version')}
-            rules={[{ required: true, message: t('documents.versionRequired') }]}
-          >
-            <Input placeholder="e.g., 1.3" />
-          </Form.Item>
-
-          <Form.Item
             name="change_log"
             label={t('documents.changeLog')}
             rules={[{ required: true, message: t('documents.changeLogRequired') }]}
@@ -307,10 +311,20 @@ const DocumentVersionControl: React.FC<DocumentVersionControlProps> = ({
             name="file"
             label={t('documents.file')}
             rules={[{ required: true, message: t('documents.fileRequired') }]}
+            valuePropName="fileList"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e;
+              }
+              return e && e.fileList;
+            }}
           >
             <Upload.Dragger
+              name="file"
+              multiple={false}
               beforeUpload={() => false}
               accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+              maxCount={1}
             >
               <p className="ant-upload-drag-icon">
                 <UploadOutlined />

@@ -4,6 +4,7 @@ import { Close, Edit, Delete, VideoCall, Phone } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../app/store';
 import { CalendarEvent } from '../../features/calendar/types';
+import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from '../../features/calendar/calendarSlice';
 import moment from 'moment';
 
 interface CalendarEventItem {
@@ -37,7 +38,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
     try {
       if (event.event) {
         // Update existing event
-        // await dispatch(updateCalendarEvent({ id: event.event.id, ...formData }));
+        await dispatch(updateCalendarEvent({ id: event.event.id, ...formData })).unwrap();
       } else {
         // Create new event
         const newEvent = {
@@ -45,7 +46,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
           start_time: moment(event.start).format('YYYY-MM-DD HH:mm:ss'),
           end_time: moment(event.end).format('YYYY-MM-DD HH:mm:ss'),
         };
-        // await dispatch(createCalendarEvent(newEvent));
+        await dispatch(createCalendarEvent(newEvent)).unwrap();
       }
       setIsEditing(false);
       onClose();
@@ -57,7 +58,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
   const handleDelete = async () => {
     if (event.event) {
       try {
-        // await dispatch(deleteCalendarEvent(event.event.id));
+        await dispatch(deleteCalendarEvent(event.event.id)).unwrap();
         onClose();
       } catch (error) {
         console.error('Error deleting event:', error);

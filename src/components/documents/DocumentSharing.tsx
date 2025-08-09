@@ -30,7 +30,15 @@ import {
   UnlockOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useAppDispatch } from '../../app/store';
 import { Document } from '../../features/documents/types';
+import {
+  fetchSharedUsers,
+  shareDocument,
+  unshareDocument,
+  updateSharePermission,
+  searchUsers
+} from '../../features/documents/documentsSlice';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -38,17 +46,22 @@ const { TextArea } = Input;
 
 interface DocumentShare {
   id: number;
-  user_id: number;
   user: {
     id: number;
     name: string;
     email: string;
     avatar?: string;
   };
-  permission: 'view' | 'edit' | 'admin';
+  permission: 'view' | 'edit' | 'comment';
+  shared_by: {
+    id: number;
+    name: string;
+  };
   shared_at: string;
   expires_at?: string;
-  is_active: boolean;
+  can_view: boolean;
+  can_edit: boolean;
+  can_comment: boolean;
 }
 
 interface DocumentSharingProps {
@@ -63,74 +76,54 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({
   onCancel,
 }) => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const [shares, setShares] = useState<DocumentShare[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [publicLink, setPublicLink] = useState<string>('');
   const [isPublic, setIsPublic] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (visible && document) {
       fetchShares();
-      fetchUsers();
       generatePublicLink();
     }
   }, [visible, document]);
 
   const fetchShares = async () => {
+    if (!document) return;
+    
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      const mockShares: DocumentShare[] = [
-        {
-          id: 1,
-          user_id: 2,
-          user: {
-            id: 2,
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            avatar: 'https://joeschmoe.io/api/v1/random',
-          },
-          permission: 'edit',
-          shared_at: '2024-01-15T10:30:00Z',
-          is_active: true,
-        },
-        {
-          id: 2,
-          user_id: 3,
-          user: {
-            id: 3,
-            name: 'Bob Johnson',
-            email: 'bob@example.com',
-          },
-          permission: 'view',
-          shared_at: '2024-01-16T14:20:00Z',
-          expires_at: '2024-02-16T14:20:00Z',
-          is_active: true,
-        },
-      ];
-      setShares(mockShares);
+      const result = await dispatch(fetchSharedUsers(document.id)).unwrap();
+      setShares(result || []);
     } catch (error) {
       message.error(t('documents.failedToLoadShares'));
+      setShares([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchUsers = async () => {
+  const handleSearchUsers = async (query: string) => {
+    if (!query.trim()) {
+      setUsers([]);
+      return;
+    }
+
+    setSearchLoading(true);
     try {
-      // TODO: Replace with actual API call
-      const mockUsers = [
-        { id: 1, name: 'John Doe', email: 'john@example.com' },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-        { id: 3, name: 'Bob Johnson', email: 'bob@example.com' },
-        { id: 4, name: 'Alice Brown', email: 'alice@example.com' },
-      ];
-      setUsers(mockUsers);
+      const excludeUserIds = shares.map(share => share.user.id);
+      const result = await dispatch(searchUsers({ query, excludeUserIds })).unwrap();
+      setUsers(result || []);
     } catch (error) {
-      message.error(t('documents.failedToLoadUsers'));
+      message.error(t('documents.failedToSearchUsers'));
+      setUsers([]);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -141,20 +134,40 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({
   };
 
   const handleShareWithUser = async (values: any) => {
+    if (!document) return;
+
     try {
-      // TODO: Implement API call to share document
+      const userIds = values.users || [];
+      const permission = values.permission || 'view';
+      const expiresAt = values.expires_at;
+
+      await dispatch(shareDocument({ 
+        documentId: document.id, 
+        userIds, 
+        permission, 
+        expiresAt 
+      })).unwrap();
+
       message.success(t('documents.documentShared'));
       setShareModalVisible(false);
       form.resetFields();
+      setUsers([]);
       fetchShares();
     } catch (error) {
       message.error(t('documents.failedToShareDocument'));
     }
   };
 
-  const handleUpdatePermission = async (shareId: number, permission: string) => {
+  const handleUpdatePermission = async (userId: number, permission: string) => {
+    if (!document) return;
+
     try {
-      // TODO: Implement API call to update permission
+      await dispatch(updateSharePermission({ 
+        documentId: document.id, 
+        userId, 
+        permission 
+      })).unwrap();
+
       message.success(t('documents.permissionUpdated'));
       fetchShares();
     } catch (error) {
@@ -162,9 +175,15 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({
     }
   };
 
-  const handleRemoveShare = async (shareId: number) => {
+  const handleRemoveShare = async (userId: number) => {
+    if (!document) return;
+
     try {
-      // TODO: Implement API call to remove share
+      await dispatch(unshareDocument({ 
+        documentId: document.id, 
+        userId 
+      })).unwrap();
+
       message.success(t('documents.shareRemoved'));
       fetchShares();
     } catch (error) {
