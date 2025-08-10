@@ -20,9 +20,9 @@ const initialState: CalendarState = {
 
 export const fetchCalendarEvents = createAsyncThunk(
   'calendar/fetchEvents',
-  async (params?: { start_date?: string; end_date?: string }, { rejectWithValue }) => {
+  async (params: { start_date?: string; end_date?: string } = {}, { rejectWithValue }) => {
     try {
-      const response = await calendarApi.getEvents(params && Object.keys(params).length > 0 ? params : undefined);
+      const response = await calendarApi.getEvents(Object.keys(params).length > 0 ? params : undefined);
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch calendar events');

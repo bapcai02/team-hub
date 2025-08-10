@@ -31,7 +31,7 @@ const CalendarComponent: React.FC = () => {
   const [date, setDate] = useState(new Date());
 
   useEffect(() => {
-    dispatch(fetchCalendarEvents());
+    dispatch(fetchCalendarEvents({}));
   }, [dispatch]);
 
   const calendarEvents: CalendarEventItem[] = events.map((event) => ({
