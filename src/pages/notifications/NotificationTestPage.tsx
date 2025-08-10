@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Button, Space, message } from 'antd';
+import MainLayout from '../../layouts/MainLayout';
 import { RootState } from '../../app/store';
 import { 
   fetchNotifications, 
@@ -36,7 +37,7 @@ const NotificationTestPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24 }}>
+    <MainLayout>
       <Card title="Notification System Test">
         <Space direction="vertical" style={{ width: '100%' }}>
           <p>Total notifications: {notifications.length}</p>
@@ -49,7 +50,7 @@ const NotificationTestPage: React.FC = () => {
           </Button>
         </Space>
       </Card>
-    </div>
+    </MainLayout>
   );
 };
 

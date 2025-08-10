@@ -38,9 +38,10 @@ const { TextArea } = Input;
 
 interface SendNotificationFormProps {
   onSuccess?: () => void;
+  onError?: (error: string) => void;
 }
 
-const SendNotificationForm: React.FC<SendNotificationFormProps> = ({ onSuccess }) => {
+const SendNotificationForm: React.FC<SendNotificationFormProps> = ({ onSuccess, onError }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -82,7 +83,9 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({ onSuccess }
       form.resetFields();
       onSuccess?.();
     } catch (error) {
-      message.error(t('notifications.send.error'));
+      const errorMessage = t('notifications.send.error');
+      message.error(errorMessage);
+      onError?.(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -90,7 +93,9 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({ onSuccess }
 
   const handleSendTemplateNotification = async (values: any) => {
     if (!selectedTemplate) {
-      message.error(t('notifications.send.selectTemplate'));
+      const errorMessage = t('notifications.send.selectTemplate');
+      message.error(errorMessage);
+      onError?.(errorMessage);
       return;
     }
 
@@ -109,7 +114,9 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({ onSuccess }
       setTemplateData({});
       onSuccess?.();
     } catch (error) {
-      message.error(t('notifications.send.templateError'));
+      const errorMessage = t('notifications.send.templateError');
+      message.error(errorMessage);
+      onError?.(errorMessage);
     } finally {
       setLoading(false);
     }

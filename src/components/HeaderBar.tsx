@@ -18,37 +18,10 @@ import { message } from 'antd';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import { useTheme } from '../contexts/ThemeContext';
+import NotificationBell from './notifications/NotificationBell';
 import './HeaderBar.css';
 
 const { Header } = Layout;
-
-const notifications = [
-  { id: 1, title: 'Bạn có 1 task mới', time: '2 phút trước' },
-  { id: 2, title: 'Dự án ABC đã cập nhật', time: '1 giờ trước' },
-  { id: 3, title: 'Nguyễn Văn B đã bình luận', time: 'Hôm qua' },
-];
-
-const notificationList = (
-  <div className="notification-dropdown">
-    <div className="notification-header">
-      <BellOutlined style={{ color: '#4f46e5', fontSize: 20, marginRight: 8 }} />
-      <Typography.Title level={5} className="notification-title">Thông báo</Typography.Title>
-    </div>
-    <List
-      dataSource={notifications}
-      renderItem={(item: { id: number; title: string; time: string }) => (
-        <List.Item className="notification-item">
-          <List.Item.Meta
-            title={<Typography.Text className="notification-item-title">{item.title}</Typography.Text>}
-            description={<span className="notification-item-time">{item.time}</span>}
-          />
-        </List.Item>
-      )}
-      locale={{ emptyText: <div style={{ textAlign: 'center', color: '#aaa', padding: '32px 0' }}>Không có thông báo mới.</div> }}
-      style={{ borderRadius: 12, background: 'transparent' }}
-    />
-  </div>
-);
 
 const HeaderBar: React.FC = () => {
   const navigate = useNavigate();
@@ -110,33 +83,15 @@ const HeaderBar: React.FC = () => {
       <div className="header-left">
         {isInProject && project && (
           <div className="project-info">
-            <div 
-              className="project-card"
-              onClick={() => navigate(`/projects/${projectId}`)}
-            >
-              <ProjectOutlined className="project-icon" />
-              <div>
-                <Typography.Text className="project-name">
-                  {project.name}
-                </Typography.Text>
-                <div className="project-details">
-                  {project.status && (
-                    <span className={`project-status ${project.status === 'active' ? 'status-active' : 'status-paused'}`}>
-                      ● {project.status === 'active' ? 'Đang hoạt động' : 'Tạm dừng'}
-                    </span>
-                  )}
-                  {project.total_tasks && (
-                    <span>
-                      📋 {project.total_tasks} tasks
-                    </span>
-                  )}
-                  {project.members && (
-                    <span>
-                      👥 {project.members.length} thành viên
-                    </span>
-                  )}
-                </div>
-              </div>
+            <ProjectOutlined style={{ fontSize: 20, color: '#4f46e5', marginRight: 8 }} />
+            <div>
+              <Typography.Text strong style={{ fontSize: 16 }}>
+                {project.name}
+              </Typography.Text>
+              <br />
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {t('project')} • {project.members?.length || 0} {t('members')}
+              </Typography.Text>
             </div>
           </div>
         )}
@@ -144,43 +99,90 @@ const HeaderBar: React.FC = () => {
 
       {/* Right side - All Icons */}
       <div className="header-actions">
-        <Tooltip title="Task của bạn">
-          <Badge count={myTaskCount} size="small">
-            <CheckSquareOutlined className="header-icon" />
-          </Badge>
-        </Tooltip>
-        <Tooltip title="Tin nhắn cần trả lời">
-          <Badge count={myMessageCount} size="small">
-            <MessageOutlined className="header-icon" />
-          </Badge>
-        </Tooltip>
-        <Dropdown
-          overlay={notificationList}
-          placement="bottomRight"
-          trigger={['click']}
-          arrow
-        >
-          <span>
-            <Badge count={notifications.length} size="small">
-              <BellOutlined className="header-icon" />
-            </Badge>
-          </span>
-        </Dropdown>
-        <Tooltip title={isDarkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}>
+        {/* Theme Toggle */}
+        <Tooltip title={isDarkMode ? t('lightMode') || 'Chế độ sáng' : t('darkMode') || 'Chế độ tối'}>
           <Button
             type="text"
             icon={isDarkMode ? <BulbOutlined /> : <BulbFilled />}
             onClick={toggleTheme}
-            className="theme-toggle"
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              height: 40,
+              width: 40,
+            }}
           />
         </Tooltip>
-        <Dropdown overlay={menu} placement="bottomRight" trigger={['click']}>
-          <Avatar
-            size={36}
-            src={user.avatar || undefined}
-            className="user-avatar"
-            icon={!user.avatar ? <UserOutlined style={{ fontSize: 20 }} /> : undefined}
+
+        {/* My Tasks */}
+        <Tooltip title={t('myTasks') || 'Công việc của tôi'}>
+          <Button
+            type="text"
+            icon={
+              <Badge count={myTaskCount} size="small" offset={[2, 0]}>
+                <CheckSquareOutlined style={{ fontSize: 18 }} />
+              </Badge>
+            }
+            onClick={() => navigate('/tasks')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              height: 40,
+              width: 40,
+            }}
           />
+        </Tooltip>
+
+        {/* Messages */}
+        <Tooltip title={t('messages') || 'Tin nhắn'}>
+          <Button
+            type="text"
+            icon={
+              <Badge count={myMessageCount} size="small" offset={[2, 0]}>
+                <MessageOutlined style={{ fontSize: 18 }} />
+              </Badge>
+            }
+            onClick={() => navigate('/chat')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              height: 40,
+              width: 40,
+            }}
+          />
+        </Tooltip>
+
+        {/* Notifications */}
+        <NotificationBell />
+
+        {/* User Menu */}
+        <Dropdown overlay={menu} placement="bottomRight" trigger={['click']}>
+          <Button
+            type="text"
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              height: 40,
+              width: 40,
+              padding: 0,
+            }}
+          >
+            <Avatar 
+              size={32} 
+              icon={<UserOutlined />} 
+              src={user.avatar}
+              style={{ 
+                backgroundColor: '#4f46e5',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+          </Button>
         </Dropdown>
       </div>
     </Header>

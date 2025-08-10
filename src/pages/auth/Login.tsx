@@ -14,21 +14,34 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await login(values);
-      const user = res.data.user || res.data;
-      const token = res.data.access_token || res.data.token;
+      const user = res.data.data?.user || res.data.user;
+      const token = res.data.data?.access_token || res.data.access_token;
+      
+      console.log('Login Response:', res.data);
+      console.log('User:', user);
+      console.log('Token:', token);
       
       // Save user info and token to localStorage
       localStorage.setItem('user', JSON.stringify(user));
       if (token) {
         localStorage.setItem('token', token);
-        localStorage.setItem('access_token', token);
+        localStorage.setItem('access-token', token);
       }
       
+      console.log('Stored in localStorage:', {
+        user: localStorage.getItem('user'),
+        token: localStorage.getItem('token'),
+        access_token: localStorage.getItem('access-token')
+      });
+      
       message.success(t('loginSuccess'));
+      console.log('About to navigate to /');
       setTimeout(() => {
+        console.log('Navigating to / now...');
         navigate('/');
       }, 800);
     } catch (err: any) {
+      console.error('Login Error:', err);
       message.error(err?.response?.data?.message || t('loginFailed'));
     } finally {
       setLoading(false);

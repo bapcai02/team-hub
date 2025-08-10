@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  Layout,
   Tabs,
   Card,
   Typography,
   Space,
   Button,
   Modal,
+  message,
 } from 'antd';
 import {
   BellOutlined,
@@ -16,128 +17,154 @@ import {
   SendOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
+import MainLayout from '../../layouts/MainLayout';
 import NotificationList from '../../components/notifications/NotificationList';
 import NotificationPreferences from '../../components/notifications/NotificationPreferences';
 import NotificationStats from '../../components/notifications/NotificationStats';
 import SendNotificationForm from '../../components/notifications/SendNotificationForm';
+import { RootState } from '../../app/store';
+import {
+  fetchNotifications,
+  fetchNotificationStats,
+  fetchNotificationPreferences,
+  fetchNotificationTemplates,
+  fetchNotificationOptions,
+  sendNotification,
+  clearNotificationsError,
+} from '../../features/notifications/notificationSlice';
 
-const { Content } = Layout;
 const { Title } = Typography;
 
 const NotificationManagement: React.FC = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const [sendModalVisible, setSendModalVisible] = useState(false);
+
+  const {
+    notificationsLoading,
+    notificationsError,
+    statsLoading,
+    preferencesLoading,
+    templatesLoading,
+  } = useSelector((state: RootState) => state.notifications);
+
+  useEffect(() => {
+    // Load initial data
+    dispatch(fetchNotifications() as any);
+    dispatch(fetchNotificationStats() as any);
+    dispatch(fetchNotificationPreferences() as any);
+    dispatch(fetchNotificationTemplates() as any);
+    dispatch(fetchNotificationOptions() as any);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (notificationsError) {
+      message.error(notificationsError);
+      dispatch(clearNotificationsError());
+    }
+  }, [notificationsError, dispatch]);
 
   const handleSendSuccess = () => {
     setSendModalVisible(false);
-    // Optionally refresh the notification list
+    message.success(t('notifications.send.success'));
+    // Refresh notifications after sending
+    dispatch(fetchNotifications() as any);
+  };
+
+  const handleSendError = (error: string) => {
+    message.error(error || t('notifications.send.error'));
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      {/* HeaderBar placeholder */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 64, backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0', zIndex: 1000 }}>
-        {/* This would be your actual HeaderBar component */}
-      </div>
-      
-      {/* Sidebar placeholder */}
-      <div style={{ width: 250, backgroundColor: '#001529', position: 'fixed', height: '100vh', top: 64 }}>
-        {/* This would be your actual Sidebar component */}
+    <MainLayout>
+      <div style={{ marginBottom: 24 }}>
+        <Space>
+          <Title level={2} style={{ margin: 0 }}>
+            <BellOutlined style={{ marginRight: 8 }} />
+            {t('notifications.management.title')}
+          </Title>
+          <Button 
+            type="primary" 
+            icon={<SendOutlined />}
+            onClick={() => setSendModalVisible(true)}
+            loading={notificationsLoading}
+          >
+            {t('notifications.management.sendNew')}
+          </Button>
+        </Space>
       </div>
 
-      {/* Main content */}
-      <div style={{ marginLeft: 250, marginTop: 64, flex: 1 }}>
-        <Layout>
-          <Content style={{ padding: '24px', minHeight: 'calc(100vh - 64px)' }}>
-            <div style={{ marginBottom: 24 }}>
-              <Space>
-                <Title level={2} style={{ margin: 0 }}>
-                  <BellOutlined style={{ marginRight: 8 }} />
-                  {t('notifications.management.title')}
+      <Tabs 
+        defaultActiveKey="notifications"
+        items={[
+          {
+            key: 'notifications',
+            label: (
+              <span>
+                <BellOutlined />
+                {t('notifications.management.notifications')}
+              </span>
+            ),
+            children: (
+              <Card>
+                <NotificationList />
+              </Card>
+            ),
+          },
+          {
+            key: 'statistics',
+            label: (
+              <span>
+                <BarChartOutlined />
+                {t('notifications.management.statistics')}
+              </span>
+            ),
+            children: <NotificationStats />,
+          },
+          {
+            key: 'preferences',
+            label: (
+              <span>
+                <SettingOutlined />
+                {t('notifications.management.preferences')}
+              </span>
+            ),
+            children: <NotificationPreferences />,
+          },
+          {
+            key: 'templates',
+            label: (
+              <span>
+                <FileTextOutlined />
+                {t('notifications.management.templates')}
+              </span>
+            ),
+            children: (
+              <Card>
+                <Title level={4}>
+                  {t('notifications.management.templates')}
                 </Title>
-                <Button 
-                  type="primary" 
-                  icon={<SendOutlined />}
-                  onClick={() => setSendModalVisible(true)}
-                >
-                  {t('notifications.management.sendNew')}
-                </Button>
-              </Space>
-            </div>
+                <p>{t('notifications.management.templatesDescription')}</p>
+              </Card>
+            ),
+          },
+        ]}
+      />
 
-            <Tabs 
-              defaultActiveKey="notifications"
-              items={[
-                {
-                  key: 'notifications',
-                  label: (
-                    <span>
-                      <BellOutlined />
-                      {t('notifications.management.notifications')}
-                    </span>
-                  ),
-                  children: (
-                    <Card>
-                      <NotificationList />
-                    </Card>
-                  ),
-                },
-                {
-                  key: 'statistics',
-                  label: (
-                    <span>
-                      <BarChartOutlined />
-                      {t('notifications.management.statistics')}
-                    </span>
-                  ),
-                  children: <NotificationStats />,
-                },
-                {
-                  key: 'preferences',
-                  label: (
-                    <span>
-                      <SettingOutlined />
-                      {t('notifications.management.preferences')}
-                    </span>
-                  ),
-                  children: <NotificationPreferences />,
-                },
-                {
-                  key: 'templates',
-                  label: (
-                    <span>
-                      <FileTextOutlined />
-                      {t('notifications.management.templates')}
-                    </span>
-                  ),
-                  children: (
-                    <Card>
-                      <Title level={4}>
-                        <FileTextOutlined style={{ marginRight: 8 }} />
-                        {t('notifications.templates.title')}
-                      </Title>
-                      <p>{t('notifications.templates.description')}</p>
-                      {/* Template management component would go here */}
-                    </Card>
-                  ),
-                },
-              ]}
-            />
-
-            <Modal
-              title={t('notifications.send.title')}
-              open={sendModalVisible}
-              onCancel={() => setSendModalVisible(false)}
-              footer={null}
-              width={800}
-              destroyOnClose
-            >
-              <SendNotificationForm onSuccess={handleSendSuccess} />
-            </Modal>
-          </Content>
-        </Layout>
-      </div>
-    </div>
+      <Modal
+        title={t('notifications.send.title')}
+        open={sendModalVisible}
+        onCancel={() => setSendModalVisible(false)}
+        footer={null}
+        width={800}
+        destroyOnClose
+      >
+        <SendNotificationForm 
+          onSuccess={handleSendSuccess}
+          onError={handleSendError}
+        />
+      </Modal>
+    </MainLayout>
   );
 };
 

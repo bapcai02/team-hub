@@ -31,8 +31,32 @@ import NotificationManagement from '../pages/notifications/NotificationManagemen
 import React from 'react';
 
 const useAuth = () => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  return { isAuthenticated: !!user, user };
+  const userStr = localStorage.getItem('user');
+  const token = localStorage.getItem('token') || localStorage.getItem('access-token');
+  
+  // Debug: log all localStorage keys
+  console.log('=== useAuth Hook Called ===');
+  console.log('All localStorage keys:', Object.keys(localStorage));
+  console.log('localStorage.getItem("token"):', localStorage.getItem('token'));
+  console.log('localStorage.getItem("access-token"):', localStorage.getItem('access-token'));
+  console.log('localStorage.getItem("user"):', localStorage.getItem('user'));
+  
+  let user = null;
+  if (userStr) {
+    try {
+      user = JSON.parse(userStr);
+    } catch (e) {
+      console.error('Error parsing user:', e);
+    }
+  }
+  
+  // Check if token exists (that's enough for authentication)
+  const isAuthenticated = !!token;
+  
+  console.log('Auth Check Result:', { user, token, isAuthenticated });
+  console.log('=== End useAuth Hook ===');
+  
+  return { isAuthenticated, user };
 };
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -40,15 +64,24 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 }
 
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/" /> : <>{children}</>;
+}
+
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user } = useAuth();
-  return isAuthenticated && user?.role === 'admin' ? <>{children}</> : <Navigate to="/" />;
+  return isAuthenticated && user && user.role === 'admin' ? <>{children}</> : <Navigate to="/" />;
 }
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      } />
       <Route path="/" element={
         <PrivateRoute>
           <Dashboard />
@@ -217,7 +250,9 @@ export default function AppRoutes() {
           <div>Admin Site</div>
         </AdminRoute>
       } />
-      {/* Thêm route khác ở đây */}
+      
+      {/* Catch all route - redirect to login if not authenticated, otherwise to dashboard */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
