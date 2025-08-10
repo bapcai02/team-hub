@@ -367,9 +367,14 @@
   },
   "calendar": {
     "title": "Lịch",
-    "description": "Quản lý và xem tất cả sự kiện, cuộc họp và lịch trình của bạn tại một nơi",
-    "editEvent": "Chỉnh sửa sự kiện",
-    "eventDetails": "Chi tiết sự kiện",
+    "description": "Quản lý sự kiện, cuộc họp và ngày quan trọng",
+    "createEvent": "Tạo sự kiện",
+    "stats": {
+      "totalEvents": "Tổng sự kiện",
+      "upcomingEvents": "Sự kiện sắp tới",
+      "completedEvents": "Sự kiện đã hoàn thành",
+      "overdueEvents": "Sự kiện quá hạn"
+    },
     "allDay": "Cả ngày",
     "previous": "Trước",
     "next": "Tiếp",
@@ -381,21 +386,8 @@
     "date": "Ngày",
     "time": "Thời gian",
     "event": "Sự kiện",
-    "noEventsInRange": "Không có sự kiện nào trong khoảng thời gian này",
-    "showMore": "Hiển thị thêm {{total}}",
-    "eventTitle": "Tiêu đề",
-    "eventDescription": "Mô tả",
-    "location": "Địa điểm",
-    "type": "Loại",
-    "status": "Trạng thái",
-    "meeting": "Cuộc họp",
-    "task": "Nhiệm vụ",
-    "reminder": "Nhắc nhở",
-    "other": "Khác",
-    "scheduled": "Đã lên lịch",
-    "ongoing": "Đang diễn ra",
-    "completed": "Hoàn thành",
-    "cancelled": "Đã hủy"
+    "noEventsInRange": "Không có sự kiện trong khoảng này",
+    "showMore": "Hiển thị thêm {{total}}"
   },
   "documents": {
     "title": "Tài liệu",
@@ -1119,7 +1111,8 @@
       "selectTime": "Chọn thời gian",
       "save": "Lưu cài đặt",
       "saveSuccess": "Lưu cài đặt thành công",
-      "saveError": "Không thể lưu cài đặt"
+      "saveError": "Không thể lưu cài đặt",
+      "noPreferences": "Không tìm thấy cài đặt. Đang tạo cài đặt mặc định..."
     },
     "stats": {
       "title": "Thống kê Thông báo",
@@ -1134,7 +1127,36 @@
     },
     "templates": {
       "title": "Mẫu Thông báo",
-      "description": "Quản lý các mẫu thông báo có thể tái sử dụng với biến động"
+      "description": "Quản lý các mẫu thông báo có thể tái sử dụng với biến động",
+      "name": "Tên",
+      "category": "Danh mục",
+      "channels": "Kênh",
+      "priority": "Độ ưu tiên",
+      "status": "Trạng thái",
+      "actions": "Hành động",
+      "create": "Tạo mẫu",
+      "edit": "Sửa mẫu",
+      "view": "Xem",
+      "copy": "Sao chép",
+      "send": "Gửi",
+      "delete": "Xóa",
+      "deleteConfirm": "Bạn có chắc muốn xóa mẫu này?",
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động",
+      "type": "Loại",
+      "titleTemplate": "Mẫu tiêu đề",
+      "messageTemplate": "Mẫu tin nhắn",
+      "nameRequired": "Tên là bắt buộc",
+      "categoryRequired": "Danh mục là bắt buộc",
+      "typeRequired": "Loại là bắt buộc",
+      "titleTemplateRequired": "Mẫu tiêu đề là bắt buộc",
+      "messageTemplateRequired": "Mẫu tin nhắn là bắt buộc",
+      "channelsRequired": "Kênh là bắt buộc",
+      "priorityRequired": "Độ ưu tiên là bắt buộc",
+      "createSuccess": "Tạo mẫu thành công",
+      "updateSuccess": "Cập nhật mẫu thành công",
+      "deleteSuccess": "Xóa mẫu thành công",
+      "saveError": "Không thể lưu mẫu"
     }
   },
   "contract": {
@@ -1393,5 +1415,11 @@
       "descriptionPlaceholder": "Nhập mô tả mẫu hợp đồng",
       "contentPlaceholder": "Nhập nội dung mẫu hợp đồng"
     }
-  }
+  },
+  "showing": "Hiển thị",
+  "of": "trên tổng",
+  "items": "mục",
+  "justNow": "Vừa xong",
+  "hoursAgo": "{{count}} giờ trước",
+  "minutesAgo": "{{count}} phút trước"
 } 

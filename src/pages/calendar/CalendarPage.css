@@ -1,0 +1,190 @@
+/* Clean Calendar Page Styles */
+
+.calendar-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 0;
+  margin: 0;
+}
+
+/* Header Section */
+.calendar-header {
+  background: #ffffff;
+  padding: 24px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.header-left {
+  flex: 1;
+  min-width: 300px;
+}
+
+.page-title {
+  margin: 0 !important;
+  font-size: 1.875rem !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+.title-icon {
+  font-size: 1.875rem !important;
+  color: #3b82f6 !important;
+}
+
+.page-description {
+  color: #64748b !important;
+  margin: 0 !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Statistics Section */
+.stats-section {
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
+  padding: 0 24px;
+}
+
+.stat-card {
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  background: #ffffff !important;
+  transition: all 0.2s ease !important;
+  overflow: hidden !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.stat-card .ant-statistic-title {
+  color: #64748b !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+}
+
+.stat-card .ant-statistic-content {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+.stat-card .ant-statistic-content-prefix {
+  font-size: 1.25rem !important;
+  margin-right: 8px !important;
+}
+
+/* Calendar Card */
+.calendar-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 24px 24px;
+}
+
+.calendar-card .ant-card-body {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .page-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .title-icon {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-header {
+    padding: 20px 0;
+  }
+  
+  .header-content {
+    padding: 0 16px;
+  }
+  
+  .page-title {
+    font-size: 1.375rem !important;
+  }
+  
+  .title-icon {
+    font-size: 1.375rem !important;
+  }
+  
+  .page-description {
+    font-size: 0.875rem !important;
+  }
+  
+  .stats-section {
+    padding: 0 16px;
+  }
+  
+  .calendar-card {
+    padding: 0 16px 16px 16px;
+  }
+  
+  .stat-card .ant-statistic-content {
+    font-size: 1.25rem !important;
+  }
+  
+  .stat-card .ant-statistic-content-prefix {
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.25rem !important;
+  }
+  
+  .title-icon {
+    font-size: 1.25rem !important;
+  }
+  
+  .stat-card {
+    margin-bottom: 12px;
+  }
+} 

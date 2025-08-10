@@ -10,8 +10,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const { theme } = useTheme();
   const location = useLocation();
   
-  // Check if current page is analytics to apply full-screen layout
+  // Check if current page is analytics or notifications to apply full-screen layout
   const isAnalyticsPage = location.pathname.includes('/analytics');
+  const isNotificationsPage = location.pathname.includes('/notifications');
+  const isFullWidthPage = isAnalyticsPage || isNotificationsPage;
   
   return (
     <Layout 
@@ -35,6 +37,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         >
           {isAnalyticsPage ? (
             children
+          ) : isNotificationsPage ? (
+            <div 
+              style={{
+                maxWidth: '90%',
+                margin: '0 auto',
+                minHeight: 'calc(100vh - 120px)'
+              }}
+            >
+              {children}
+            </div>
           ) : (
             <div 
               style={{

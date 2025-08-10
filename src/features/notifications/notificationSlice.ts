@@ -19,6 +19,7 @@ interface NotificationState {
   // Stats
   stats: NotificationStats | null;
   statsLoading: boolean;
+  statsError: string | null;
   
   // Preferences
   preferences: NotificationPreference[];
@@ -47,6 +48,7 @@ const initialState: NotificationState = {
   
   stats: null,
   statsLoading: false,
+  statsError: null,
   
   preferences: [],
   preferencesLoading: false,
@@ -117,7 +119,9 @@ export const fetchNotificationPreferences = createAsyncThunk(
   'notifications/fetchPreferences',
   async () => {
     const response = await notificationApi.getPreferences();
-    return response.data;
+    // Handle API response format: { data: { preferences: [...], default_preferences: {...} } }
+    const data = response.data?.data?.preferences || response.data?.preferences || response.data || [];
+    return Array.isArray(data) ? data : [];
   }
 );
 
@@ -241,13 +245,15 @@ const notificationSlice = createSlice({
     builder
       .addCase(fetchNotificationStats.pending, (state) => {
         state.statsLoading = true;
+        state.statsError = null;
       })
       .addCase(fetchNotificationStats.fulfilled, (state, action) => {
         state.statsLoading = false;
         state.stats = action.payload.data || action.payload;
       })
-      .addCase(fetchNotificationStats.rejected, (state) => {
+      .addCase(fetchNotificationStats.rejected, (state, action) => {
         state.statsLoading = false;
+        state.statsError = action.error.message || 'Failed to fetch stats';
       });
 
     // Send notification
@@ -272,7 +278,7 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchNotificationPreferences.fulfilled, (state, action) => {
         state.preferencesLoading = false;
-        state.preferences = action.payload.data || action.payload;
+        state.preferences = action.payload;
       })
       .addCase(fetchNotificationPreferences.rejected, (state, action) => {
         state.preferencesLoading = false;

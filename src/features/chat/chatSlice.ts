@@ -165,8 +165,8 @@ export const getConversations = createAsyncThunk(
       const response = await chatApi.fetchConversations();      
       return response.data.data.conversations;
     } catch (error) {
-      console.log('Using mock conversations due to API error');
-      return mockConversations;
+      console.log('API error fetching conversations, returning empty array');
+      return [];
     }
   }
 );
@@ -190,8 +190,8 @@ export const getMessages = createAsyncThunk(
       const response = await chatApi.fetchMessages(conversationId);      
       return { conversationId, messages: response.data.data.messages };
     } catch (error) {
-      console.log('Using mock messages due to API error');
-      return { conversationId, messages: mockMessages };
+      console.log('API error fetching messages, returning empty array');
+      return { conversationId, messages: [] };
     }
   }
 );

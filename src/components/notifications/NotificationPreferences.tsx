@@ -50,6 +50,83 @@ const NotificationPreferences: React.FC = () => {
     channels,
   } = useSelector((state: RootState) => state.notifications);
 
+  // Ensure preferences is always an array
+  const safePreferences = Array.isArray(preferences) ? preferences : [];
+  
+  // Fallback categories if not loaded
+  const fallbackCategories = {
+    system: 'System',
+    project: 'Project',
+    finance: 'Finance',
+    hr: 'HR',
+    device: 'Device',
+    contract: 'Contract',
+  };
+  
+  // Ensure categories is a simple object with string values
+  const safeCategories = (() => {
+    if (Object.keys(categories).length === 0) {
+      return fallbackCategories;
+    }
+    
+    // If categories is already a simple object, use it
+    if (typeof categories === 'object' && categories !== null) {
+      const simpleCategories: Record<string, string> = {};
+      for (const [key, value] of Object.entries(categories)) {
+        if (typeof value === 'string') {
+          simpleCategories[key] = value;
+        } else if (typeof value === 'object' && value !== null) {
+          // If value is an object, try to extract a display name
+          simpleCategories[key] = (value as any).name || (value as any).label || key;
+        }
+      }
+      return Object.keys(simpleCategories).length > 0 ? simpleCategories : fallbackCategories;
+    }
+    
+    return fallbackCategories;
+  })();
+  
+  // Fallback channels if not loaded
+  const fallbackChannels = {
+    email: 'Email',
+    push: 'Push Notification',
+    sms: 'SMS',
+    in_app: 'In-App',
+  };
+  
+  // Ensure channels is a simple object with string values
+  const safeChannels = (() => {
+    if (Object.keys(channels).length === 0) {
+      return fallbackChannels;
+    }
+    
+    // If channels is already a simple object, use it
+    if (typeof channels === 'object' && channels !== null) {
+      const simpleChannels: Record<string, string> = {};
+      for (const [key, value] of Object.entries(channels)) {
+        if (typeof value === 'string') {
+          simpleChannels[key] = value;
+        } else if (typeof value === 'object' && value !== null) {
+          // If value is an object, try to extract a display name
+          simpleChannels[key] = (value as any).name || (value as any).label || key;
+        }
+      }
+      return Object.keys(simpleChannels).length > 0 ? simpleChannels : fallbackChannels;
+    }
+    
+    return fallbackChannels;
+  })();
+  
+  console.log('NotificationPreferences Debug:', {
+    preferences: safePreferences,
+    categories: safeCategories,
+    channels: safeChannels,
+    preferencesLoading,
+    preferencesError,
+    safePreferencesLength: safePreferences.length,
+    rawPreferences: preferences
+  });
+
   useEffect(() => {
     dispatch(fetchNotificationPreferences() as any);
     dispatch(fetchNotificationOptions() as any);
@@ -96,7 +173,7 @@ const NotificationPreferences: React.FC = () => {
   };
 
   const getPreferenceForCategory = (category: string): NotificationPreference | null => {
-    return preferences.find(p => p.category === category) || null;
+    return safePreferences.find(p => p.category === category) || null;
   };
 
   const renderCategoryPreferences = (category: string, categoryLabel: string) => {
@@ -147,7 +224,7 @@ const NotificationPreferences: React.FC = () => {
               >
                 <Checkbox.Group style={{ width: '100%' }}>
                   <Row>
-                    {Object.entries(channels).map(([key, label]) => (
+                    {Object.entries(safeChannels).map(([key, label]) => (
                       <Col span={24} key={key} style={{ marginBottom: 8 }}>
                         <Checkbox value={key}>
                           <Space>
@@ -249,9 +326,17 @@ const NotificationPreferences: React.FC = () => {
             </Text>
           )}
 
+          {!preferencesLoading && safePreferences.length === 0 && (
+            <div style={{ textAlign: 'center', padding: 40 }}>
+              <Text type="secondary">
+                {t('notifications.preferences.noPreferences') || 'No preferences found. Creating default preferences...'}
+              </Text>
+            </div>
+          )}
+
           <Collapse 
             ghost
-            items={Object.entries(categories).map(([category, label]) =>
+            items={Object.entries(safeCategories).map(([category, label]) =>
               renderCategoryPreferences(category, label)
             )}
           />

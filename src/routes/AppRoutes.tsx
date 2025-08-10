@@ -34,13 +34,6 @@ const useAuth = () => {
   const userStr = localStorage.getItem('user');
   const token = localStorage.getItem('token') || localStorage.getItem('access-token');
   
-  // Debug: log all localStorage keys
-  console.log('=== useAuth Hook Called ===');
-  console.log('All localStorage keys:', Object.keys(localStorage));
-  console.log('localStorage.getItem("token"):', localStorage.getItem('token'));
-  console.log('localStorage.getItem("access-token"):', localStorage.getItem('access-token'));
-  console.log('localStorage.getItem("user"):', localStorage.getItem('user'));
-  
   let user = null;
   if (userStr) {
     try {
@@ -52,9 +45,6 @@ const useAuth = () => {
   
   // Check if token exists (that's enough for authentication)
   const isAuthenticated = !!token;
-  
-  console.log('Auth Check Result:', { user, token, isAuthenticated });
-  console.log('=== End useAuth Hook ===');
   
   return { isAuthenticated, user };
 };

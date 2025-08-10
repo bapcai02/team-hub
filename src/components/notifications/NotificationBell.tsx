@@ -78,19 +78,35 @@ const NotificationBell: React.FC = () => {
   };
 
   const dropdownContent = (
-    <div style={{ width: 400, maxHeight: 500, overflow: 'auto' }}>
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
+    <div style={{ 
+      width: 400, 
+      maxHeight: 500, 
+      overflow: 'auto',
+      backgroundColor: '#ffffff',
+      border: '1px solid #d9d9d9',
+      borderRadius: '8px',
+      boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+    }}>
+      <div style={{ 
+        padding: '16px', 
+        borderBottom: '1px solid #f0f0f0',
+        backgroundColor: '#fafafa',
+        borderTopLeftRadius: '8px',
+        borderTopRightRadius: '8px',
+      }}>
         <Space>
-          <Text strong>{t('notifications.list.title')}</Text>
+          <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+            {t('notifications.list.title')}
+          </Text>
           {unreadCount > 0 && (
-            <Badge count={unreadCount} size="small" />
+            <Badge count={unreadCount} size="small" style={{ backgroundColor: '#ff4d4f' }} />
           )}
         </Space>
       </div>
 
       <div style={{ maxHeight: 300, overflow: 'auto' }}>
         {notifications.length === 0 ? (
-          <div style={{ padding: 20 }}>
+          <div style={{ padding: 24, textAlign: 'center' }}>
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={t('notifications.list.noNotifications')}
@@ -106,9 +122,19 @@ const NotificationBell: React.FC = () => {
 
       <Divider style={{ margin: 0 }} />
       
-      <div style={{ padding: '8px 16px' }}>
+      <div style={{ 
+        padding: '12px 16px',
+        backgroundColor: '#fafafa',
+        borderBottomLeftRadius: '8px',
+        borderBottomRightRadius: '8px',
+      }}>
         <Space split={<Divider type="vertical" />}>
-          <Button type="link" size="small" onClick={handleViewAll}>
+          <Button 
+            type="link" 
+            size="small" 
+            onClick={handleViewAll}
+            style={{ color: '#1890ff', fontWeight: 500 }}
+          >
             {t('notifications.management.notifications')}
           </Button>
           <Button 
@@ -116,6 +142,7 @@ const NotificationBell: React.FC = () => {
             size="small" 
             icon={<SettingOutlined />}
             onClick={handleManagePreferences}
+            style={{ color: '#1890ff', fontWeight: 500 }}
           >
             {t('notifications.management.preferences')}
           </Button>

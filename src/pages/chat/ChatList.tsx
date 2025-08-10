@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Spin, message } from 'antd';
+import { Layout, Spin, message, Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
 import { useChat } from '../../hooks/useChat';
@@ -140,6 +140,24 @@ const ChatList: React.FC = () => {
     );
   }
 
+  // Show empty state when no conversations
+  if (!loading.conversations && conversations.length === 0) {
+    return (
+      <MainLayout>
+        <Content style={{ padding: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ textAlign: 'center', color: '#999' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+            <div style={{ fontSize: '18px', marginBottom: '8px' }}>No conversations yet</div>
+            <div style={{ fontSize: '14px', marginBottom: '16px' }}>Start a new conversation to begin chatting</div>
+            <Button type="primary" onClick={() => setShowCreateModal(true)}>
+              Create Conversation
+            </Button>
+          </div>
+        </Content>
+      </MainLayout>
+    );
+  }
+
   // Log messages prop for debugging
   console.log('ChatList messages prop:', messages);
 
@@ -196,8 +214,9 @@ const ChatList: React.FC = () => {
                 alignItems: 'center',
                 color: '#999'
               }}>
-                <div style={{ fontSize: '24px', marginBottom: '8px' }}>💬</div>
-                <div style={{ fontSize: '16px' }}>Select a conversation to start chatting</div>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+                <div style={{ fontSize: '18px', marginBottom: '8px' }}>Select a conversation</div>
+                <div style={{ fontSize: '14px' }}>Choose a conversation from the sidebar to start chatting</div>
               </div>
             )}
           </div>

@@ -68,13 +68,16 @@ const MessageList: React.FC<MessageListProps> = ({
     return (
       <div style={{
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
         color: '#999',
-        fontSize: '14px'
+        padding: '24px'
       }}>
-        No messages yet
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+        <div style={{ fontSize: '16px', marginBottom: '8px' }}>No messages yet</div>
+        <div style={{ fontSize: '14px', textAlign: 'center' }}>Start the conversation by sending your first message</div>
       </div>
     );
   }

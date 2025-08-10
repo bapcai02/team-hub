@@ -14,16 +14,11 @@ apiClient.interceptors.request.use(
     // Try to get token from user object first (like axiosInstance)
     const userStr = localStorage.getItem('user');
     let token = '';
-    
-    console.log('=== API Client Request Interceptor ===');
-    console.log('User string from localStorage:', userStr);
-    
+        
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        console.log('Parsed user object:', user);
         token = user.data?.access_token || user.data?.['access-token'] || '';
-        console.log('Token from user object:', token);
       } catch (e) {
         console.error('Error parsing user:', e);
       }
@@ -32,23 +27,15 @@ apiClient.interceptors.request.use(
     // Fallback to direct token storage
     if (!token) {
       const directToken = localStorage.getItem('token') || localStorage.getItem('access-token') || '';
-      console.log('Direct token from localStorage:', directToken);
       token = directToken;
     }
     
-    // Debug: log token
-    console.log('Final token for request:', token ? 'Token exists' : 'No token found');
-    console.log('API Request URL:', config.url);
-    console.log('API Request Headers:', config.headers);
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Added Authorization header:', `Bearer ${token.substring(0, 20)}...`);
     } else {
       console.log('No token found - request will be sent without Authorization header');
     }
     
-    console.log('=== End API Client Request Interceptor ===');
     return config;
   },
   (error) => {

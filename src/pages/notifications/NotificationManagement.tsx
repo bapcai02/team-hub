@@ -21,6 +21,7 @@ import MainLayout from '../../layouts/MainLayout';
 import NotificationList from '../../components/notifications/NotificationList';
 import NotificationPreferences from '../../components/notifications/NotificationPreferences';
 import NotificationStats from '../../components/notifications/NotificationStats';
+import NotificationTemplates from '../../components/notifications/NotificationTemplates';
 import SendNotificationForm from '../../components/notifications/SendNotificationForm';
 import { RootState } from '../../app/store';
 import {
@@ -139,14 +140,7 @@ const NotificationManagement: React.FC = () => {
                 {t('notifications.management.templates')}
               </span>
             ),
-            children: (
-              <Card>
-                <Title level={4}>
-                  {t('notifications.management.templates')}
-                </Title>
-                <p>{t('notifications.management.templatesDescription')}</p>
-              </Card>
-            ),
+            children: <NotificationTemplates />,
           },
         ]}
       />

@@ -49,7 +49,10 @@ const ProjectList: React.FC = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}')
-    dispatch(getProjects(`?user_id=${user.data.user.id}`))
+    const userId = user?.data?.user?.id || user?.data?.id || user?.id
+    if (userId) {
+      dispatch(getProjects(`?user_id=${userId}`))
+    }
     dispatch(getUsers())
   }, [dispatch])
 
@@ -62,7 +65,10 @@ const ProjectList: React.FC = () => {
   };
   const refreshProjects = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}')
-    dispatch(getProjects(`?user_id=${user.data.user.id}`))
+    const userId = user?.data?.user?.id || user?.data?.id || user?.id
+    if (userId) {
+      dispatch(getProjects(`?user_id=${userId}`))
+    }
   }
 
   const handleEdit = (project: any) => {

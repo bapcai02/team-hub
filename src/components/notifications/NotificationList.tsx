@@ -70,12 +70,27 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
       filters.unread = true;
     }
 
+    console.log('NotificationList Debug - Fetching with filters:', filters);
     dispatch(fetchNotifications(filters) as any);
   }, [dispatch, selectedCategory, showUnreadOnly]);
 
   useEffect(() => {
+    console.log('NotificationList Debug - Fetching options');
     dispatch(fetchNotificationOptions() as any);
   }, [dispatch]);
+
+  // Debug logging
+  console.log('NotificationList Debug:', {
+    notifications: notifications.length,
+    notificationsLoading,
+    notificationsError,
+    categories: Object.keys(categories).length,
+    channels: Object.keys(channels).length,
+    priorities: Object.keys(priorities).length,
+    selectedCategory,
+    showUnreadOnly,
+    unreadCount: notifications.filter(n => !n.is_read).length
+  });
 
   const handleMarkAsRead = async (notification: Notification) => {
     if (notification.is_read) return;
@@ -220,15 +235,29 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
         ) : (
           <List
             dataSource={filteredNotifications}
+            style={{ 
+              backgroundColor: 'transparent',
+              border: 'none',
+            }}
             renderItem={(notification: Notification) => (
               <List.Item
                 key={notification.id}
                 className={`${!notification.is_read ? 'notification-unread' : ''}`}
                 style={{
-                  backgroundColor: !notification.is_read ? '#f6ffed' : 'transparent',
+                  backgroundColor: !notification.is_read ? '#f6ffed' : '#ffffff',
                   cursor: 'pointer',
+                  padding: compact ? '12px 16px' : '16px',
+                  borderBottom: '1px solid #f0f0f0',
+                  margin: 0,
+                  transition: 'background-color 0.2s ease',
                 }}
                 onClick={() => handleMarkAsRead(notification)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = !notification.is_read ? '#f0f9ff' : '#fafafa';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = !notification.is_read ? '#f6ffed' : '#ffffff';
+                }}
               >
                 <List.Item.Meta
                   avatar={
@@ -241,6 +270,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
                             position: 'absolute',
                             top: -2,
                             right: -2,
+                            backgroundColor: '#ff4d4f',
                           }}
                         />
                       )}
@@ -248,7 +278,13 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
                   }
                   title={
                     <Space>
-                      <Text strong={!notification.is_read}>
+                      <Text 
+                        strong={!notification.is_read}
+                        style={{ 
+                          fontSize: compact ? '14px' : '16px',
+                          color: !notification.is_read ? '#262626' : '#595959',
+                        }}
+                      >
                         {notification.title}
                       </Text>
                       <Tag color={getPriorityColor(notification.priority)}>
@@ -263,17 +299,21 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
                     <div>
                       <Paragraph 
                         ellipsis={{ rows: compact ? 1 : 2 }}
-                        style={{ marginBottom: 8 }}
+                        style={{ 
+                          marginBottom: 8,
+                          fontSize: compact ? '12px' : '14px',
+                          color: '#8c8c8c',
+                        }}
                       >
                         {notification.message}
                       </Paragraph>
-                      <Space>
+                      <Space size="small">
                         {notification.category && (
                           <Tag>
                             {categories[notification.category] || notification.category}
                           </Tag>
                         )}
-                        <Text type="secondary">
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
                           <ClockCircleOutlined style={{ marginRight: 4 }} />
                           {formatDate(notification.sent_at || notification.created_at)}
                         </Text>
@@ -283,6 +323,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
+                            style={{ fontSize: '12px', color: '#1890ff' }}
                           >
                             <LinkOutlined />
                             {t('notifications.viewDetails')}
@@ -307,6 +348,10 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
       <style>{`
         .notification-unread {
           border-left: 3px solid #1890ff !important;
+          background-color: #f6ffed !important;
+        }
+        .notification-unread:hover {
+          background-color: #f0f9ff !important;
         }
       `}</style>
     </div>

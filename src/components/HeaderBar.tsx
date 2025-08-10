@@ -4,11 +4,9 @@ import {
   UserOutlined,
   LogoutOutlined,
   BellOutlined,
-  BulbOutlined,
   CheckSquareOutlined,
   MessageOutlined,
   ProjectOutlined,
-  BulbFilled,
 } from '@ant-design/icons';
 import { List } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -17,7 +15,6 @@ import { logout as apiLogout } from '../features/auth';
 import { message } from 'antd';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { useTheme } from '../contexts/ThemeContext';
 import NotificationBell from './notifications/NotificationBell';
 import './HeaderBar.css';
 
@@ -27,7 +24,6 @@ const HeaderBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { isDarkMode, toggleTheme } = useTheme();
   
   const user = {
     name: 'Nguyễn Văn A',
@@ -99,22 +95,6 @@ const HeaderBar: React.FC = () => {
 
       {/* Right side - All Icons */}
       <div className="header-actions">
-        {/* Theme Toggle */}
-        <Tooltip title={isDarkMode ? t('lightMode') || 'Chế độ sáng' : t('darkMode') || 'Chế độ tối'}>
-          <Button
-            type="text"
-            icon={isDarkMode ? <BulbOutlined /> : <BulbFilled />}
-            onClick={toggleTheme}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              height: 40,
-              width: 40,
-            }}
-          />
-        </Tooltip>
-
         {/* My Tasks */}
         <Tooltip title={t('myTasks') || 'Công việc của tôi'}>
           <Button

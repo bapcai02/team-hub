@@ -133,7 +133,10 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
       } else {
         // Fallback: refresh projects list
         const user = JSON.parse(localStorage.getItem('user') || '{}')
-        dispatch(getProjects(`?user_id=${user.data.user.id}`))
+        const userId = user?.data?.user?.id || user?.data?.id || user?.id
+        if (userId) {
+          dispatch(getProjects(`?user_id=${userId}`))
+        }
       }
       
       // Reset form và đóng modal

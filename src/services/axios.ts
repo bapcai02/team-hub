@@ -13,19 +13,14 @@ axiosInstance.interceptors.request.use(
     const userStr = localStorage.getItem('user');
     let token = '';
     
-    console.log('=== Axios Service Request Interceptor ===');
-    console.log('User string from localStorage:', userStr);
-    
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        console.log('Parsed user object:', user);
         // Try different possible token locations
         token = user.data?.['access-token'] || 
                 user['access-token'] || 
                 user.data?.access_token || 
                 user.access_token || '';
-        console.log('Token from user object:', token);
       } catch (e) {
         console.error('Error parsing user:', e);
       }
@@ -34,22 +29,16 @@ axiosInstance.interceptors.request.use(
     // Fallback to direct token storage
     if (!token) {
       const directToken = localStorage.getItem('token') || localStorage.getItem('access-token') || '';
-      console.log('Direct token from localStorage:', directToken);
       token = directToken;
     }
-    
-    console.log('Final token for request:', token ? 'Token exists' : 'No token found');
-    console.log('API Request URL:', config.url);
     
     if (token) {
       config.headers = config.headers || {};
       config.headers['Authorization'] = `Bearer ${token}`;
-      console.log('Added Authorization header:', `Bearer ${token.substring(0, 20)}...`);
     } else {
       console.log('No token found - request will be sent without Authorization header');
     }
     
-    console.log('=== End Axios Service Request Interceptor ===');
     return config;
   },
   (error) => Promise.reject(error)
