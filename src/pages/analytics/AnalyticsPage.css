@@ -1,0 +1,454 @@
+/* Modern Analytics Page Styles */
+
+.analytics-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 0;
+  margin: 0;
+}
+
+/* Page Header */
+.page-header {
+  background: #ffffff;
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-title-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.page-title {
+  margin: 0 !important;
+  font-size: 1.875rem !important;
+  font-weight: 600 !important;
+  color: #1F2937 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.title-icon {
+  font-size: 1.875rem !important;
+  color: #6366F1 !important;
+}
+
+.page-subtitle {
+  color: #6B7280 !important;
+  margin: 8px 0 0 0 !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+}
+
+.page-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Content Section */
+.analytics-content {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Tabs Styling */
+.analytics-content .ant-tabs-nav {
+  background: #f9fafb;
+  margin: 0 !important;
+  padding: 0 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.analytics-content .ant-tabs-tab {
+  padding: 16px 24px !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  transition: all 0.3s ease !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.analytics-content .ant-tabs-tab:hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+  color: #6366F1 !important;
+}
+
+.analytics-content .ant-tabs-tab-active {
+  background: white !important;
+  color: #6366F1 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.analytics-content .ant-tabs-tab-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.875rem !important;
+}
+
+.analytics-content .ant-tabs-content-holder {
+  padding: 24px;
+}
+
+.tab-content {
+  min-height: 600px;
+}
+
+/* Overview Metrics */
+.analytics-overview {
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--card-color) 0%, var(--card-color-light) 100%);
+}
+
+.metric-card.employee-card {
+  --card-color: #6366F1;
+  --card-color-light: #8B5CF6;
+}
+
+.metric-card.project-card {
+  --card-color: #10B981;
+  --card-color-light: #34D399;
+}
+
+.metric-card.revenue-card {
+  --card-color: #F59E0B;
+  --card-color-light: #FBBF24;
+}
+
+.metric-card.attendance-card {
+  --card-color: #8B5CF6;
+  --card-color-light: #A78BFA;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.metric-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.metric-icon {
+  flex-shrink: 0;
+}
+
+.metric-avatar {
+  background: linear-gradient(135deg, var(--card-color) 0%, var(--card-color-light) 100%) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.metric-info {
+  flex: 1;
+}
+
+.metric-info .ant-statistic-title {
+  color: #6B7280 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+}
+
+.metric-info .ant-statistic-content {
+  margin-bottom: 8px !important;
+}
+
+.metric-trend {
+  font-size: 0.75rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* Analytics Sections */
+.analytics-section {
+  margin-bottom: 32px;
+}
+
+.chart-card {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+  overflow: hidden !important;
+}
+
+.chart-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.card-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #1F2937 !important;
+}
+
+.card-icon {
+  font-size: 1.125rem !important;
+  color: #6366F1 !important;
+}
+
+/* Skills Card */
+.skills-card {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+}
+
+.skills-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.skill-category {
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.skill-title {
+  margin-bottom: 16px !important;
+  color: #1F2937 !important;
+  font-weight: 600 !important;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  border-radius: 16px !important;
+  padding: 4px 12px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.skill-tag:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Cashflow Card */
+.cashflow-card {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+}
+
+.cashflow-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.cashflow-item {
+  padding: 20px;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.cashflow-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cashflow-item.positive {
+  border-left: 4px solid #10B981;
+}
+
+.cashflow-item.negative {
+  border-left: 4px solid #EF4444;
+}
+
+.cashflow-item.neutral {
+  border-left: 4px solid #6366F1;
+}
+
+.cashflow-progress {
+  margin-top: 12px;
+}
+
+.cashflow-progress .ant-progress-bg {
+  border-radius: 4px !important;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 60vh !important;
+  gap: 16px !important;
+}
+
+.loading-text {
+  color: #6B7280 !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .page-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .page-title {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 0;
+  }
+  
+  .page-header {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .page-title {
+    font-size: 1.375rem !important;
+  }
+  
+  .page-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .metric-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .analytics-content .ant-tabs-content-holder {
+    padding: 16px;
+  }
+  
+  .skill-category {
+    padding: 16px;
+  }
+  
+  .cashflow-item {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.25rem !important;
+  }
+  
+  .title-icon {
+    font-size: 1.25rem !important;
+  }
+  
+  .metric-card {
+    margin-bottom: 16px;
+  }
+  
+  .chart-card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .analytics-page {
+    background: #1F2937;
+  }
+  
+  .page-header,
+  .analytics-content {
+    background: #374151;
+  }
+  
+  .analytics-content .ant-tabs-nav {
+    background: #4B5563;
+    border-bottom-color: #6B7280;
+  }
+  
+  .analytics-content .ant-tabs-tab-active {
+    background: #374151 !important;
+    color: #A78BFA !important;
+  }
+  
+  .metric-card,
+  .chart-card,
+  .skills-card,
+  .cashflow-card {
+    background: #374151 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .skill-category,
+  .cashflow-item {
+    background: #4B5563 !important;
+    border-color: #6B7280 !important;
+  }
+  
+  .card-title {
+    color: #F9FAFB !important;
+  }
+  
+  .skill-title {
+    color: #F9FAFB !important;
+  }
+} 

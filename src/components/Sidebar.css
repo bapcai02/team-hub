@@ -1,0 +1,254 @@
+/* Enhanced Sidebar UI Styles */
+
+/* Main Sider Container */
+.ant-layout-sider {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%) !important;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+/* Logo Section */
+.logo {
+  padding: 32px 16px 24px 16px !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  color: #4f46e5 !important;
+  letter-spacing: 1.5px !important;
+  text-shadow: 0 2px 8px rgba(79, 70, 229, 0.15) !important;
+  border-bottom: 1px solid rgba(79, 70, 229, 0.1) !important;
+  margin-bottom: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.logo span:first-child {
+  filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.3)) !important;
+  margin-right: 12px !important;
+  transition: transform 0.2s ease !important;
+}
+
+.logo span:first-child:hover {
+  transform: scale(1.05) !important;
+}
+
+/* Menu Container */
+.ant-menu {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  color: #475569 !important;
+  transition: all 0.3s ease !important;
+  height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
+}
+
+/* Menu Items */
+.ant-menu-item {
+  border-radius: 8px !important;
+  margin: 2px 0 !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.ant-menu-item::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 100% !important;
+  width: 0 !important;
+  background: linear-gradient(90deg, rgba(79, 70, 229, 0.1) 0%, transparent 100%) !important;
+  transition: width 0.3s ease !important;
+}
+
+.ant-menu-item:hover::before {
+  width: 100% !important;
+}
+
+.ant-menu-item:hover {
+  background-color: rgba(79, 70, 229, 0.08) !important;
+  color: #4f46e5 !important;
+  transform: translateX(2px) !important;
+}
+
+.ant-menu-item-selected {
+  background-color: rgba(79, 70, 229, 0.12) !important;
+  color: #4f46e5 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15) !important;
+}
+
+.ant-menu-item-selected::before {
+  width: 100% !important;
+}
+
+/* Submenu Titles */
+.ant-menu-submenu-title {
+  border-radius: 8px !important;
+  margin: 2px 0 !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.ant-menu-submenu-title::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 100% !important;
+  width: 0 !important;
+  background: linear-gradient(90deg, rgba(79, 70, 229, 0.1) 0%, transparent 100%) !important;
+  transition: width 0.3s ease !important;
+}
+
+.ant-menu-submenu-title:hover::before {
+  width: 100% !important;
+}
+
+.ant-menu-submenu-title:hover {
+  background-color: rgba(79, 70, 229, 0.08) !important;
+  color: #4f46e5 !important;
+  transform: translateX(2px) !important;
+}
+
+.ant-menu-submenu-open > .ant-menu-submenu-title {
+  background-color: rgba(79, 70, 229, 0.12) !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15) !important;
+}
+
+.ant-menu-submenu-open > .ant-menu-submenu-title::before {
+  width: 100% !important;
+}
+
+/* Submenu */
+.ant-menu-sub {
+  background: transparent !important;
+  padding-left: 16px !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-menu-sub .ant-menu-item {
+  margin: 1px 0 !important;
+  padding-left: 16px !important;
+  border-radius: 6px !important;
+}
+
+/* Icons */
+.ant-menu-item .anticon,
+.ant-menu-submenu-title .anticon {
+  font-size: 16px !important;
+  margin-right: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.ant-menu-item:hover .anticon,
+.ant-menu-submenu-title:hover .anticon {
+  transform: scale(1.1) !important;
+  color: #4f46e5 !important;
+}
+
+.ant-menu-item-selected .anticon,
+.ant-menu-submenu-open > .ant-menu-submenu-title .anticon {
+  color: #4f46e5 !important;
+}
+
+/* Scrollbar Styling */
+.ant-menu::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.ant-menu::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.ant-menu::-webkit-scrollbar-thumb {
+  background: rgba(79, 70, 229, 0.2) !important;
+  border-radius: 2px !important;
+}
+
+.ant-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 70, 229, 0.4) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logo {
+    padding: 24px 12px 20px 12px !important;
+    font-size: 20px !important;
+  }
+  
+  .ant-menu {
+    font-size: 14px !important;
+    padding: 6px 8px !important;
+  }
+  
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    margin: 1px 0 !important;
+  }
+}
+
+/* Smooth animations for menu expansion */
+.ant-menu-submenu-placement-rightTop {
+  animation: slideIn 0.3s ease !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Focus states for accessibility */
+.ant-menu-item:focus,
+.ant-menu-submenu-title:focus {
+  outline: 2px solid rgba(79, 70, 229, 0.3) !important;
+  outline-offset: 2px !important;
+}
+
+/* Layout adjustments */
+.ant-layout-content {
+  min-height: 100vh !important;
+}
+
+/* Ensure sidebar takes full height within layout */
+.ant-layout-sider {
+  flex-shrink: 0 !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: relative !important;
+  }
+  
+  .logo {
+    padding: 24px 12px 20px 12px !important;
+    font-size: 20px !important;
+  }
+  
+  .ant-menu {
+    font-size: 14px !important;
+    padding: 6px 8px !important;
+    height: calc(100vh - 100px) !important;
+  }
+  
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    margin: 1px 0 !important;
+  }
+} 

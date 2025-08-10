@@ -23,6 +23,7 @@ import {
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import './Sidebar.css';
 
 export default function Sidebar() {
   const location = useLocation();

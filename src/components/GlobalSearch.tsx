@@ -214,11 +214,20 @@ const GlobalSearch: React.FC = () => {
         trigger={['click']}
       >
         <Search
-          placeholder={t('search.placeholder') || "Search projects, employees, documents..."}
+          placeholder={t('search.placeholder') || "Tìm kiếm dự án, nhân viên..."}
           value={searchValue}
           onChange={(e) => handleSearch(e.target.value)}
           onSearch={handleSearch}
-          style={{ width: 300 }}
+          style={{ 
+            width: 400,
+            height: '44px',
+            borderRadius: '22px',
+            border: '1px solid #e5e7eb',
+            background: '#ffffff',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+            transition: 'all 0.2s ease',
+            fontSize: '14px'
+          }}
           allowClear
         />
       </Dropdown>
