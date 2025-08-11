@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Input, Button, List, Avatar, Typography, Tabs, Spin } from 'antd';
 import { SearchOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../app/store';
-import { User } from '../../features/user/userSlice';
 import { CreateConversationDto } from '../../types/chat';
+import apiClient from '../../lib/apiClient';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+}
 
 interface CreateConversationModalProps {
   visible: boolean;
@@ -28,22 +33,45 @@ const CreateConversationModal: React.FC<CreateConversationModalProps> = ({
   const [conversationName, setConversationName] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
 
-  // Get users from Redux store
-  const users = useSelector((state: RootState) => state.user.list);
+  const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+
+  // Fetch users when modal opens
+  useEffect(() => {
+    if (visible && users.length === 0) {
+      fetchUsers();
+    }
+  }, [visible]);
 
   // Filter users based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredUsers(users);
+      setFilteredUsers(users || []);
     } else {
-      const filtered = users.filter(user =>
+      const filtered = (users || []).filter((user: User) =>
         user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredUsers(filtered);
     }
   }, [searchQuery, users]);
+
+  // Fetch users from API
+  const fetchUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const response = await apiClient.get('/users');
+      console.log('Users API response:', response.data);
+      const usersData = response.data?.data?.users || response.data?.users || response.data?.data || response.data || [];
+      setUsers(Array.isArray(usersData) ? usersData : []);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      setUsers([]);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
 
   // Handle search input change
   const handleSearch = async (value: string) => {
@@ -181,17 +209,21 @@ const CreateConversationModal: React.FC<CreateConversationModalProps> = ({
 
       {/* User list */}
       <div style={{ maxHeight: '300px', overflow: 'auto' }}>
-        {searchLoading ? (
+        {usersLoading ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <Spin />
           </div>
-        ) : filteredUsers.length === 0 ? (
+        ) : searchLoading ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <Spin />
+          </div>
+        ) : !Array.isArray(filteredUsers) || filteredUsers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
             No users found
           </div>
         ) : (
           <List
-            dataSource={filteredUsers}
+            dataSource={filteredUsers || []}
             renderItem={(user) => {
               const isSelected = selectedUsers.some(u => u.id === user.id);
               return (

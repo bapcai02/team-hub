@@ -105,9 +105,12 @@ export const useChat = (): UseChatReturn => {
   const handleNewMessage = useCallback((data: any) => {
     console.log('📨 New message received:', data);
     if (data.conversationId === selectedConversation?.id) {
-      dispatch(addMessage(data));
+      dispatch(addMessage({
+        message: data,
+        currentUserId: currentUser?.id || 1
+      }));
     }
-  }, [selectedConversation, dispatch]);
+  }, [selectedConversation, dispatch, currentUser]);
 
   // Handle typing indicator from socket
   const handleTyping = useCallback((data: any) => {
@@ -171,7 +174,10 @@ export const useChat = (): UseChatReturn => {
 
   const sendMessage = useCallback(async (data: { conversationId: number; message: CreateMessageDto }) => {
     try {
-      await dispatch(sendMessageAction(data)).unwrap();
+      await dispatch(sendMessageAction({
+        ...data,
+        currentUserId: currentUser?.id || 1
+      })).unwrap();
       
       // Send via socket for real-time delivery
       if (selectedConversation?.id === data.conversationId) {
@@ -181,7 +187,7 @@ export const useChat = (): UseChatReturn => {
       console.error('Failed to send message:', error);
       throw error;
     }
-  }, [dispatch, selectedConversation]);
+  }, [dispatch, selectedConversation, currentUser]);
 
   const searchConversations = useCallback(async (query: string) => {
     try {
@@ -224,7 +230,7 @@ export const useChat = (): UseChatReturn => {
     }
   }, [dispatch]);
 
-  const createConversation = useCallback(async (data: CreateConversationDto) => {
+  const createConversation = useCallback(async (data: any) => {
     try {
       await dispatch(createConversationAction(data)).unwrap();
     } catch (error) {

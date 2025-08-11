@@ -1,7 +1,115 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as chatApi from './api';
-import { UIConversation, UIMessage, CreateConversationDto, CreateMessageDto, Conversation, Message } from '../../types/chat';
+import apiClient, { chatApiClient } from '../../lib/apiClient';
+import { Conversation, Message, CreateMessageDto, UIConversation, UIMessage } from '../../types/chat';
 import type { SerializedError } from '@reduxjs/toolkit';
+
+// Get current user ID from user state
+const getCurrentUserId = (state: any): number => {
+  // Try to get from user state first
+  const currentUser = state.user?.list?.find((user: any) => user.id === 1);
+  if (currentUser) {
+    return currentUser.id;
+  }
+  
+  // Fallback to hardcoded value if user state is not available
+  return 1;
+};
+
+// Helper function to get current user ID from state
+const getCurrentUserIdFromState = (state: any): number => {
+  return getCurrentUserId(state);
+};
+
+// Polls
+export const createPoll = createAsyncThunk(
+  'chat/createPoll',
+  async (pollData: { conversationId: number; question: string; options: string[]; allowMultiple?: boolean; anonymous?: boolean; expiresAt?: string }) => {
+    const response = await chatApiClient.post('/polls', pollData);
+    return response.data;
+  }
+);
+
+export const getPollsByConversation = createAsyncThunk(
+  'chat/getPollsByConversation',
+  async (conversationId: number) => {
+    const response = await chatApiClient.get(`/polls/conversations/${conversationId}`);
+    return response.data;
+  }
+);
+
+export const votePoll = createAsyncThunk(
+  'chat/votePoll',
+  async ({ pollId, optionIds }: { pollId: number; optionIds: number[] }) => {
+    const response = await chatApiClient.post(`/polls/${pollId}/vote`, { optionIds });
+    return response.data;
+  }
+);
+
+export const getPollResults = createAsyncThunk(
+  'chat/getPollResults',
+  async (pollId: number) => {
+    const response = await chatApiClient.get(`/polls/${pollId}/results`);
+    return response.data;
+  }
+);
+
+// Location
+export const shareLocation = createAsyncThunk(
+  'chat/shareLocation',
+  async (locationData: { conversationId: number; latitude: number; longitude: number; address?: string }) => {
+    const response = await chatApiClient.post('/locations/share', locationData);
+    return response.data;
+  }
+);
+
+// Conversation Settings
+export const getConversationSettings = createAsyncThunk(
+  'chat/getConversationSettings',
+  async (conversationId: number) => {
+    const response = await chatApiClient.get(`/conversations/${conversationId}/settings`);
+    return response.data;
+  }
+);
+
+export const updateConversationSettings = createAsyncThunk(
+  'chat/updateConversationSettings',
+  async ({ conversationId, settings }: { conversationId: number; settings: any }) => {
+    const response = await chatApiClient.put(`/conversations/${conversationId}/settings`, settings);
+    return response.data;
+  }
+);
+
+export const addMemberToConversation = createAsyncThunk(
+  'chat/addMemberToConversation',
+  async ({ conversationId, userId }: { conversationId: number; userId: number }) => {
+    const response = await chatApiClient.post(`/conversations/${conversationId}/settings/members`, { userId });
+    return response.data;
+  }
+);
+
+export const removeMemberFromConversation = createAsyncThunk(
+  'chat/removeMemberFromConversation',
+  async ({ conversationId, userId }: { conversationId: number; userId: number }) => {
+    const response = await chatApiClient.delete(`/conversations/${conversationId}/settings/members/${userId}`);
+    return response.data;
+  }
+);
+
+export const leaveConversation = createAsyncThunk(
+  'chat/leaveConversation',
+  async (conversationId: number) => {
+    const response = await chatApiClient.post(`/conversations/${conversationId}/settings/leave`);
+    return response.data;
+  }
+);
+
+export const deleteConversation = createAsyncThunk(
+  'chat/deleteConversation',
+  async (conversationId: number) => {
+    const response = await chatApiClient.delete(`/conversations/${conversationId}/settings`);
+    return response.data;
+  }
+);
 
 // Helper function to transform API conversation to UI format
 const transformConversationToUI = (conversation: Conversation): UIConversation => {
@@ -12,7 +120,7 @@ const transformConversationToUI = (conversation: Conversation): UIConversation =
       conversationName = `Group ${conversation.id}`;
     } else {
       // For personal chats, try to get participant name
-      const otherParticipant = (conversation.participants || []).find(p => p.id !== 1); // Assuming current user ID is 1
+      const otherParticipant = (conversation.participants || []).find((p: any) => p.id !== 1); // Assuming current user ID is 1
       conversationName = otherParticipant?.name || `User ${conversation.id}`;
     }
   }
@@ -29,7 +137,7 @@ const transformConversationToUI = (conversation: Conversation): UIConversation =
     isPinned: false,
     isSelected: false,
     memberCount: conversation.type === 'group' ? (conversation.participants ? conversation.participants.length : 0) : undefined,
-    onlineCount: conversation.participants ? conversation.participants.filter(p => p.isOnline).length : 0,
+    onlineCount: conversation.participants ? conversation.participants.filter((p: any) => p.isOnline).length : 0,
     lastMessage: 'No messages yet',
     unreadCount: 0
   };
@@ -37,6 +145,7 @@ const transformConversationToUI = (conversation: Conversation): UIConversation =
 
 // Helper function to transform API message to UI format
 const transformMessageToUI = (message: Message, currentUserId: number): UIMessage => {
+  console.log('Transforming message:', message, 'currentUserId:', currentUserId);
   const isOwn = message.senderId === currentUserId;
   
   // Parse reactions from API with user info
@@ -45,7 +154,7 @@ const transformMessageToUI = (message: Message, currentUserId: number): UIMessag
   const reactionUsers: Record<string, string[]> = {};
   
   // Count each emoji reaction and collect user names
-  reactions.forEach(reaction => {
+  reactions.forEach((reaction: any) => {
     const emoji = reaction.emoji;
     reactionCounts[emoji] = (reactionCounts[emoji] || 0) + 1;
     
@@ -60,9 +169,9 @@ const transformMessageToUI = (message: Message, currentUserId: number): UIMessag
   
   return {
     ...message,
-    time: new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    sender: isOwn ? 'You' : `User ${message.senderId}`,
-    avatar: `https://via.placeholder.com/40?text=${message.senderId}`,
+    time: message.createdAt ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown',
+    sender: isOwn ? 'You' : `User ${message.senderId || 'Unknown'}`,
+    avatar: `https://via.placeholder.com/40?text=${message.senderId || 'U'}`,
     isOwn,
     isOnline: isOwn ? true : Math.random() > 0.3, // Mock online status for other users
     readBy: message.isRead ? [currentUserId] : [],
@@ -162,7 +271,7 @@ export const getConversations = createAsyncThunk(
   'chat/getConversations',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await chatApi.fetchConversations();      
+      const response = await chatApiClient.get('/conversations');      
       return response.data.data.conversations;
     } catch (error) {
       console.log('API error fetching conversations, returning empty array');
@@ -173,11 +282,13 @@ export const getConversations = createAsyncThunk(
 
 export const createConversation = createAsyncThunk(
   'chat/createConversation',
-  async (data: CreateConversationDto, { rejectWithValue }) => {
+  async (data: CreateMessageDto, { rejectWithValue }) => {
     try {
-      const response = await chatApi.createConversation(data);
-      return response.data.conversation;
+      const response = await chatApiClient.post('/conversations', data);
+      console.log('Create conversation response:', response.data);
+      return response.data.data?.conversation || response.data.conversation;
     } catch (error) {
+      console.error('Create conversation error:', error);
       return rejectWithValue(error);
     }
   }
@@ -187,7 +298,7 @@ export const getMessages = createAsyncThunk(
   'chat/getMessages',
   async (conversationId: number, { rejectWithValue }) => {
     try {
-      const response = await chatApi.fetchMessages(conversationId);      
+      const response = await chatApiClient.get(`/conversations/${conversationId}/messages`);      
       return { conversationId, messages: response.data.data.messages };
     } catch (error) {
       console.log('API error fetching messages, returning empty array');
@@ -198,10 +309,10 @@ export const getMessages = createAsyncThunk(
 
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async (data: { conversationId: number; message: CreateMessageDto }, { rejectWithValue }) => {
+  async (data: { conversationId: number; message: CreateMessageDto; currentUserId: number }, { rejectWithValue }) => {
     try {
-      const response = await chatApi.sendMessage(data.conversationId, data.message);
-      return response.data.message;
+      const response = await chatApiClient.post(`/conversations/${data.conversationId}/messages`, data.message);
+      return { message: response.data.message, currentUserId: data.currentUserId };
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -212,7 +323,7 @@ export const searchConversations = createAsyncThunk(
   'chat/searchConversations',
   async (query: string, { rejectWithValue }) => {
     try {
-      const response = await chatApi.searchConversations(query);
+      const response = await chatApiClient.get(`/conversations/search?q=${query}`);
       return response.data.conversations;
     } catch (error) {
       return rejectWithValue(error);
@@ -224,7 +335,7 @@ export const markAsRead = createAsyncThunk(
   'chat/markAsRead',
   async (conversationId: number, { rejectWithValue }) => {
     try {
-      await chatApi.markAsRead(conversationId);
+      await chatApiClient.post(`/conversations/${conversationId}/mark-as-read`);
       return conversationId;
     } catch (error) {
       return rejectWithValue(error);
@@ -271,7 +382,7 @@ export const addReaction = createAsyncThunk(
       dispatch(updateReactionOptimistically({ messageId, emoji, action: 'add' }));
       
       // Call API
-      const response = await chatApi.addReaction(messageId, emoji);
+      const response = await chatApiClient.post(`/messages/${messageId}/reactions`, { emoji });
       return { messageId, emoji };
     } catch (error) {
       // Revert optimistic update on error
@@ -290,7 +401,7 @@ export const removeReaction = createAsyncThunk(
       dispatch(updateReactionOptimistically({ messageId, emoji, action: 'remove' }));
       
       // Call API
-      const response = await chatApi.removeReaction(messageId, emoji);
+      const response = await chatApiClient.delete(`/messages/${messageId}/reactions/${emoji}`);
       return { messageId, emoji };
     } catch (error) {
       // Revert optimistic update on error
@@ -303,8 +414,9 @@ export const removeReaction = createAsyncThunk(
 // Chat state interface
 interface ChatState {
   conversations: UIConversation[];
-  messages: UIMessage[];
   selectedConversation: UIConversation | null;
+  currentConversation: UIConversation | null;
+  messages: UIMessage[];
   loading: {
     conversations: boolean;
     messages: boolean;
@@ -312,7 +424,12 @@ interface ChatState {
     creating: boolean;
     searching: boolean;
   };
-  error: null | SerializedError;
+  error: string | null;
+  polls: any[];
+  pollResults: any;
+  conversationSettings: any;
+  settingsLoading: boolean;
+  settingsError: string | null;
   typingUsers: number[];
   isConnected: boolean;
 }
@@ -320,8 +437,9 @@ interface ChatState {
 // Initial state
 const initialState: ChatState = {
   conversations: [],
-  messages: [],
   selectedConversation: null,
+  currentConversation: null,
+  messages: [],
   loading: {
     conversations: false,
     messages: false,
@@ -330,6 +448,11 @@ const initialState: ChatState = {
     searching: false,
   },
   error: null,
+  polls: [],
+  pollResults: null,
+  conversationSettings: null,
+  settingsLoading: false,
+  settingsError: null,
   typingUsers: [],
   isConnected: false,
 };
@@ -341,12 +464,13 @@ const chatSlice = createSlice({
   reducers: {
     // Set selected conversation
     setSelectedConversation: (state, action) => {
-      state.selectedConversation = action.payload;
+      state.currentConversation = action.payload;
     },
     
     // Add message locally (for real-time updates)
     addMessage: (state, action) => {
-      const message = transformMessageToUI(action.payload, 1);
+      const { message: messageData, currentUserId } = action.payload;
+      const message = transformMessageToUI(messageData, currentUserId);
       state.messages.push(message);
     },
     
@@ -374,7 +498,7 @@ const chatSlice = createSlice({
     
     // Remove typing user
     removeTypingUser: (state, action) => {
-      state.typingUsers = state.typingUsers.filter(id => id !== action.payload);
+      state.typingUsers = state.typingUsers.filter((id: number) => id !== action.payload);
     },
     
     // Set connection status
@@ -385,6 +509,14 @@ const chatSlice = createSlice({
     // Clear error
     clearError: (state) => {
       state.error = null;
+    },
+    clearPolls: (state) => {
+      state.polls = [];
+      state.pollResults = null;
+    },
+    clearConversationSettings: (state) => {
+      state.conversationSettings = null;
+      state.settingsError = null;
     },
   },
   extraReducers: (builder) => {
@@ -400,7 +532,7 @@ const chatSlice = createSlice({
       })
       .addCase(getConversations.rejected, (state, action) => {
         state.loading.conversations = false;
-        state.error = action.payload as SerializedError;
+        state.error = action.error?.message || 'Failed to get conversations';
       });
 
     // Create conversation
@@ -416,7 +548,7 @@ const chatSlice = createSlice({
       })
       .addCase(createConversation.rejected, (state, action) => {
         state.loading.creating = false;
-        state.error = action.payload as SerializedError;
+        state.error = action.error?.message || 'Failed to create conversation';
       });
 
     // Get messages
@@ -428,19 +560,20 @@ const chatSlice = createSlice({
       .addCase(getMessages.fulfilled, (state, action) => {
         state.loading.messages = false;
         const { conversationId, messages } = action.payload;
-        state.messages = (messages || []).map((msg: Message) => transformMessageToUI(msg, 1));
+        const currentUserId = getCurrentUserIdFromState({ user: { list: [] } }); // We'll get this from the component
+        state.messages = (messages || []).map((msg: Message) => transformMessageToUI(msg, currentUserId));
         
         // Update selected conversation if it matches
-        if (state.selectedConversation?.id === conversationId) {
-          state.selectedConversation = {
-            ...state.selectedConversation,
+        if (state.currentConversation?.id === conversationId) {
+          state.currentConversation = {
+            ...state.currentConversation,
             lastMessage: (messages && messages.length > 0 ? messages[messages.length - 1]?.content : 'No messages yet')
           };
         }
       })
       .addCase(getMessages.rejected, (state, action) => {
         state.loading.messages = false;
-        state.error = action.payload as SerializedError;
+        state.error = action.error?.message || 'Failed to get messages';
       });
 
     // Send message
@@ -451,12 +584,13 @@ const chatSlice = createSlice({
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading.sending = false;
-        const newMessage = transformMessageToUI(action.payload, 1);
+        const { message, currentUserId } = action.payload;
+        const newMessage = transformMessageToUI(message, currentUserId);
         state.messages.push(newMessage);
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.loading.sending = false;
-        state.error = action.payload as SerializedError;
+        state.error = action.error?.message || 'Failed to send message';
       });
 
     // Search conversations
@@ -471,7 +605,7 @@ const chatSlice = createSlice({
       })
       .addCase(searchConversations.rejected, (state, action) => {
         state.loading.searching = false;
-        state.error = action.payload as SerializedError;
+        state.error = action.error?.message || 'Failed to search conversations';
       });
 
     // Mark as read
@@ -528,6 +662,97 @@ const chatSlice = createSlice({
           if (emoji === '👍') uiReactions.likes = Math.max(0, (uiReactions.likes || 0) - 1);
         }
       });
+
+    // Polls
+    builder
+      .addCase(createPoll.pending, (state) => {
+        state.loading.creating = true;
+      })
+      .addCase(createPoll.fulfilled, (state, action) => {
+        state.loading.creating = false;
+        // Refresh polls for the conversation
+        if (action.payload.success) {
+          // Trigger getPollsByConversation
+        }
+      })
+      .addCase(createPoll.rejected, (state, action) => {
+        state.loading.creating = false;
+        state.error = action.error.message || 'Failed to create poll';
+      })
+      .addCase(getPollsByConversation.pending, (state) => {
+        state.loading.messages = true;
+      })
+      .addCase(getPollsByConversation.fulfilled, (state, action) => {
+        state.loading.messages = false;
+        if (action.payload.success) {
+          state.polls = action.payload.data.polls;
+        }
+      })
+      .addCase(getPollsByConversation.rejected, (state, action) => {
+        state.loading.messages = false;
+        state.error = action.error.message || 'Failed to get polls';
+      })
+      .addCase(votePoll.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          // Refresh poll results
+        }
+      })
+      .addCase(getPollResults.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          state.pollResults = action.payload.data.results;
+        }
+      });
+
+    // Location
+    builder
+      .addCase(shareLocation.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          // Add location message to current conversation
+          const locationMessage = action.payload.data.location;
+          state.messages.push(locationMessage);
+        }
+      });
+
+    // Conversation Settings
+    builder
+      .addCase(getConversationSettings.pending, (state) => {
+        state.settingsLoading = true;
+      })
+      .addCase(getConversationSettings.fulfilled, (state, action) => {
+        state.settingsLoading = false;
+        if (action.payload.success) {
+          state.conversationSettings = action.payload.data.settings;
+        }
+      })
+      .addCase(getConversationSettings.rejected, (state, action) => {
+        state.settingsLoading = false;
+        state.settingsError = action.error.message || 'Failed to get settings';
+      })
+      .addCase(updateConversationSettings.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          state.conversationSettings = action.payload.data.settings;
+        }
+      })
+      .addCase(leaveConversation.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          // Remove conversation from list
+          state.conversations = state.conversations.filter(
+            conv => conv.id !== state.currentConversation?.id
+          );
+          state.currentConversation = null;
+          state.messages = [];
+        }
+      })
+      .addCase(deleteConversation.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          // Remove conversation from list
+          state.conversations = state.conversations.filter(
+            conv => conv.id !== state.currentConversation?.id
+          );
+          state.currentConversation = null;
+          state.messages = [];
+        }
+      });
   },
 });
 
@@ -540,6 +765,8 @@ export const {
   removeTypingUser,
   setConnectionStatus,
   clearError,
+  clearPolls,
+  clearConversationSettings,
 } = chatSlice.actions;
 
 export default chatSlice.reducer; 

@@ -56,7 +56,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   return (
     <div style={{ 
-      width: '320px', 
+      width: '400px', 
       backgroundColor: '#F5F7FF', 
       padding: '16px', 
       display: 'flex', 
@@ -112,7 +112,18 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             padding: '20px',
             fontSize: '14px'
           }}>
-            No conversations yet
+            <div style={{ marginBottom: '12px' }}>No conversations yet</div>
+            <Button 
+              type="primary" 
+              size="small"
+              onClick={onCreateConversation}
+              style={{ 
+                backgroundColor: '#7B7FFF',
+                borderColor: '#7B7FFF'
+              }}
+            >
+              Create Conversation
+            </Button>
           </div>
         ) : (
           conversations.map((conversation) => (

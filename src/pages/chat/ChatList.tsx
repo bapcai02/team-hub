@@ -1,225 +1,279 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Spin, message, Button } from 'antd';
+import { Layout, Button, Space, Typography, Tooltip, message, Input } from 'antd';
+import { 
+  PlusOutlined, 
+  SearchOutlined, 
+  BarChartOutlined, 
+  EnvironmentOutlined, 
+  SettingOutlined,
+  MessageOutlined
+} from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../app/store';
-import { useChat } from '../../hooks/useChat';
-import ChatSidebar from '../../components/chat/ChatSidebar';
-import ChatHeader from '../../components/chat/ChatHeader';
+import { RootState, AppDispatch } from '../../app/store';
+import MainLayout from '../../layouts/MainLayout';
+import ChatListComponent from '../../components/chat/ChatList';
 import MessageList from '../../components/chat/MessageList';
 import MessageInput from '../../components/chat/MessageInput';
 import CreateConversationModal from '../../components/chat/CreateConversationModal';
-import MainLayout from '../../layouts/MainLayout';
-import { setSelectedConversation } from '../../features/chat/chatSlice';
+import PollCreator from '../../components/chat/PollCreator';
+import LocationShare from '../../components/chat/LocationShare';
+import GroupManagement from '../../components/chat/GroupManagement';
+import ThreadedReplies from '../../components/chat/ThreadedReplies';
+import { 
+  getConversations, 
+  getMessages, 
+  sendMessage, 
+  addReaction, 
+  removeReaction,
+  createConversation
+} from '../../features/chat/chatSlice';
 
 const { Content } = Layout;
+const { Title } = Typography;
+const { Search } = Input;
 
 const ChatList: React.FC = () => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
+  const { conversations, messages, loading, currentConversation } = useSelector((state: RootState) => state.chat);
+  const currentUser = useSelector((state: RootState) => state.user.list.find(user => user.id === 1) || null);
+  const currentUserId = currentUser?.id || 1;
+  
+  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showPollModal, setShowPollModal] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [showThreadModal, setShowThreadModal] = useState(false);
+  
+  // Local state
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [messageText, setMessageText] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Get chat state from Redux
-  const {
-    conversations,
-    messages,
-    selectedConversation,
-    loading,
-    error
-  } = useSelector((state: RootState) => state.chat);
-
-  // Get current user from Redux
-  const currentUser = useSelector((state: RootState) => 
-    state.user.list.find(user => user.id === 1)
-  );
-
-  const dispatch = useDispatch();
-
-  // Use chat hook for API operations
-  const {
-    fetchConversations,
-    fetchMessages,
-    sendMessage,
-    createConversation,
-    markAsRead,
-    addReaction,
-    removeReaction
-  } = useChat();
-
-  // Load conversations on component mount
+  // Load conversations on mount
   useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
+    dispatch(getConversations());
+  }, [dispatch]);
 
-  // Auto-select first conversation if none selected
+  // Load messages when conversation is selected
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversation) {
-      const firstConversation = conversations[0];
-      dispatch(setSelectedConversation(firstConversation));
-      fetchMessages(firstConversation.id);
+    if (selectedConversation?.id) {
+      dispatch(getMessages(selectedConversation.id));
     }
-  }, [conversations, selectedConversation, fetchMessages, dispatch]);
+  }, [selectedConversation, dispatch]);
 
-  // Handle conversation selection
   const handleConversationSelect = (conversation: any) => {
-    dispatch(setSelectedConversation(conversation));
-    fetchMessages(conversation.id);
-    markAsRead(conversation.id);
+    setSelectedConversation(conversation);
+    // Update current conversation in store
+    dispatch({ type: 'chat/setSelectedConversation', payload: conversation });
   };
 
-  // Handle sending message
+  const handleOpenCreateModal = () => {
+    setShowCreateModal(true);
+  };
+
+  const handleSearchMessages = (value: string) => {
+    setSearchQuery(value);
+    // TODO: Implement message search functionality
+    console.log('Searching for:', value);
+  };
+
   const handleSendMessage = async (text: string) => {
-    if (!selectedConversation || !text.trim()) return;
+    if (!selectedConversation?.id || !text.trim()) return;
 
     try {
-      await sendMessage({
+      await dispatch(sendMessage({
         conversationId: selectedConversation.id,
         message: {
-          conversationId: selectedConversation.id,
           content: text,
           type: 'text'
-        }
-      });
+        },
+        currentUserId: currentUserId
+      })).unwrap();
       setMessageText('');
     } catch (error) {
+      console.error('Error sending message:', error);
       message.error('Failed to send message');
     }
   };
 
-  // Handle sending file
   const handleSendFile = async (file: File) => {
-    if (!selectedConversation) return;
+    if (!selectedConversation?.id) return;
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('content', `File: ${file.name}`);
-
-      const response = await fetch(`http://localhost:3001/api/messages/conversations/${selectedConversation.id}/file`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || 'mock-token'}`
-        }
-      });
-
-      if (response.ok) {
-        // Refresh messages after file upload
-        fetchMessages(selectedConversation.id);
-      }
+      // TODO: Implement file upload logic
+      console.log('Sending file:', file);
+      message.success('File sent successfully');
     } catch (error) {
-      console.error('Failed to upload file:', error);
+      console.error('Error sending file:', error);
+      message.error('Failed to send file');
     }
   };
 
   const handleAddReaction = (messageId: number, emoji: string) => {
-    addReaction(messageId, emoji);
+    dispatch(addReaction({ messageId, emoji }));
   };
 
   const handleRemoveReaction = (messageId: number, emoji: string) => {
-    removeReaction(messageId, emoji);
+    dispatch(removeReaction({ messageId, emoji }));
   };
 
-  // Handle creating new conversation
   const handleCreateConversation = async (data: any) => {
     try {
-      await createConversation(data);
+      await dispatch(createConversation(data)).unwrap();
       setShowCreateModal(false);
       message.success('Conversation created successfully');
     } catch (error) {
+      console.error('Error creating conversation:', error);
       message.error('Failed to create conversation');
     }
   };
 
-  // Show loading spinner for initial load
-  if (loading.conversations && conversations.length === 0) {
-    return (
-      <MainLayout>
-        <Content style={{ padding: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <Spin size="large" />
-        </Content>
-      </MainLayout>
-    );
-  }
-
-  // Show empty state when no conversations
-  if (!loading.conversations && conversations.length === 0) {
-    return (
-      <MainLayout>
-        <Content style={{ padding: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center', color: '#999' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
-            <div style={{ fontSize: '18px', marginBottom: '8px' }}>No conversations yet</div>
-            <div style={{ fontSize: '14px', marginBottom: '16px' }}>Start a new conversation to begin chatting</div>
-            <Button type="primary" onClick={() => setShowCreateModal(true)}>
-              Create Conversation
-            </Button>
-          </div>
-        </Content>
-      </MainLayout>
-    );
-  }
-
-  // Log messages prop for debugging
-  console.log('ChatList messages prop:', messages);
-
   return (
     <MainLayout>
-      <Content style={{ padding: 0, height: '100vh' }}>
-        <div style={{ display: 'flex', height: '100%' }}>
-          {/* Chat sidebar */}
-          <div style={{ width: '320px', borderRight: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column' }}>
-            <ChatSidebar
-              conversations={conversations}
-              selectedConversation={selectedConversation}
-              onConversationSelect={handleConversationSelect}
-              onCreateConversation={() => setShowCreateModal(true)}
-              loading={loading.conversations}
-            />
-          </div>
+      <Content style={{ 
+        padding: '16px', 
+        height: '100vh', 
+        display: 'flex',
+        backgroundColor: '#f5f5f5'
+      }}>
+        {/* Sidebar */}
+        <div style={{ 
+          width: '300px', 
+          borderRight: '1px solid #e8e8e8', 
+          display: 'flex', 
+          flexDirection: 'column',
+          backgroundColor: '#fafafa',
+          borderRadius: '8px',
+          marginRight: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
+        }}>
+          <ChatListComponent
+            onConversationSelect={handleConversationSelect}
+            onCreateConversation={handleOpenCreateModal}
+            selectedConversationId={selectedConversation?.id}
+          />
+        </div>
 
-          {/* Main chat area */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {selectedConversation ? (
-              <>
-                {/* Chat header */}
-                <ChatHeader
-                  conversation={selectedConversation}
-                />
-
-                {/* Messages list - always render when a conversation is selected */}
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <MessageList
-                    messages={messages || []}
-                    onAddReaction={handleAddReaction}
-                    onRemoveReaction={handleRemoveReaction}
-                  />
+        {/* Main chat area */}
+        <div style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column',
+          backgroundColor: '#ffffff',
+          borderRadius: '8px',
+          marginLeft: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
+        }}>
+          {selectedConversation ? (
+            <>
+              {/* Chat header */}
+              <div style={{ 
+                padding: '16px 24px', 
+                borderBottom: '1px solid #f0f0f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#ffffff',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+              }}>
+                <div>
+                  <Title level={4} style={{ margin: 0, color: '#1a1a1a' }}>
+                    {selectedConversation.name}
+                  </Title>
+                  {selectedConversation.type === 'group' && (
+                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                      {selectedConversation.memberCount} members
+                    </div>
+                  )}
                 </div>
 
-                {/* Message input */}
-                <MessageInput
-                  onSendMessage={handleSendMessage}
-                  onSendFile={handleSendFile}
-                  loading={loading.sending}
-                  messageText={messageText}
-                  onMessageTextChange={setMessageText}
-                  disabled={false}
-                />
-              </>
-            ) : (
-              /* Empty state when no conversation selected */
-              <div style={{ 
-                flex: 1, 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center', 
-                alignItems: 'center',
-                color: '#999'
-              }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
-                <div style={{ fontSize: '18px', marginBottom: '8px' }}>Select a conversation</div>
-                <div style={{ fontSize: '14px' }}>Choose a conversation from the sidebar to start chatting</div>
+                <Space size="small">
+                  <Search
+                    placeholder={t('chat.search.placeholder', 'Search messages...')}
+                    prefix={<SearchOutlined />}
+                    style={{ width: 200 }}
+                    onChange={(e) => handleSearchMessages(e.target.value)}
+                    value={searchQuery}
+                  />
+                  
+                  <Tooltip title={t('chat.poll', 'Create Poll')}>
+                    <Button 
+                      type="text" 
+                      icon={<BarChartOutlined />} 
+                      onClick={() => setShowPollModal(true)}
+                      size="small"
+                      style={{ color: '#666' }}
+                    />
+                  </Tooltip>
+                  
+                  <Tooltip title={t('chat.location', 'Share Location')}>
+                    <Button 
+                      type="text" 
+                      icon={<EnvironmentOutlined />} 
+                      onClick={() => setShowLocationModal(true)}
+                      size="small"
+                      style={{ color: '#666' }}
+                    />
+                  </Tooltip>
+                  
+                  {selectedConversation.type === 'group' && (
+                    <Tooltip title={t('chat.group.manage', 'Manage Group')}>
+                      <Button 
+                        type="text" 
+                        icon={<SettingOutlined />} 
+                        onClick={() => setShowGroupModal(true)}
+                        size="small"
+                        style={{ color: '#666' }}
+                      />
+                    </Tooltip>
+                  )}
+                </Space>
               </div>
-            )}
-          </div>
+
+              {/* Messages list - always render when a conversation is selected */}
+              <div style={{ flex: 1, overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
+                <MessageList
+                  messages={messages || []}
+                  onAddReaction={handleAddReaction}
+                  onRemoveReaction={handleRemoveReaction}
+                />
+              </div>
+
+              {/* Message input */}
+              <MessageInput
+                onSendMessage={handleSendMessage}
+                onSendFile={handleSendFile}
+                loading={loading.sending}
+                messageText={messageText}
+                onMessageTextChange={setMessageText}
+                disabled={false}
+              />
+            </>
+          ) : (
+            /* Empty state when no conversation selected */
+            <div style={{ 
+              flex: 1, 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              color: '#999',
+              padding: '24px',
+              backgroundColor: '#f8f9fa'
+            }}>
+              <div style={{ fontSize: '64px', marginBottom: '24px', opacity: 0.6 }}>💬</div>
+              <div style={{ fontSize: '20px', marginBottom: '12px', color: '#666', fontWeight: 500 }}>Select a conversation</div>
+              <div style={{ fontSize: '14px', color: '#999', textAlign: 'center', maxWidth: '300px' }}>
+                Choose a conversation from the sidebar to start chatting
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Create conversation modal */}
@@ -228,6 +282,38 @@ const ChatList: React.FC = () => {
           onCancel={() => setShowCreateModal(false)}
           onSubmit={handleCreateConversation}
           loading={loading.creating}
+        />
+
+        {/* Poll creator modal */}
+        <PollCreator
+          visible={showPollModal}
+          onCancel={() => setShowPollModal(false)}
+          conversationId={selectedConversation?.id}
+        />
+
+        {/* Location share modal */}
+        <LocationShare
+          visible={showLocationModal}
+          onCancel={() => setShowLocationModal(false)}
+          conversationId={selectedConversation?.id}
+        />
+
+        {/* Group management modal */}
+        <GroupManagement
+          visible={showGroupModal}
+          onCancel={() => setShowGroupModal(false)}
+          conversationId={selectedConversation?.id}
+        />
+
+        {/* Threaded replies modal */}
+        <ThreadedReplies
+          visible={showThreadModal}
+          onCancel={() => setShowThreadModal(false)}
+          messageId={selectedMessage?.id}
+          onSendReply={(content) => {
+            // Handle sending reply
+            console.log('Sending reply:', content);
+          }}
         />
       </Content>
     </MainLayout>

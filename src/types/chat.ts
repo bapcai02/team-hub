@@ -55,7 +55,6 @@ export interface CreateConversationDto {
 }
 
 export interface CreateMessageDto {
-  conversationId: number;
   content: string;
   type: 'text' | 'image' | 'file' | 'audio' | 'video';
 }
