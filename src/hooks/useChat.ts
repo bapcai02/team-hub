@@ -12,10 +12,13 @@ import {
   markAsRead as markAsReadAction,
   addReaction as addReactionAction,
   removeReaction as removeReactionAction,
+  deleteMessage as deleteMessageAction,
+  deleteConversation as deleteConversationAction,
   setSelectedConversation,
   addMessage,
   updateMessage,
   removeMessage,
+  removeConversation,
   addTypingUser,
   removeTypingUser,
   setConnectionStatus,
@@ -41,6 +44,8 @@ interface UseChatReturn {
   markAsRead: (conversationId: number) => Promise<void>;
   addReaction: (messageId: number, emoji: string) => Promise<void>;
   removeReaction: (messageId: number, emoji: string) => Promise<void>;
+  deleteMessage: (messageId: number) => Promise<void>;
+  deleteConversation: (conversationId: number) => Promise<void>;
   createConversation: (data: CreateConversationDto) => Promise<void>;
   
   // Socket events
@@ -82,6 +87,14 @@ export const useChat = (): UseChatReturn => {
 
           socketService.onReadReceipt((data) => {
             handleReadReceipt(data);
+          });
+
+          socketService.onMessageDeleted((data) => {
+            handleMessageDeleted(data);
+          });
+
+          socketService.onConversationDeleted((data) => {
+            handleConversationDeleted(data);
           });
         }
 
@@ -136,6 +149,19 @@ export const useChat = (): UseChatReturn => {
     // Update message read status
   }, []);
 
+  // Handle message deleted from socket
+  const handleMessageDeleted = useCallback((data: { messageId: number }) => {
+    console.log('🗑️ Message deleted:', data);
+    dispatch(removeMessage(data.messageId));
+  }, [dispatch]);
+
+  // Handle conversation deleted from socket
+  const handleConversationDeleted = useCallback((data: { conversationId: number }) => {
+    console.log('🗑️ Conversation deleted:', data);
+    // Remove conversation from list and clear selection if it was selected
+    dispatch({ type: 'chat/removeConversation', payload: data.conversationId });
+  }, [dispatch]);
+
   // Send typing indicator
   const onTyping = useCallback((isTyping: boolean) => {
     if (selectedConversation && currentUser) {
@@ -158,11 +184,13 @@ export const useChat = (): UseChatReturn => {
   // API wrapper functions
   const fetchConversations = useCallback(async () => {
     try {
-      await dispatch(getConversationsAction()).unwrap();            
+      await dispatch(getConversationsAction()).unwrap();
     } catch (error) {
       console.error('Failed to get conversations:', error);
     }
   }, [dispatch]);
+
+
 
   const fetchMessages = useCallback(async (conversationId: number) => {
     try {
@@ -239,6 +267,30 @@ export const useChat = (): UseChatReturn => {
     }
   }, [dispatch]);
 
+  const deleteMessage = useCallback(async (messageId: number) => {
+    try {
+      await dispatch(deleteMessageAction(messageId)).unwrap();
+      
+      // Send delete message via socket
+      socketService.deleteMessage(messageId);
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+      throw error;
+    }
+  }, [dispatch]);
+
+  const deleteConversation = useCallback(async (conversationId: number) => {
+    try {
+      await dispatch(deleteConversationAction(conversationId)).unwrap();
+      
+      // Send delete conversation via socket
+      socketService.deleteConversation(conversationId);
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      throw error;
+    }
+  }, [dispatch]);
+
   return {
     // State
     conversations,
@@ -256,6 +308,8 @@ export const useChat = (): UseChatReturn => {
     markAsRead,
     addReaction,
     removeReaction,
+    deleteMessage,
+    deleteConversation,
     createConversation,
     
     // Socket events

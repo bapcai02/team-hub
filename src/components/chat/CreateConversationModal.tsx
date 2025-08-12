@@ -3,6 +3,8 @@ import { Modal, Input, Button, List, Avatar, Typography, Tabs, Spin } from 'antd
 import { SearchOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { CreateConversationDto } from '../../types/chat';
 import apiClient from '../../lib/apiClient';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../app/store';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -27,6 +29,9 @@ const CreateConversationModal: React.FC<CreateConversationModalProps> = ({
   onSubmit,
   loading = false
 }) => {
+  const currentUser = useSelector((state: RootState) => state.user.list.find(user => user.id === 1) || null);
+  const currentUserId = currentUser?.id || 1;
+  
   const [activeTab, setActiveTab] = useState('personal');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
@@ -110,12 +115,21 @@ const CreateConversationModal: React.FC<CreateConversationModalProps> = ({
       return;
     }
 
+    // Get current user ID from Redux store
+    
+    // Include current user in memberIds
+    const allMemberIds = [...selectedUsers.map(user => user.id)];
+    if (!allMemberIds.includes(currentUserId)) {
+      allMemberIds.push(currentUserId);
+    }
+
     const data: CreateConversationDto = {
       type: activeTab as 'personal' | 'group',
       name: activeTab === 'group' ? conversationName : undefined,
-      memberIds: selectedUsers.map(user => user.id)
+      memberIds: allMemberIds
     };
 
+    console.log('Creating conversation with data:', data);
     onSubmit(data);
   };
 
@@ -155,8 +169,26 @@ const CreateConversationModal: React.FC<CreateConversationModalProps> = ({
           loading={loading}
         >
           Create
-        </Button>
-      ]}
+        </Button>,
+        // Debug button - remove in production
+        process.env.NODE_ENV === 'development' && (
+          <Button
+            key="debug"
+            onClick={() => {
+              console.log('Debug: Current state:', {
+                activeTab,
+                selectedUsers,
+                conversationName,
+                currentUserId,
+                allMemberIds: [...selectedUsers.map(user => user.id), currentUserId]
+              });
+            }}
+            size="small"
+          >
+            Debug
+          </Button>
+        )
+      ].filter(Boolean)}
       width={600}
     >
       {/* Conversation type tabs */}

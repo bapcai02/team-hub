@@ -36,6 +36,8 @@ class SocketService {
 
   // Event handlers
   private messageHandlers: ((data: SocketMessageData) => void)[] = [];
+  private messageDeletedHandlers: ((data: { messageId: number }) => void)[] = [];
+  private conversationDeletedHandlers: ((data: { conversationId: number }) => void)[] = [];
   private typingHandlers: ((data: SocketTypingData) => void)[] = [];
   private userStatusHandlers: ((data: SocketUserData) => void)[] = [];
   private readReceiptHandlers: ((data: SocketReadData) => void)[] = [];
@@ -96,6 +98,16 @@ class SocketService {
         this.socket.on('messages_read', (data: SocketReadData) => {
           console.log('👁️ Messages read:', data);
           this.notifyReadReceiptHandlers(data);
+        });
+
+        this.socket.on('message_deleted', (data: { messageId: number }) => {
+          console.log('🗑️ Message deleted:', data);
+          this.notifyMessageDeletedHandlers(data);
+        });
+
+        this.socket.on('conversation_deleted', (data: { conversationId: number }) => {
+          console.log('🗑️ Conversation deleted:', data);
+          this.notifyConversationDeletedHandlers(data);
         });
 
         // Handle other events
@@ -199,6 +211,24 @@ class SocketService {
     }
   }
 
+  // Delete message
+  deleteMessage(messageId: number): void {
+    if (this.socket && this.isConnected) {
+      this.socket.emit('delete_message', {
+        messageId
+      });
+    }
+  }
+
+  // Delete conversation
+  deleteConversation(conversationId: number): void {
+    if (this.socket && this.isConnected) {
+      this.socket.emit('delete_conversation', {
+        conversationId
+      });
+    }
+  }
+
   // Event handlers registration
   onMessage(handler: (data: SocketMessageData) => void): void {
     this.messageHandlers.push(handler);
@@ -218,6 +248,14 @@ class SocketService {
 
   onConnection(handler: (connected: boolean) => void): void {
     this.connectionHandlers.push(handler);
+  }
+
+  onMessageDeleted(handler: (data: { messageId: number }) => void): void {
+    this.messageDeletedHandlers.push(handler);
+  }
+
+  onConversationDeleted(handler: (data: { conversationId: number }) => void): void {
+    this.conversationDeletedHandlers.push(handler);
   }
 
   // Remove event handlers
@@ -241,6 +279,14 @@ class SocketService {
     this.connectionHandlers = this.connectionHandlers.filter(h => h !== handler);
   }
 
+  offMessageDeleted(handler: (data: { messageId: number }) => void): void {
+    this.messageDeletedHandlers = this.messageDeletedHandlers.filter(h => h !== handler);
+  }
+
+  offConversationDeleted(handler: (data: { conversationId: number }) => void): void {
+    this.conversationDeletedHandlers = this.conversationDeletedHandlers.filter(h => h !== handler);
+  }
+
   // Notify handlers
   private notifyMessageHandlers(data: SocketMessageData): void {
     this.messageHandlers.forEach(handler => handler(data));
@@ -256,6 +302,14 @@ class SocketService {
 
   private notifyReadReceiptHandlers(data: SocketReadData): void {
     this.readReceiptHandlers.forEach(handler => handler(data));
+  }
+
+  private notifyMessageDeletedHandlers(data: { messageId: number }): void {
+    this.messageDeletedHandlers.forEach(handler => handler(data));
+  }
+
+  private notifyConversationDeletedHandlers(data: { conversationId: number }): void {
+    this.conversationDeletedHandlers.forEach(handler => handler(data));
   }
 
   private notifyConnectionHandlers(connected: boolean): void {

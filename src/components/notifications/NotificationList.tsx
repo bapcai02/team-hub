@@ -81,7 +81,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
 
   // Debug logging
   console.log('NotificationList Debug:', {
-    notifications: notifications.length,
+    notifications: Array.isArray(notifications) ? notifications.length : 0,
     notificationsLoading,
     notificationsError,
     categories: Object.keys(categories).length,
@@ -89,7 +89,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
     priorities: Object.keys(priorities).length,
     selectedCategory,
     showUnreadOnly,
-    unreadCount: notifications.filter(n => !n.is_read).length
+    unreadCount: (Array.isArray(notifications) ? notifications.filter(n => !n.is_read).length : 0)
   });
 
   const handleMarkAsRead = async (notification: Notification) => {
@@ -173,10 +173,10 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
   };
 
   const filteredNotifications = limit 
-    ? notifications.slice(0, limit)
-    : notifications;
+    ? (Array.isArray(notifications) ? notifications.slice(0, limit) : [])
+    : (Array.isArray(notifications) ? notifications : []);
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = Array.isArray(notifications) ? notifications.filter(n => !n.is_read).length : 0;
 
   return (
     <div>

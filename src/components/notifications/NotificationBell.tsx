@@ -37,7 +37,9 @@ const NotificationBell: React.FC = () => {
     notificationsLoading,
   } = useSelector((state: RootState) => state.notifications);
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  // Ensure notifications is an array before filtering
+  const notificationsArray = Array.isArray(notifications) ? notifications : [];
+  const unreadCount = notificationsArray.filter(n => !n.is_read).length;
 
   useEffect(() => {
     // Fetch recent notifications (limit to 10 for dropdown)
@@ -105,7 +107,7 @@ const NotificationBell: React.FC = () => {
       </div>
 
       <div style={{ maxHeight: 300, overflow: 'auto' }}>
-        {notifications.length === 0 ? (
+        {notificationsArray.length === 0 ? (
           <div style={{ padding: 24, textAlign: 'center' }}>
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}

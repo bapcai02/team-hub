@@ -31,7 +31,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   // Helper function to get member count text
   const getMemberCountText = (conversation: UIConversation) => {
     if (conversation.type === 'group') {
-      const memberCount = conversation.memberCount || 0;
+      const memberCount = conversation.participants?.length || 0;
       const onlineCount = conversation.onlineCount || 0;
       return `${memberCount} member${memberCount !== 1 ? 's' : ''}${onlineCount > 0 ? `, ${onlineCount} online` : ''}`;
     }

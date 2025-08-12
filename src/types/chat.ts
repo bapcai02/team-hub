@@ -114,7 +114,6 @@ export interface UIConversation {
   time: string;
   isPinned: boolean;
   isSelected: boolean;
-  memberCount?: number;
   onlineCount?: number;
   lastMessage?: string; // String instead of Message
   unreadCount?: number;

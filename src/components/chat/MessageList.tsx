@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Avatar, Badge, Button, Tooltip } from 'antd';
-import { SmileOutlined } from '@ant-design/icons';
+import { Avatar, Badge, Button, Tooltip, Modal, message } from 'antd';
+import { SmileOutlined, DeleteOutlined } from '@ant-design/icons';
 import { UIMessage } from '../../types/chat';
+import { useTranslation } from 'react-i18next';
 
 interface MessageListProps {
   messages: UIMessage[];
   onAddReaction?: (messageId: number, emoji: string) => void;
   onRemoveReaction?: (messageId: number, emoji: string) => void;
+  onDeleteMessage?: (messageId: number) => void;
 }
 
 const emojiIconMap: Record<string, string> = {
@@ -26,11 +28,14 @@ const commonEmojis = ['👍', '❤️', '😂', '😮', '😢', '😡', '🔥', 
 const MessageList: React.FC<MessageListProps> = ({ 
   messages, 
   onAddReaction, 
-  onRemoveReaction 
+  onRemoveReaction,
+  onDeleteMessage
 }) => {
+  const { t } = useTranslation();
   const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
-  const [showReactions, setShowReactions] = useState<number | null>(null);
-  const pickerRef = useRef<HTMLDivElement | null>(null);
+  const [showReactionPicker, setShowReactionPicker] = useState<number | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<number | null>(null);
+  const reactionPickerRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Auto scroll to bottom when new messages arrive
@@ -41,11 +46,11 @@ const MessageList: React.FC<MessageListProps> = ({
   // Close emoji picker when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
-        setShowReactions(null);
+      if (reactionPickerRef.current && !reactionPickerRef.current.contains(event.target as Node)) {
+        setShowReactionPicker(null);
       }
     }
-    if (showReactions !== null) {
+    if (showReactionPicker !== null) {
       document.addEventListener('mousedown', handleClickOutside);
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -53,18 +58,31 @@ const MessageList: React.FC<MessageListProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showReactions]);
+  }, [showReactionPicker]);
 
   const handleReactionClick = (messageId: number, emoji: string) => {
     if (onAddReaction) {
       onAddReaction(messageId, emoji);
     }
-    setShowReactions(null);
+    setShowReactionPicker(null);
   };
 
   const handleRemoveReaction = (messageId: number, emoji: string) => {
     if (onRemoveReaction) {
       onRemoveReaction(messageId, emoji);
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: number) => {
+    try {
+      if (onDeleteMessage) {
+        await onDeleteMessage(messageId);
+        message.success(t('chat.message.deleteSuccess', 'Message deleted successfully'));
+      }
+      setShowDeleteModal(null);
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      message.error(t('chat.message.deleteError', 'Failed to delete message'));
     }
   };
 
@@ -81,23 +99,10 @@ const MessageList: React.FC<MessageListProps> = ({
     );
     const fiveMinutes = 5 * 60 * 1000;
     
-    const shouldShow = (
+    return (
       message.senderId !== prevMessage.senderId ||
       timeDiff > fiveMinutes
     );
-    
-    // Debug logging
-    console.log(`Message ${index}:`, {
-      messageId: message.id,
-      senderId: message.senderId,
-      isOwn: message.isOwn,
-      prevSenderId: prevMessage.senderId,
-      prevIsOwn: prevMessage.isOwn,
-      timeDiff,
-      shouldShow
-    });
-    
-    return shouldShow;
   };
 
   // Helper function to check if this is the last message in a group
@@ -162,7 +167,8 @@ const MessageList: React.FC<MessageListProps> = ({
       overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
-      gap: '12px'
+      gap: '12px',
+      backgroundColor: '#ffffff' // White background
     }}>
       {messages.map((message, index) => {
         const showAvatar = shouldShowAvatar(message, index);
@@ -183,251 +189,264 @@ const MessageList: React.FC<MessageListProps> = ({
               display: 'flex',
               alignItems: 'flex-end',
               gap: '8px',
-              maxWidth: '70%',
-              position: 'relative'
+              maxWidth: '70%'
             }}>
-              {/* Avatar for other users - only show for first message in group */}
+              {/* Only show avatar for other users, not current user */}
               {!message.isOwn && showAvatar && (
-                <div style={{ position: 'relative' }}>
-                  <Avatar
-                    size={32}
-                    style={{
-                      backgroundColor: message.avatar ? undefined : '#1890ff',
-                      marginBottom: '4px'
-                    }}
-                    src={message.avatar}
-                  >
-                    {message.sender?.charAt(0)}
-                  </Avatar>
-                  
-                  {/* Online/offline status */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '2px',
-                    right: '2px',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: message.isOnline ? '#52c41a' : '#d9d9d9',
-                    border: '2px solid #fff'
-                  }} />
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#e0e0e0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  color: '#666',
+                  flexShrink: 0
+                }}>
+                  {message.sender?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
               )}
               
-              {/* Invisible spacer for grouped messages without avatar */}
-              {!message.isOwn && !showAvatar && (
-                <div style={{ width: '40px' }} />
+              {/* Spacer for current user messages to align properly */}
+              {message.isOwn && (
+                <div style={{ width: '40px', flexShrink: 0 }}></div>
               )}
-
-              {/* Message bubble */}
+              
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: message.isOwn ? 'flex-end' : 'flex-start',
-                minWidth: 'fit-content'
+                alignItems: message.isOwn ? 'flex-end' : 'flex-start'
               }}>
-                {/* Sender name for group chats - only show for first message in group */}
-                {!message.isOwn && message.sender && showAvatar && (
+                {/* Sender name - only show for other users and first message in group */}
+                {!message.isOwn && showAvatar && (
                   <div style={{
                     fontSize: '12px',
                     color: '#666',
                     marginBottom: '4px',
-                    marginLeft: '4px'
+                    fontWeight: '500'
                   }}>
-                    {message.sender}
+                    {message.sender || 'Unknown User'}
                   </div>
                 )}
-
-                {/* Message content */}
-                <div style={{
-                  padding: '8px 12px',
-                  borderRadius: getMessageBorderRadius(message, index, messages),
-                  backgroundColor: message.isOwn ? '#1890ff' : '#f0f0f0',
-                  color: message.isOwn ? '#fff' : '#000',
-                  maxWidth: '100%',
-                  wordWrap: 'break-word',
-                  position: 'relative',
-                  alignSelf: message.isOwn ? 'flex-end' : 'flex-start'
-                }}>
+                
+                {/* Message bubble */}
+                <div 
+                  style={{
+                    backgroundColor: message.isOwn ? '#1890ff' : '#f0f0f0',
+                    color: message.isOwn ? '#ffffff' : '#000000',
+                    padding: '8px 12px',
+                    borderRadius: getMessageBorderRadius(message, index, messages),
+                    maxWidth: '100%',
+                    wordWrap: 'break-word',
+                    position: 'relative'
+                  }}
+                  onMouseEnter={() => setHoveredMessage(message.id)}
+                  onMouseLeave={() => setHoveredMessage(null)}
+                >
                   {message.content}
                   
-                  {/* Read receipts for own messages */}
-                  {message.isOwn && (
+                  {/* Message actions - only show for own messages */}
+                  {message.isOwn && hoveredMessage === message.id && (
                     <div style={{
                       position: 'absolute',
-                      bottom: '-16px',
-                      right: '0',
-                      fontSize: '10px',
-                      color: '#999'
-                    }}>
-                      {message.readBy && message.readBy.length > 0 ? '✓✓' : '✓'}
-                    </div>
-                  )}
-                </div>
-
-                {/* Reactions */}
-                {Object.entries(message.uiReactions || {}).map(([emoji, count]) => {
-                  if (typeof count === 'number' && count > 0) {
-                    const users = message.uiReactions?.users?.[emoji] || [];
-                    const tooltipText = users.length > 0 
-                      ? `${emoji} by ${users.join(', ')}`
-                      : `${emoji} reaction`;
-                    
-                    return (
-                      <Tooltip key={emoji} title={tooltipText}>
-                        <span 
-                          style={{ 
-                            fontSize: '16px', 
-                            cursor: 'pointer',
-                            padding: '2px 4px',
-                            borderRadius: '4px',
-                            backgroundColor: '#fff3cd',
-                            border: '1px solid #ffeaa7',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            whiteSpace: 'nowrap'
-                          }}
-                          onClick={() => handleRemoveReaction(message.id, emoji)}
-                        >
-                          {emoji} {count}
-                        </span>
-                      </Tooltip>
-                    );
-                  }
-                  return null;
-                })}
-
-                {/* Timestamp */}
-                <div style={{
-                  fontSize: '11px',
-                  color: '#999',
-                  marginTop: '4px',
-                  marginLeft: message.isOwn ? '0' : '4px',
-                  marginRight: message.isOwn ? '4px' : '0'
-                }}>
-                  {message.time}
-                </div>
-
-                {/* Reaction button - show on hover */}
-                {hoveredMessage === message.id && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: message.isOwn ? 'auto' : '0',
-                    left: message.isOwn ? '0' : 'auto',
-                    zIndex: 10
-                  }}>
-                    <Tooltip title="Add reaction">
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={<SmileOutlined />}
-                        onClick={() => setShowReactions(showReactions === message.id ? null : message.id)}
-                        style={{
-                          backgroundColor: '#fff',
-                          border: '1px solid #d9d9d9',
-                          borderRadius: '50%',
-                          width: '24px',
-                          height: '24px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      />
-                    </Tooltip>
-                  </div>
-                )}
-
-                {/* Emoji picker */}
-                {showReactions === message.id && (
-                  <div
-                    ref={pickerRef}
-                    style={{
-                      position: 'absolute',
-                      top: '-40px',
-                      right: message.isOwn ? 'auto' : '0',
-                      left: message.isOwn ? '0' : 'auto',
-                      backgroundColor: '#fff',
-                      border: '1px solid #d9d9d9',
-                      borderRadius: '8px',
-                      padding: '8px',
+                      top: '-8px',
+                      right: '-8px',
                       display: 'flex',
                       gap: '4px',
-                      flexWrap: 'wrap',
-                      maxWidth: '200px',
-                      zIndex: 20,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                    }}
-                  >
-                    {commonEmojis.map((emoji) => (
-                      <Tooltip key={emoji} title={emoji}>
-                        <span
-                          style={{
-                            fontSize: '20px',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            borderRadius: '4px',
-                            transition: 'background-color 0.2s',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f0f0f0';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }}
-                          onClick={() => handleReactionClick(message.id, emoji)}
-                        >
-                          {emoji}
-                        </span>
-                      </Tooltip>
-                    ))}
+                      backgroundColor: '#ffffff',
+                      borderRadius: '4px',
+                      padding: '2px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      border: '1px solid #d9d9d9'
+                    }}>
+                      {/* Reaction button */}
+                      <button
+                        onClick={() => setShowReactionPicker(showReactionPicker === message.id ? null : message.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          padding: '2px',
+                          borderRadius: '2px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '20px',
+                          height: '20px'
+                        }}
+                        title={t('chat.message.addReaction', 'Add reaction')}
+                      >
+                        😀
+                      </button>
+                      
+                      {/* Delete button */}
+                      <button
+                        onClick={() => setShowDeleteModal(message.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          padding: '2px',
+                          borderRadius: '2px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '20px',
+                          height: '20px',
+                          color: '#ff4d4f'
+                        }}
+                        title={t('chat.message.delete', 'Delete message')}
+                      >
+                        <DeleteOutlined style={{ fontSize: '12px' }} />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Reaction button for other users' messages */}
+                  {!message.isOwn && hoveredMessage === message.id && (
+                    <button
+                      onClick={() => setShowReactionPicker(showReactionPicker === message.id ? null : message.id)}
+                      style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        left: '-8px',
+                        background: '#ffffff',
+                        border: '1px solid #d9d9d9',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        padding: '2px',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '20px',
+                        height: '20px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      }}
+                      title={t('chat.message.addReaction', 'Add reaction')}
+                    >
+                      😀
+                    </button>
+                  )}
+                </div>
+                
+                {/* Reactions */}
+                {message.uiReactions && Object.keys(message.uiReactions).length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    gap: '4px',
+                    marginTop: '4px',
+                    flexWrap: 'wrap'
+                  }}>
+                    {Object.entries(message.uiReactions).map(([emoji, count]) => {
+                      if (typeof count === 'number' && count > 0) {
+                        return (
+                          <span
+                            key={emoji}
+                            style={{
+                              backgroundColor: '#f0f0f0',
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                              fontSize: '11px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '2px'
+                            }}
+                            onClick={() => handleReactionClick(message.id, emoji)}
+                          >
+                            {emoji} {count}
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                )}
+                
+                {/* Timestamp - only show for last message in group */}
+                {isLast && (
+                  <div style={{
+                    fontSize: '11px',
+                    color: '#999',
+                    marginTop: '2px',
+                    textAlign: message.isOwn ? 'right' : 'left'
+                  }}>
+                    {message.time}
                   </div>
                 )}
               </div>
-
-              {/* Avatar for own messages - only show for first message in group */}
-              {message.isOwn && showAvatar && (
-                <div style={{ position: 'relative' }}>
-                  <Avatar
-                    size={32}
-                    style={{
-                      backgroundColor: message.avatar ? undefined : '#1890ff',
-                      marginBottom: '4px'
-                    }}
-                    src={message.avatar}
-                  >
-                    {message.sender?.charAt(0)}
-                  </Avatar>
-                  
-                  {/* Online status for own messages */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '2px',
-                    right: '2px',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: message.isOnline ? '#52c41a' : '#d9d9d9',
-                    border: '2px solid #fff'
-                  }} />
-                </div>
-              )}
-              
-              {/* Invisible spacer for grouped own messages without avatar */}
-              {message.isOwn && !showAvatar && (
-                <div style={{ width: '40px' }} />
-              )}
             </div>
           </div>
         );
       })}
       
-      {/* Invisible div for auto-scroll */}
       <div ref={messagesEndRef} />
+      
+      {/* Reaction picker */}
+      {showReactionPicker && (
+        <div
+          ref={reactionPickerRef}
+          style={{
+            position: 'absolute',
+            backgroundColor: '#ffffff',
+            border: '1px solid #d9d9d9',
+            borderRadius: '8px',
+            padding: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            zIndex: 1000,
+            display: 'flex',
+            gap: '4px',
+            flexWrap: 'wrap',
+            maxWidth: '200px'
+          }}
+        >
+          {['😀', '😂', '😍', '😡', '😢', '👍', '👎', '❤️', '🔥', '👏'].map((emoji) => (
+            <button
+              key={emoji}
+              onClick={() => {
+                handleReactionClick(showReactionPicker, emoji);
+                setShowReactionPicker(null);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '20px',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '4px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f0f0f0';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      <Modal
+        title={t('chat.message.deleteConfirmTitle', 'Delete Message')}
+        open={showDeleteModal !== null}
+        onOk={() => showDeleteModal && handleDeleteMessage(showDeleteModal)}
+        onCancel={() => setShowDeleteModal(null)}
+        okText={t('common.delete', 'Delete')}
+        cancelText={t('common.cancel', 'Cancel')}
+        okType="danger"
+        confirmLoading={false}
+      >
+        <p>{t('chat.message.deleteConfirmContent', 'Are you sure you want to delete this message? This action cannot be undone.')}</p>
+      </Modal>
     </div>
   );
 };

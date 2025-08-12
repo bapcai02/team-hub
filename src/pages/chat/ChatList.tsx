@@ -9,8 +9,8 @@ import {
   MessageOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../../app/store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../app/store';
 import MainLayout from '../../layouts/MainLayout';
 import ChatListComponent from '../../components/chat/ChatList';
 import MessageList from '../../components/chat/MessageList';
@@ -20,14 +20,7 @@ import PollCreator from '../../components/chat/PollCreator';
 import LocationShare from '../../components/chat/LocationShare';
 import GroupManagement from '../../components/chat/GroupManagement';
 import ThreadedReplies from '../../components/chat/ThreadedReplies';
-import { 
-  getConversations, 
-  getMessages, 
-  sendMessage, 
-  addReaction, 
-  removeReaction,
-  createConversation
-} from '../../features/chat/chatSlice';
+import { useChat } from '../../hooks/useChat';
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -35,8 +28,20 @@ const { Search } = Input;
 
 const ChatList: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
-  const { conversations, messages, loading, currentConversation } = useSelector((state: RootState) => state.chat);
+  const {
+    conversations,
+    messages,
+    loading,
+    selectedConversation: chatSelectedConversation,
+    fetchConversations,
+    fetchMessages,
+    sendMessage,
+    addReaction,
+    removeReaction,
+    deleteMessage,
+    deleteConversation,
+    createConversation
+  } = useChat();
   const currentUser = useSelector((state: RootState) => state.user.list.find(user => user.id === 1) || null);
   const currentUserId = currentUser?.id || 1;
   
@@ -55,20 +60,18 @@ const ChatList: React.FC = () => {
 
   // Load conversations on mount
   useEffect(() => {
-    dispatch(getConversations());
-  }, [dispatch]);
+    fetchConversations();
+  }, [fetchConversations]);
 
   // Load messages when conversation is selected
   useEffect(() => {
     if (selectedConversation?.id) {
-      dispatch(getMessages(selectedConversation.id));
+      fetchMessages(selectedConversation.id);
     }
-  }, [selectedConversation, dispatch]);
+  }, [selectedConversation, fetchMessages]);
 
   const handleConversationSelect = (conversation: any) => {
     setSelectedConversation(conversation);
-    // Update current conversation in store
-    dispatch({ type: 'chat/setSelectedConversation', payload: conversation });
   };
 
   const handleOpenCreateModal = () => {
@@ -85,14 +88,13 @@ const ChatList: React.FC = () => {
     if (!selectedConversation?.id || !text.trim()) return;
 
     try {
-      await dispatch(sendMessage({
+      await sendMessage({
         conversationId: selectedConversation.id,
         message: {
           content: text,
           type: 'text'
-        },
-        currentUserId: currentUserId
-      })).unwrap();
+        }
+      });
       setMessageText('');
     } catch (error) {
       console.error('Error sending message:', error);
@@ -114,18 +116,30 @@ const ChatList: React.FC = () => {
   };
 
   const handleAddReaction = (messageId: number, emoji: string) => {
-    dispatch(addReaction({ messageId, emoji }));
+    addReaction(messageId, emoji);
   };
 
   const handleRemoveReaction = (messageId: number, emoji: string) => {
-    dispatch(removeReaction({ messageId, emoji }));
+    removeReaction(messageId, emoji);
+  };
+
+  const handleDeleteMessage = async (messageId: number) => {
+    try {
+      await deleteMessage(messageId);
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      throw error; // Re-throw to let MessageList handle the error display
+    }
   };
 
   const handleCreateConversation = async (data: any) => {
     try {
-      await dispatch(createConversation(data)).unwrap();
+      await createConversation(data);
       setShowCreateModal(false);
       message.success('Conversation created successfully');
+      
+      // Refresh conversations to get the updated data with participants
+      await fetchConversations();
     } catch (error) {
       console.error('Error creating conversation:', error);
       message.error('Failed to create conversation');
@@ -156,6 +170,18 @@ const ChatList: React.FC = () => {
             onConversationSelect={handleConversationSelect}
             onCreateConversation={handleOpenCreateModal}
             selectedConversationId={selectedConversation?.id}
+            onDeleteConversation={async (conversationId) => {
+              try {
+                await deleteConversation(conversationId);
+                // If the deleted conversation is currently selected, clear the selection
+                if (selectedConversation?.id === conversationId) {
+                  setSelectedConversation(null);
+                }
+              } catch (error) {
+                console.error('Error deleting conversation:', error);
+                // Error handling is done in the ChatListComponent
+              }
+            }}
           />
         </div>
 
@@ -188,7 +214,7 @@ const ChatList: React.FC = () => {
                   </Title>
                   {selectedConversation.type === 'group' && (
                     <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                      {selectedConversation.memberCount} members
+                      {selectedConversation.participants?.length || 0} members
                     </div>
                   )}
                 </div>
@@ -242,6 +268,7 @@ const ChatList: React.FC = () => {
                   messages={messages || []}
                   onAddReaction={handleAddReaction}
                   onRemoveReaction={handleRemoveReaction}
+                  onDeleteMessage={handleDeleteMessage}
                 />
               </div>
 

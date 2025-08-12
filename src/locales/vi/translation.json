@@ -1416,6 +1416,30 @@
       "contentPlaceholder": "Nhập nội dung mẫu hợp đồng"
     }
   },
+  "chat": {
+    "conversations": "Cuộc trò chuyện",
+    "newConversation": "Mới",
+    "searchConversations": "Tìm kiếm cuộc trò chuyện...",
+    "noMessages": "Chưa có tin nhắn",
+    "justNow": "Vừa xong",
+    "yesterday": "Hôm qua",
+    "noConversationsFound": "Không tìm thấy cuộc trò chuyện",
+    "noConversations": "Chưa có cuộc trò chuyện",
+    "members": "thành viên",
+    "online": "trực tuyến",
+    "deleteConfirmTitle": "Xóa cuộc trò chuyện",
+    "deleteConfirmContent": "Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.",
+    "deleteSuccess": "Xóa cuộc trò chuyện thành công",
+    "deleteError": "Không thể xóa cuộc trò chuyện",
+    "message": {
+      "delete": "Xóa tin nhắn",
+      "addReaction": "Thêm phản ứng",
+      "deleteConfirmTitle": "Xóa tin nhắn",
+      "deleteConfirmContent": "Bạn có chắc muốn xóa tin nhắn này? Hành động này không thể hoàn tác.",
+      "deleteSuccess": "Xóa tin nhắn thành công",
+      "deleteError": "Không thể xóa tin nhắn"
+    }
+  },
   "showing": "Hiển thị",
   "of": "trên tổng",
   "items": "mục",

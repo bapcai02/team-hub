@@ -40,7 +40,7 @@ const NotificationTestPage: React.FC = () => {
     <MainLayout>
       <Card title="Notification System Test">
         <Space direction="vertical" style={{ width: '100%' }}>
-          <p>Total notifications: {notifications.length}</p>
+          <p>Total notifications: {Array.isArray(notifications) ? notifications.length : 0}</p>
           <p>Categories: {Object.keys(categories).length}</p>
           <p>Channels: {Object.keys(channels).length}</p>
           <p>Priorities: {Object.keys(priorities).length}</p>

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiClient, { chatApiClient } from '../../lib/apiClient';
-import { Conversation, Message, CreateMessageDto, UIConversation, UIMessage } from '../../types/chat';
+import { Conversation, Message, CreateMessageDto, CreateConversationDto, UIConversation, UIMessage } from '../../types/chat';
 import type { SerializedError } from '@reduxjs/toolkit';
 
 // Get current user ID from user state
@@ -103,16 +103,58 @@ export const leaveConversation = createAsyncThunk(
   }
 );
 
+export const deleteMessage = createAsyncThunk(
+  'chat/deleteMessage',
+  async (messageId: number, { dispatch, getState }) => {
+    try {
+      // Remove message from state immediately for instant feedback
+      dispatch(removeMessage(messageId));
+      
+      // Call API
+      const response = await chatApiClient.delete(`/messages/${messageId}`);
+      return { messageId, success: true };
+    } catch (error) {
+      // Revert optimistic update on error by refetching messages
+      const state = getState() as any;
+      if (state.chat.currentConversation?.id) {
+        dispatch(getMessages(state.chat.currentConversation.id));
+      }
+      throw error;
+    }
+  }
+);
+
 export const deleteConversation = createAsyncThunk(
   'chat/deleteConversation',
-  async (conversationId: number) => {
-    const response = await chatApiClient.delete(`/conversations/${conversationId}/settings`);
-    return response.data;
+  async (conversationId: number, { dispatch }) => {
+    try {
+      // Remove conversation from state immediately for instant feedback
+      dispatch(removeConversation(conversationId));
+      
+      // Call API
+      const response = await chatApiClient.delete(`/conversations/${conversationId}/settings`);
+      return response.data;
+    } catch (error) {
+      // Revert optimistic update on error by refetching conversations
+      dispatch(getConversations());
+      throw error;
+    }
   }
 );
 
 // Helper function to transform API conversation to UI format
 const transformConversationToUI = (conversation: Conversation): UIConversation => {
+  // Debug logging to see the actual data structure
+  console.log('Transform conversation:', {
+    id: conversation.id,
+    type: conversation.type,
+    name: conversation.name,
+    participants: conversation.participants,
+    participantsLength: conversation.participants?.length,
+    participantsType: typeof conversation.participants,
+    isArray: Array.isArray(conversation.participants)
+  });
+
   // Generate conversation name based on type and participants
   let conversationName = conversation.name;
   if (!conversationName) {
@@ -128,16 +170,30 @@ const transformConversationToUI = (conversation: Conversation): UIConversation =
   // Generate avatar content from conversation name
   const avatarContent = conversationName.charAt(0).toUpperCase();
 
+  // Ensure participants is always an array
+  const participants = Array.isArray(conversation.participants) ? conversation.participants : [];
+  
+  // Calculate online count
+  const onlineCount = participants.filter((p: any) => p.isOnline).length;
+
+  console.log('Conversation transform:', { 
+    id: conversation.id,
+    type: conversation.type,
+    participantsLength: participants.length,
+    onlineCount,
+    hasParticipants: !!conversation.participants,
+    participants: participants.map(p => ({ id: p.id, name: p.name }))
+  });
+
   return {
     ...conversation,
-    participants: conversation.participants || [],
+    participants: participants,
     name: conversationName,
     avatar: avatarContent,
     time: 'now',
     isPinned: false,
     isSelected: false,
-    memberCount: conversation.type === 'group' ? (conversation.participants ? conversation.participants.length : 0) : undefined,
-    onlineCount: conversation.participants ? conversation.participants.filter((p: any) => p.isOnline).length : 0,
+    onlineCount: onlineCount,
     lastMessage: 'No messages yet',
     unreadCount: 0
   };
@@ -271,8 +327,26 @@ export const getConversations = createAsyncThunk(
   'chat/getConversations',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await chatApiClient.get('/conversations');      
-      return response.data.data.conversations;
+      const response = await chatApiClient.get('/conversations');
+      console.log('Get conversations API response:', response.data);
+      
+      const conversations = response.data.data?.conversations || response.data.conversations || [];
+      console.log('Extracted conversations:', conversations);
+      
+      // Log each conversation's participants
+      conversations.forEach((conv: any, index: number) => {
+        console.log(`Conversation ${index + 1}:`, {
+          id: conv.id,
+          type: conv.type,
+          name: conv.name,
+          participants: conv.participants,
+          participantsLength: conv.participants?.length,
+          participantsType: typeof conv.participants,
+          isArray: Array.isArray(conv.participants)
+        });
+      });
+      
+      return conversations;
     } catch (error) {
       console.log('API error fetching conversations, returning empty array');
       return [];
@@ -280,13 +354,25 @@ export const getConversations = createAsyncThunk(
   }
 );
 
+
+
 export const createConversation = createAsyncThunk(
   'chat/createConversation',
-  async (data: CreateMessageDto, { rejectWithValue }) => {
+  async (data: CreateConversationDto, { rejectWithValue }) => {
     try {
       const response = await chatApiClient.post('/conversations', data);
       console.log('Create conversation response:', response.data);
-      return response.data.data?.conversation || response.data.conversation;
+      console.log('Response structure:', {
+        hasData: !!response.data.data,
+        hasConversation: !!response.data.data?.conversation,
+        hasDirectConversation: !!response.data.conversation,
+        dataKeys: Object.keys(response.data),
+        dataDataKeys: response.data.data ? Object.keys(response.data.data) : 'no data'
+      });
+      
+      const conversation = response.data.data?.conversation || response.data.conversation;
+      console.log('Final conversation object:', conversation);
+      return conversation;
     } catch (error) {
       console.error('Create conversation error:', error);
       return rejectWithValue(error);
@@ -489,6 +575,17 @@ const chatSlice = createSlice({
       state.messages = state.messages.filter(m => m.id !== messageId);
     },
     
+    // Remove conversation locally
+    removeConversation: (state, action) => {
+      const conversationId = action.payload;
+      state.conversations = state.conversations.filter(c => c.id !== conversationId);
+      // Clear selection if the deleted conversation was selected
+      if (state.currentConversation?.id === conversationId) {
+        state.currentConversation = null;
+        state.messages = [];
+      }
+    },
+    
     // Add typing user
     addTypingUser: (state, action) => {
       if (!state.typingUsers.includes(action.payload)) {
@@ -543,7 +640,9 @@ const chatSlice = createSlice({
       })
       .addCase(createConversation.fulfilled, (state, action) => {
         state.loading.creating = false;
+        console.log('Create conversation fulfilled with payload:', action.payload);
         const newConversation = transformConversationToUI(action.payload);
+        console.log('Transformed conversation:', newConversation);
         state.conversations.unshift(newConversation);
       })
       .addCase(createConversation.rejected, (state, action) => {
@@ -761,6 +860,7 @@ export const {
   addMessage,
   updateMessage,
   removeMessage,
+  removeConversation,
   addTypingUser,
   removeTypingUser,
   setConnectionStatus,
