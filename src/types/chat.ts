@@ -18,8 +18,8 @@ export interface Message {
   senderId: number;
   content: string;
   type: 'text' | 'image' | 'file' | 'audio' | 'video';
-  createdAt: string;
-  updatedAt: string;
+  updated_at: string;
+  created_at: string;
   attachments?: MessageAttachment[];
   reactions?: MessageReaction[];
   isRead?: boolean;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Form, Input, Switch, Button, Card, Row, Col, Space, Divider, Typography, Alert, List, Tag } from 'antd';
-import { SaveOutlined, LockOutlined, SafetyOutlined, MobileOutlined, DesktopOutlined } from '@ant-design/icons';
+import { Form, Switch, Input, Card, Row, Col, Space, Divider, Typography, Button, Alert, List, Tag } from 'antd';
+import { SaveOutlined, LockOutlined, SafetyCertificateOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
@@ -18,7 +18,14 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
 
   const handleSubmit = async (values: any) => {
     try {
-      await onSave(values);
+      const settings = {
+        two_factor_enabled: values.two_factor_enabled,
+        current_password: values.current_password,
+        new_password: values.new_password,
+        new_password_confirmation: values.new_password_confirmation,
+      };
+      
+      await onSave({ settings });
       if (values.new_password) {
         setShowPasswordForm(false);
         form.resetFields(['current_password', 'new_password', 'new_password_confirmation']);
@@ -28,10 +35,11 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
     }
   };
 
+  // Mock data for demonstration
   const mockLoginHistory = [
     {
       id: 1,
-      device: 'Chrome on Windows 10',
+      device: 'Chrome on Windows',
       location: 'Ho Chi Minh City, Vietnam',
       ip: '192.168.1.100',
       timestamp: '2024-01-15 14:30:00',
@@ -39,14 +47,6 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
     },
     {
       id: 2,
-      device: 'Safari on iPhone',
-      location: 'Hanoi, Vietnam',
-      ip: '192.168.1.101',
-      timestamp: '2024-01-14 09:15:00',
-      status: 'success'
-    },
-    {
-      id: 3,
       device: 'Firefox on MacOS',
       location: 'Unknown',
       ip: '192.168.1.102',
@@ -73,7 +73,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
   ];
 
   return (
-    <Card title={t('settings.security.title', 'Security Settings')} style={{ marginBottom: 24 }}>
+    <Card title={t('settings.security.title')} style={{ marginBottom: 24 }}>
       <Form
         form={form}
         layout="vertical"
@@ -87,7 +87,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
           title={
             <Space>
               <LockOutlined />
-              {t('settings.security.password', 'Password')}
+              {t('settings.security.password')}
             </Space>
           } 
           style={{ marginBottom: 24 }}
@@ -95,13 +95,13 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
           {!showPasswordForm ? (
             <div>
               <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-                {t('settings.security.passwordDesc', 'Change your account password to keep your account secure.')}
+                {t('settings.security.passwordDesc')}
               </Text>
               <Button 
                 type="primary" 
                 onClick={() => setShowPasswordForm(true)}
               >
-                {t('settings.security.changePassword', 'Change Password')}
+                {t('settings.security.changePassword')}
               </Button>
             </div>
           ) : (
@@ -109,49 +109,49 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
               <Col xs={24} md={8}>
                 <Form.Item
                   name="current_password"
-                  label={t('settings.security.currentPassword', 'Current Password')}
+                  label={t('settings.security.currentPassword')}
                   rules={[
-                    { required: true, message: t('settings.security.currentPasswordRequired', 'Please enter your current password') }
+                    { required: true, message: t('settings.security.currentPasswordRequired') }
                   ]}
                 >
-                  <Input.Password placeholder={t('settings.security.currentPasswordPlaceholder', 'Enter current password')} />
+                  <Input.Password placeholder={t('settings.security.currentPasswordPlaceholder')} />
                 </Form.Item>
               </Col>
               
               <Col xs={24} md={8}>
                 <Form.Item
                   name="new_password"
-                  label={t('settings.security.newPassword', 'New Password')}
+                  label={t('settings.security.newPassword')}
                   rules={[
-                    { required: true, message: t('settings.security.newPasswordRequired', 'Please enter new password') },
-                    { min: 8, message: t('settings.security.passwordMinLength', 'Password must be at least 8 characters') },
+                    { required: true, message: t('settings.security.newPasswordRequired') },
+                    { min: 8, message: t('settings.security.passwordMinLength') },
                     { 
                       pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
-                      message: t('settings.security.passwordPattern', 'Password must contain uppercase, lowercase and number') 
+                      message: t('settings.security.passwordPattern') 
                     }
                   ]}
                 >
-                  <Input.Password placeholder={t('settings.security.newPasswordPlaceholder', 'Enter new password')} />
+                  <Input.Password placeholder={t('settings.security.newPasswordPlaceholder')} />
                 </Form.Item>
               </Col>
               
               <Col xs={24} md={8}>
                 <Form.Item
                   name="new_password_confirmation"
-                  label={t('settings.security.confirmPassword', 'Confirm Password')}
+                  label={t('settings.security.confirmPassword')}
                   rules={[
-                    { required: true, message: t('settings.security.confirmPasswordRequired', 'Please confirm your password') },
+                    { required: true, message: t('settings.security.confirmPasswordRequired') },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (!value || getFieldValue('new_password') === value) {
                           return Promise.resolve();
                         }
-                        return Promise.reject(new Error(t('settings.security.passwordMismatch', 'Passwords do not match')));
+                        return Promise.reject(new Error(t('settings.security.passwordMismatch')));
                       },
                     }),
                   ]}
                 >
-                  <Input.Password placeholder={t('settings.security.confirmPasswordPlaceholder', 'Confirm new password')} />
+                  <Input.Password placeholder={t('settings.security.confirmPasswordPlaceholder')} />
                 </Form.Item>
               </Col>
             </Row>
@@ -162,34 +162,35 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
         <Card 
           title={
             <Space>
-              <SafetyOutlined />
-              {t('settings.security.twoFactor', 'Two-Factor Authentication')}
+              <SafetyCertificateOutlined />
+              {t('settings.security.twoFactor')}
             </Space>
           } 
           style={{ marginBottom: 24 }}
         >
-          <Row gutter={16} align="middle">
-            <Col xs={24} md={16}>
-              <Title level={5}>{t('settings.security.twoFactorTitle', 'Two-Factor Authentication')}</Title>
-              <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
-                {t('settings.security.twoFactorDesc', 'Add an extra layer of security to your account by enabling two-factor authentication.')}
-              </Text>
-            </Col>
-            <Col xs={24} md={8} style={{ textAlign: 'right' }}>
+          <div style={{ marginBottom: 16 }}>
+            <Title level={5}>{t('settings.security.twoFactorTitle')}</Title>
+            <Text type="secondary">
+              {t('settings.security.twoFactorDesc')}
+            </Text>
+          </div>
+
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
               <Form.Item
                 name="two_factor_enabled"
+                label={t('settings.security.enableTwoFactor')}
                 valuePropName="checked"
-                style={{ margin: 0 }}
               >
                 <Switch />
               </Form.Item>
             </Col>
           </Row>
-          
+
           {data?.two_factor_enabled && (
             <Alert
-              message={t('settings.security.twoFactorEnabled', 'Two-factor authentication is enabled')}
-              description={t('settings.security.twoFactorEnabledDesc', 'Your account is protected with two-factor authentication.')}
+              message={t('settings.security.twoFactorEnabled')}
+              description={t('settings.security.twoFactorEnabledDesc')}
               type="success"
               showIcon
               style={{ marginTop: 16 }}
@@ -199,12 +200,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
 
         {/* Login History */}
         <Card 
-          title={
-            <Space>
-              <DesktopOutlined />
-              {t('settings.security.loginHistory', 'Login History')}
-            </Space>
-          } 
+          title={t('settings.security.loginHistory')} 
           style={{ marginBottom: 24 }}
         >
           <List
@@ -212,14 +208,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
             renderItem={(item) => (
               <List.Item>
                 <List.Item.Meta
-                  title={
-                    <Space>
-                      {item.device}
-                      <Tag color={item.status === 'success' ? 'green' : 'red'}>
-                        {item.status === 'success' ? t('settings.security.successful', 'Successful') : t('settings.security.failed', 'Failed')}
-                      </Tag>
-                    </Space>
-                  }
+                  title={item.device}
                   description={
                     <Space direction="vertical" size="small">
                       <Text type="secondary">{item.location} • {item.ip}</Text>
@@ -227,6 +216,9 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
                     </Space>
                   }
                 />
+                <Tag color={item.status === 'success' ? 'green' : 'red'}>
+                  {item.status === 'success' ? t('settings.security.successful') : t('settings.security.failed')}
+                </Tag>
               </List.Item>
             )}
           />
@@ -234,12 +226,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
 
         {/* Trusted Devices */}
         <Card 
-          title={
-            <Space>
-              <MobileOutlined />
-              {t('settings.security.trustedDevices', 'Trusted Devices')}
-            </Space>
-          } 
+          title={t('settings.security.trustedDevices')} 
           style={{ marginBottom: 24 }}
         >
           <List
@@ -247,8 +234,13 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
             renderItem={(item) => (
               <List.Item
                 actions={[
-                  <Button type="link" danger>
-                    {t('settings.security.remove', 'Remove')}
+                  <Button 
+                    type="text" 
+                    danger 
+                    icon={<DeleteOutlined />}
+                    key="remove"
+                  >
+                    {t('settings.security.remove')}
                   </Button>
                 ]}
               >
@@ -256,13 +248,13 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
                   title={
                     <Space>
                       {item.name}
-                      <Tag color="blue">{t('settings.security.trusted', 'Trusted')}</Tag>
+                      <Tag color="blue">{t('settings.security.trusted')}</Tag>
                     </Space>
                   }
                   description={
                     <Space direction="vertical" size="small">
                       <Text type="secondary">{item.device}</Text>
-                      <Text type="secondary">{t('settings.security.lastUsed', 'Last used')}: {item.lastUsed}</Text>
+                      <Text type="secondary">{t('settings.security.lastUsed')}: {item.lastUsed}</Text>
                     </Space>
                   }
                 />
@@ -279,7 +271,7 @@ const SecuritySettings: React.FC<SecuritySettingsProps> = ({ data, onSave, savin
               loading={saving}
               icon={<SaveOutlined />}
             >
-              {t('settings.save', 'Save Changes')}
+              {t('common.save')}
             </Button>
           </Space>
         </Form.Item>

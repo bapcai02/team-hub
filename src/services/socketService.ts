@@ -48,9 +48,17 @@ class SocketService {
       try {
         // Chat service runs on port 3001
         const backendUrl = process.env.REACT_APP_CHAT_SOCKET_URL || 'http://localhost:3001';
+        
+        // Get user data from localStorage
+        const userStr = localStorage.getItem('user');
+        const userData = userStr ? userStr : null; // Don't double stringify
+        
+        console.log('🔍 Socket connection - User ID:', userStr ? JSON.parse(userStr).id : 'No user');
+        
         this.socket = io(backendUrl, {
           auth: {
-            token
+            token,
+            userData
           },
           transports: ['websocket', 'polling'],
           timeout: 10000
@@ -149,10 +157,15 @@ class SocketService {
   // Send message
   sendMessage(conversationId: number, content: string, type: 'text' | 'image' | 'audio' | 'file' | 'video' = 'text'): void {
     if (this.socket && this.isConnected) {
+      // Get current user from localStorage
+      const userStr = localStorage.getItem('user');
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+      
       this.socket.emit('send_message', {
         conversationId,
         content,
-        type
+        type,
+        senderId: currentUser?.id || 1
       });
     } else {
       console.warn('⚠️ Cannot send message: socket not connected');

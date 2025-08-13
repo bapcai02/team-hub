@@ -43,7 +43,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ data, onSave, saving 
     fileList: avatarUrl ? [{
       uid: '-1',
       name: 'avatar.jpg',
-      status: 'done',
+      status: 'done' as const,
       url: avatarUrl,
     }] : [],
     beforeUpload: () => false,
@@ -62,7 +62,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ data, onSave, saving 
   };
 
   return (
-    <Card title={t('settings.profile.title', 'Profile Information')} style={{ marginBottom: 24 }}>
+    <Card title={t('settings.profile.title')} style={{ marginBottom: 24 }}>
       <Form
         form={form}
         layout="vertical"
@@ -89,7 +89,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ data, onSave, saving 
               <Form.Item name="avatar">
                 <Upload {...uploadProps} maxCount={1}>
                   <Button icon={<UploadOutlined />}>
-                    {t('settings.profile.uploadAvatar', 'Upload Avatar')}
+                    {t('settings.profile.uploadAvatar')}
                   </Button>
                 </Upload>
               </Form.Item>
@@ -101,12 +101,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ data, onSave, saving 
               <Col xs={24} sm={12}>
                 <Form.Item
                   name="name"
-                  label={t('settings.profile.name', 'Full Name')}
+                  label={t('settings.profile.name')}
                   rules={[
-                    { required: true, message: t('settings.profile.nameRequired', 'Please enter your name') }
+                    { required: true, message: t('settings.profile.nameRequired') }
                   ]}
                 >
-                  <Input placeholder={t('settings.profile.namePlaceholder', 'Enter your full name')} />
+                  <Input placeholder={t('settings.profile.namePlaceholder')} />
                 </Form.Item>
               </Col>
               

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Avatar, Badge, Button, Tooltip, Modal, message } from 'antd';
-import { SmileOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Modal, message } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { UIMessage } from '../../types/chat';
 import { useTranslation } from 'react-i18next';
 
@@ -11,19 +11,6 @@ interface MessageListProps {
   onDeleteMessage?: (messageId: number) => void;
 }
 
-const emojiIconMap: Record<string, string> = {
-  '👍': '👍',
-  '❤️': '❤️',
-  '😂': '😂',
-  '😮': '😮',
-  '😢': '😢',
-  '😡': '😡',
-  '🔥': '🔥',
-  '👏': '👏',
-  '🎉': '🎉',
-};
-
-const commonEmojis = ['👍', '❤️', '😂', '😮', '😢', '😡', '🔥', '👏', '🎉'];
 
 const MessageList: React.FC<MessageListProps> = ({ 
   messages, 
@@ -94,13 +81,17 @@ const MessageList: React.FC<MessageListProps> = ({
     if (!prevMessage) return true;
     
     const timeDiff = Math.abs(
-      new Date(message.createdAt || '').getTime() - 
-      new Date(prevMessage.createdAt || '').getTime()
+      new Date((message as any).created_at || '').getTime() - 
+      new Date((prevMessage as any).created_at || '').getTime()
     );
     const fiveMinutes = 5 * 60 * 1000;
     
+    // Dùng user_id từ data thực tế thay vì senderId
+    const currentUserId = (message as any).user_id;
+    const prevUserId = (prevMessage as any).user_id;
+    
     return (
-      message.senderId !== prevMessage.senderId ||
+      currentUserId !== prevUserId ||
       timeDiff > fiveMinutes
     );
   };
@@ -113,13 +104,17 @@ const MessageList: React.FC<MessageListProps> = ({
     if (!nextMessage) return true;
     
     const timeDiff = Math.abs(
-      new Date(message.createdAt || '').getTime() - 
-      new Date(nextMessage.createdAt || '').getTime()
+      new Date((message as any).created_at || '').getTime() - 
+      new Date((nextMessage as any).created_at || '').getTime()
     );
     const fiveMinutes = 5 * 60 * 1000;
     
+    // Dùng user_id từ data thực tế thay vì senderId
+    const currentUserId = (message as any).user_id;
+    const nextUserId = (nextMessage as any).user_id;
+    
     return (
-      message.senderId !== nextMessage.senderId ||
+      currentUserId !== nextUserId ||
       timeDiff > fiveMinutes
     );
   };
@@ -171,7 +166,6 @@ const MessageList: React.FC<MessageListProps> = ({
       backgroundColor: '#ffffff' // White background
     }}>
       {messages.map((message, index) => {
-        const showAvatar = shouldShowAvatar(message, index);
         const isLast = isLastInGroup(message, index);
         
         return (
@@ -180,19 +174,19 @@ const MessageList: React.FC<MessageListProps> = ({
             style={{
               display: 'flex',
               justifyContent: message.isOwn ? 'flex-end' : 'flex-start',
-              marginBottom: isLast ? '12px' : '2px'
+              marginBottom: isLast ? '4px' : '0px'
             }}
             onMouseEnter={() => setHoveredMessage(message.id)}
             onMouseLeave={() => setHoveredMessage(null)}
           >
             <div style={{
               display: 'flex',
-              alignItems: 'flex-end',
+              alignItems: 'flex-start',
               gap: '8px',
               maxWidth: '70%'
             }}>
-              {/* Only show avatar for other users, not current user */}
-              {!message.isOwn && showAvatar && (
+              {/* Avatar for other users (left side) - only show for last message in group */}
+              {!message.isOwn && isLast && (
                 <div style={{
                   width: '32px',
                   height: '32px',
@@ -203,15 +197,16 @@ const MessageList: React.FC<MessageListProps> = ({
                   justifyContent: 'center',
                   fontSize: '12px',
                   color: '#666',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  marginTop: '4px'
                 }}>
                   {message.sender?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
               )}
               
-              {/* Spacer for current user messages to align properly */}
-              {message.isOwn && (
-                <div style={{ width: '40px', flexShrink: 0 }}></div>
+              {/* Spacer for other users when no avatar */}
+              {!message.isOwn && !isLast && (
+                <div style={{ width: '32px', flexShrink: 0 }}></div>
               )}
               
               <div style={{
@@ -219,19 +214,6 @@ const MessageList: React.FC<MessageListProps> = ({
                 flexDirection: 'column',
                 alignItems: message.isOwn ? 'flex-end' : 'flex-start'
               }}>
-                {/* Sender name - only show for other users and first message in group */}
-                {!message.isOwn && showAvatar && (
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#666',
-                    marginBottom: '4px',
-                    fontWeight: '500'
-                  }}>
-                    {message.sender || 'Unknown User'}
-                  </div>
-                )}
-                
-                {/* Message bubble */}
                 <div 
                   style={{
                     backgroundColor: message.isOwn ? '#1890ff' : '#f0f0f0',
@@ -368,8 +350,8 @@ const MessageList: React.FC<MessageListProps> = ({
                   </div>
                 )}
                 
-                {/* Timestamp - only show for last message in group */}
-                {isLast && (
+                {/* Timestamp - only show for the very last message */}
+                {index === messages.length - 1 && (
                   <div style={{
                     fontSize: '11px',
                     color: '#999',

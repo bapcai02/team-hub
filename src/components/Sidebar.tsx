@@ -41,7 +41,7 @@ export default function Sidebar() {
     { key: 'documents', icon: <FileTextOutlined />, label: t('docs'), path: '/documents' },
     { key: 'guests', icon: <UsergroupAddOutlined />, label: t('guest.management.title'), path: '/guests' },
     { key: 'notifications', icon: <BellOutlined />, label: t('notifications.management.title'), path: '/notifications' },
-    { key: 'settings', icon: <SettingOutlined />, label: t('settings'), path: '/settings' },
+    { key: 'settings', icon: <SettingOutlined />, label: t('settingsLabel'), path: '/settings' },
     { 
       key: 'devices', 
       icon: <LaptopOutlined />, 
@@ -73,7 +73,7 @@ export default function Sidebar() {
         { key: 'salary-components', icon: <AppstoreOutlined />, label: 'Thành phần lương', path: '/finance/salary-components' },
       ]
     },
-    { key: 'settings', icon: <SettingOutlined />, label: t('settings') },
+
     { key: 'rbac', icon: <SafetyCertificateOutlined />, label: t('rbac.title') || 'Access Control', path: '/rbac' },
     { key: 'contracts', icon: <FileTextOutlined />, label: t('contract.management.title') || 'Contract Management', path: '/contracts' },
   ];

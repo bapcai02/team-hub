@@ -97,7 +97,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ data, onSav
         <Col xs={24} md={8}>
           <Form.Item
             name={`${category}_enabled`}
-            label={t('settings.notifications.enabled', 'Enabled')}
+            label={t('settings.notifications.enabled')}
             valuePropName="checked"
             initialValue={data?.[category]?.enabled ?? true}
           >
@@ -108,14 +108,14 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ data, onSav
         <Col xs={24} md={8}>
           <Form.Item
             name={`${category}_channels`}
-            label={t('settings.notifications.channels', 'Channels')}
+            label={t('settings.notifications.channels')}
             initialValue={data?.[category]?.channels || ['email', 'in_app']}
           >
-            <Select mode="multiple" placeholder={t('settings.notifications.selectChannels', 'Select channels')}>
-              <Option value="email">{t('settings.notifications.email', 'Email')}</Option>
-              <Option value="in_app">{t('settings.notifications.inApp', 'In-App')}</Option>
-              <Option value="push">{t('settings.notifications.push', 'Push')}</Option>
-              <Option value="sms">{t('settings.notifications.sms', 'SMS')}</Option>
+            <Select mode="multiple" placeholder={t('settings.notifications.selectChannels')}>
+              <Option value="email">{t('settings.notifications.email')}</Option>
+              <Option value="in_app">{t('settings.notifications.inApp')}</Option>
+              <Option value="push">{t('settings.notifications.push')}</Option>
+              <Option value="sms">{t('settings.notifications.sms')}</Option>
             </Select>
           </Form.Item>
         </Col>
@@ -123,26 +123,26 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ data, onSav
         <Col xs={24} md={8}>
           <Form.Item
             name={`${category}_frequency`}
-            label={t('settings.notifications.frequency', 'Frequency')}
+            label={t('settings.notifications.frequency')}
             initialValue={data?.[category]?.frequency || 'immediate'}
           >
-            <Select placeholder={t('settings.notifications.selectFrequency', 'Select frequency')}>
-              <Option value="immediate">{t('settings.notifications.immediate', 'Immediate')}</Option>
-              <Option value="hourly">{t('settings.notifications.hourly', 'Hourly')}</Option>
-              <Option value="daily">{t('settings.notifications.daily', 'Daily')}</Option>
-              <Option value="weekly">{t('settings.notifications.weekly', 'Weekly')}</Option>
+            <Select placeholder={t('settings.notifications.selectFrequency')}>
+              <Option value="immediate">{t('settings.notifications.immediate')}</Option>
+              <Option value="hourly">{t('settings.notifications.hourly')}</Option>
+              <Option value="daily">{t('settings.notifications.daily')}</Option>
+              <Option value="weekly">{t('settings.notifications.weekly')}</Option>
             </Select>
           </Form.Item>
         </Col>
       </Row>
 
-      <Divider>{t('settings.notifications.quietHours', 'Quiet Hours')}</Divider>
+      <Divider>{t('settings.notifications.quietHours')}</Divider>
       
       <Row gutter={16}>
         <Col xs={24} md={6}>
           <Form.Item
             name={`${category}_quiet_hours`}
-            label={t('settings.notifications.quietHoursEnabled', 'Enable Quiet Hours')}
+            label={t('settings.notifications.quietHoursEnabled')}
             valuePropName="checked"
             initialValue={data?.[category]?.quiet_hours?.enabled || false}
           >
@@ -153,7 +153,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ data, onSav
         <Col xs={24} md={9}>
           <Form.Item
             name={`${category}_quiet_start`}
-            label={t('settings.notifications.quietStart', 'Start Time')}
+            label={t('settings.notifications.quietStart')}
             initialValue={data?.[category]?.quiet_hours?.start ? dayjs(data[category].quiet_hours.start, 'HH:mm') : dayjs('22:00', 'HH:mm')}
           >
             <TimePicker format="HH:mm" style={{ width: '100%' }} />
@@ -163,7 +163,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ data, onSav
         <Col xs={24} md={9}>
           <Form.Item
             name={`${category}_quiet_end`}
-            label={t('settings.notifications.quietEnd', 'End Time')}
+            label={t('settings.notifications.quietEnd')}
             initialValue={data?.[category]?.quiet_hours?.end ? dayjs(data[category].quiet_hours.end, 'HH:mm') : dayjs('08:00', 'HH:mm')}
           >
             <TimePicker format="HH:mm" style={{ width: '100%' }} />
@@ -174,55 +174,55 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ data, onSav
   );
 
   return (
-    <Card title={t('settings.notifications.title', 'Notification Preferences')} style={{ marginBottom: 24 }}>
+    <Card title={t('settings.notifications.title')} style={{ marginBottom: 24 }}>
       <Form
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
       >
         <Title level={4} style={{ marginBottom: 16 }}>
-          {t('settings.notifications.general', 'General Notifications')}
+          {t('settings.notifications.general')}
         </Title>
         {renderNotificationSection(
           'general',
-          t('settings.notifications.generalTitle', 'General'),
-          t('settings.notifications.generalDesc', 'System updates, announcements, and general information')
+          t('settings.notifications.generalTitle'),
+          t('settings.notifications.generalDesc')
         )}
 
         <Title level={4} style={{ marginBottom: 16 }}>
-          {t('settings.notifications.project', 'Project Notifications')}
+          {t('settings.notifications.project')}
         </Title>
         {renderNotificationSection(
           'projects',
-          t('settings.notifications.projectsTitle', 'Projects'),
-          t('settings.notifications.projectsDesc', 'Project updates, milestones, and team changes')
+          t('settings.notifications.projectsTitle'),
+          t('settings.notifications.projectsDesc')
         )}
 
         <Title level={4} style={{ marginBottom: 16 }}>
-          {t('settings.notifications.task', 'Task Notifications')}
+          {t('settings.notifications.task')}
         </Title>
         {renderNotificationSection(
           'tasks',
-          t('settings.notifications.tasksTitle', 'Tasks'),
-          t('settings.notifications.tasksDesc', 'Task assignments, deadlines, and status changes')
+          t('settings.notifications.tasksTitle'),
+          t('settings.notifications.tasksDesc')
         )}
 
         <Title level={4} style={{ marginBottom: 16 }}>
-          {t('settings.notifications.chat', 'Chat Notifications')}
+          {t('settings.notifications.chat')}
         </Title>
         {renderNotificationSection(
           'chat',
-          t('settings.notifications.chatTitle', 'Chat'),
-          t('settings.notifications.chatDesc', 'New messages, mentions, and chat activities')
+          t('settings.notifications.chatTitle'),
+          t('settings.notifications.chatDesc')
         )}
 
         <Title level={4} style={{ marginBottom: 16 }}>
-          {t('settings.notifications.meeting', 'Meeting Notifications')}
+          {t('settings.notifications.meeting')}
         </Title>
         {renderNotificationSection(
           'meetings',
-          t('settings.notifications.meetingsTitle', 'Meetings'),
-          t('settings.notifications.meetingsDesc', 'Meeting reminders, schedule changes, and updates')
+          t('settings.notifications.meetingsTitle'),
+          t('settings.notifications.meetingsDesc')
         )}
 
         <Divider />
@@ -235,7 +235,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ data, onSav
               loading={saving}
               icon={<SaveOutlined />}
             >
-              {t('settings.save', 'Save Changes')}
+              {t('common.save')}
             </Button>
           </Space>
         </Form.Item>

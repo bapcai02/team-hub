@@ -232,7 +232,6 @@ export const useChat = (): UseChatReturn => {
       
       // Create optimistic message for immediate UI update
       const optimisticMessage = {
-        id: Date.now(),
         conversationId: data.conversationId,
         senderId: currentUser?.id || 1,
         content: data.message.content,

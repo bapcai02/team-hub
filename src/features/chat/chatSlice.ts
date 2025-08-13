@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import apiClient, { chatApiClient } from '../../lib/apiClient';
+import { chatApiClient } from '../../lib/apiClient';
 import { Conversation, Message, CreateMessageDto, CreateConversationDto, UIConversation, UIMessage } from '../../types/chat';
-import type { SerializedError } from '@reduxjs/toolkit';
 
 // Get current user ID from localStorage
 const getCurrentUserId = (state: any): number => {
@@ -14,16 +13,8 @@ const getCurrentUserId = (state: any): number => {
   } catch (e) {
     console.error('Error parsing user from localStorage:', e);
   }
-  
-  // Fallback to hardcoded value if user state is not available
   return 1;
 };
-
-// Helper function to get current user ID from state
-const getCurrentUserIdFromState = (state: any): number => {
-  return getCurrentUserId(state);
-};
-
 // Polls
 export const createPoll = createAsyncThunk(
   'chat/createPoll',
@@ -183,9 +174,36 @@ const transformConversationToUI = (conversation: Conversation): UIConversation =
   };
 };
 
+// Helper function to get user name by ID
+const getUserNameById = (userId: number, conversation?: any): string => {
+  try {
+    // First try to get current user from localStorage
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.id === userId) {
+        return user.name || 'You';
+      }
+    }
+    
+    // Try to get user name from conversation participants
+    if (conversation?.participants) {
+      const participant = conversation.participants.find((p: any) => p.id === userId);
+      if (participant?.name) {
+        return participant.name;
+      }
+    }
+    
+    // For other users, return a generic name
+    return `User ${userId}`;
+  } catch (e) {
+    return `User ${userId}`;
+  }
+};
+
 // Helper function to transform API message to UI format
-const transformMessageToUI = (message: Message, currentUserId: number): UIMessage => {
-  const isOwn = message.senderId === currentUserId;
+const transformMessageToUI = (message: Message, currentUserId: number, conversation?: any): UIMessage => {
+  const isOwn = (message as any).user_id === String(currentUserId);
   
   // Parse reactions from API with user info
   const reactions = message.reactions || [];
@@ -208,8 +226,9 @@ const transformMessageToUI = (message: Message, currentUserId: number): UIMessag
   
   return {
     ...message,
-    time: message.createdAt ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown',
-    sender: isOwn ? 'You' : `User ${message.senderId || 'Unknown'}`,
+    senderId: message.senderId, // Đảm bảo senderId được truyền
+    time: message.updated_at ? new Date(message.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown',
+    sender: isOwn ? 'You' : ((message as any).user_name || getUserNameById(message.senderId, conversation)),
     avatar: `https://via.placeholder.com/40?text=${message.senderId || 'U'}`,
     isOwn,
     isOnline: isOwn ? true : Math.random() > 0.3, // Mock online status for other users
@@ -226,85 +245,6 @@ const transformMessageToUI = (message: Message, currentUserId: number): UIMessag
   };
 };
 
-// Mock conversations for testing
-const mockConversations: Conversation[] = [
-  {
-    id: 1,
-    type: 'personal',
-    name: 'John Doe',
-    createdBy: 1,
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-15T10:00:00Z',
-    participants: [
-      { id: 1, name: 'You', email: 'you@example.com', isOnline: true },
-      { id: 2, name: 'John Doe', email: 'john@example.com', isOnline: true }
-    ]
-  },
-  {
-    id: 2,
-    type: 'group',
-    name: 'Development Team',
-    createdBy: 1,
-    createdAt: '2024-01-15T09:00:00Z',
-    updatedAt: '2024-01-15T09:00:00Z',
-    participants: [
-      { id: 1, name: 'You', email: 'you@example.com', isOnline: true },
-      { id: 2, name: 'John Doe', email: 'john@example.com', isOnline: true },
-      { id: 3, name: 'Jane Smith', email: 'jane@example.com', isOnline: false },
-      { id: 4, name: 'Mike Johnson', email: 'mike@example.com', isOnline: true }
-    ]
-  },
-  {
-    id: 3,
-    type: 'personal',
-    name: 'Sarah Wilson',
-    createdBy: 1,
-    createdAt: '2024-01-15T08:00:00Z',
-    updatedAt: '2024-01-15T08:00:00Z',
-    participants: [
-      { id: 1, name: 'You', email: 'you@example.com', isOnline: true },
-      { id: 5, name: 'Sarah Wilson', email: 'sarah@example.com', isOnline: false }
-    ]
-  }
-];
-
-// Mock messages for testing
-const mockMessages: Message[] = [
-  {
-    id: 1,
-    conversationId: 1,
-    senderId: 2,
-    content: 'Hey! How are you doing?',
-    type: 'text',
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-15T10:30:00Z',
-    isRead: true,
-    reactions: []
-  },
-  {
-    id: 2,
-    conversationId: 1,
-    senderId: 1,
-    content: 'I\'m doing great! Thanks for asking.',
-    type: 'text',
-    createdAt: '2024-01-15T10:32:00Z',
-    updatedAt: '2024-01-15T10:32:00Z',
-    isRead: true,
-    reactions: []
-  },
-  {
-    id: 3,
-    conversationId: 1,
-    senderId: 2,
-    content: 'That\'s awesome! 🔥',
-    type: 'text',
-    createdAt: '2024-01-15T10:33:00Z',
-    updatedAt: '2024-01-15T10:33:00Z',
-    isRead: false,
-    reactions: [{ id: 1, messageId: 3, userId: 1, emoji: '🔥', createdAt: '2024-01-15T10:34:00Z' }]
-  }
-];
-
 // Async thunks for API operations
 export const getConversations = createAsyncThunk(
   'chat/getConversations',
@@ -319,8 +259,6 @@ export const getConversations = createAsyncThunk(
     }
   }
 );
-
-
 
 export const createConversation = createAsyncThunk(
   'chat/createConversation',
@@ -512,7 +450,7 @@ const chatSlice = createSlice({
     // Add message locally (for real-time updates)
     addMessage: (state, action) => {
       const { message: messageData, currentUserId } = action.payload;
-      const message = transformMessageToUI(messageData, currentUserId);
+      const message = transformMessageToUI(messageData, currentUserId, state.currentConversation);
       state.messages.push(message);
     },
     
@@ -614,7 +552,7 @@ const chatSlice = createSlice({
         state.loading.messages = false;
         const { conversationId, messages } = action.payload;
         const currentUserId = getCurrentUserId({}); // Get from localStorage
-        state.messages = (messages || []).map((msg: Message) => transformMessageToUI(msg, currentUserId));
+        state.messages = (messages || []).map((msg: Message) => transformMessageToUI(msg, currentUserId, state.currentConversation));
         
         // Update selected conversation if it matches
         if (state.currentConversation?.id === conversationId) {
@@ -638,7 +576,7 @@ const chatSlice = createSlice({
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading.sending = false;
         const { message, currentUserId } = action.payload;
-        const newMessage = transformMessageToUI(message, currentUserId);
+        const newMessage = transformMessageToUI(message, currentUserId, state.currentConversation);
         state.messages.push(newMessage);
       })
       .addCase(sendMessage.rejected, (state, action) => {

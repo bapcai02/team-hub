@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Switch, Select, Card, Row, Col, Space, Divider, Typography, Button, Alert } from 'antd';
-import { SaveOutlined, EyeOutlined, ShieldOutlined } from '@ant-design/icons';
+import { SaveOutlined, EyeOutlined, SafetyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { Option } = Select;
@@ -38,10 +38,10 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
   };
 
   return (
-    <Card title={t('settings.privacy.title', 'Privacy Settings')} style={{ marginBottom: 24 }}>
+    <Card title={t('settings.privacy.title')} style={{ marginBottom: 24 }}>
       <Alert
-        message={t('settings.privacy.privacyNotice', 'Privacy Notice')}
-        description={t('settings.privacy.privacyNoticeDesc', 'We respect your privacy and are committed to protecting your personal data. These settings help you control how your information is shared and used.')}
+        message={t('settings.privacy.privacyNotice')}
+        description={t('settings.privacy.privacyNoticeDesc')}
         type="info"
         showIcon
         style={{ marginBottom: 24 }}
@@ -69,7 +69,7 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
           title={
             <Space>
               <EyeOutlined />
-              {t('settings.privacy.profilePrivacy', 'Profile Privacy')}
+              {t('settings.privacy.profilePrivacy')}
             </Space>
           } 
           style={{ marginBottom: 24 }}
@@ -78,15 +78,15 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
             <Col xs={24} md={12}>
               <Form.Item
                 name="profile_visibility"
-                label={t('settings.privacy.profileVisibility', 'Profile Visibility')}
+                label={t('settings.privacy.profileVisibility')}
                 rules={[
-                  { required: true, message: t('settings.privacy.profileVisibilityRequired', 'Please select profile visibility') }
+                  { required: true, message: t('settings.privacy.profileVisibilityRequired') }
                 ]}
               >
-                <Select placeholder={t('settings.privacy.selectProfileVisibility', 'Select who can see your profile')}>
-                  <Option value="public">{t('settings.privacy.public', 'Public - Anyone can see')}</Option>
-                  <Option value="team">{t('settings.privacy.team', 'Team - Only team members')}</Option>
-                  <Option value="private">{t('settings.privacy.private', 'Private - Only you')}</Option>
+                <Select placeholder={t('settings.privacy.selectProfileVisibility')}>
+                  <Option value="public">{t('settings.privacy.public')}</Option>
+                  <Option value="team">{t('settings.privacy.team')}</Option>
+                  <Option value="private">{t('settings.privacy.private')}</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -94,15 +94,15 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
             <Col xs={24} md={12}>
               <Form.Item
                 name="activity_status"
-                label={t('settings.privacy.activityStatus', 'Activity Status')}
+                label={t('settings.privacy.activityStatus')}
                 rules={[
-                  { required: true, message: t('settings.privacy.activityStatusRequired', 'Please select activity status visibility') }
+                  { required: true, message: t('settings.privacy.activityStatusRequired') }
                 ]}
               >
-                <Select placeholder={t('settings.privacy.selectActivityStatus', 'Select who can see your activity status')}>
-                  <Option value="public">{t('settings.privacy.public', 'Public - Anyone can see')}</Option>
-                  <Option value="team">{t('settings.privacy.team', 'Team - Only team members')}</Option>
-                  <Option value="private">{t('settings.privacy.private', 'Private - Only you')}</Option>
+                <Select placeholder={t('settings.privacy.selectActivityStatus')}>
+                  <Option value="public">{t('settings.privacy.public')}</Option>
+                  <Option value="team">{t('settings.privacy.team')}</Option>
+                  <Option value="private">{t('settings.privacy.private')}</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -112,15 +112,15 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
             <Col xs={24} md={12}>
               <Form.Item
                 name="contact_visibility"
-                label={t('settings.privacy.contactVisibility', 'Contact Information')}
+                label={t('settings.privacy.contactVisibility')}
                 rules={[
-                  { required: true, message: t('settings.privacy.contactVisibilityRequired', 'Please select contact visibility') }
+                  { required: true, message: t('settings.privacy.contactVisibilityRequired') }
                 ]}
               >
-                <Select placeholder={t('settings.privacy.selectContactVisibility', 'Select who can see your contact info')}>
-                  <Option value="public">{t('settings.privacy.public', 'Public - Anyone can see')}</Option>
-                  <Option value="team">{t('settings.privacy.team', 'Team - Only team members')}</Option>
-                  <Option value="private">{t('settings.privacy.private', 'Private - Only you')}</Option>
+                <Select placeholder={t('settings.privacy.selectContactVisibility')}>
+                  <Option value="public">{t('settings.privacy.public')}</Option>
+                  <Option value="team">{t('settings.privacy.team')}</Option>
+                  <Option value="private">{t('settings.privacy.private')}</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -128,15 +128,15 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
             <Col xs={24} md={12}>
               <Form.Item
                 name="search_visibility"
-                label={t('settings.privacy.searchVisibility', 'Search Visibility')}
+                label={t('settings.privacy.searchVisibility')}
                 rules={[
-                  { required: true, message: t('settings.privacy.searchVisibilityRequired', 'Please select search visibility') }
+                  { required: true, message: t('settings.privacy.searchVisibilityRequired') }
                 ]}
               >
-                <Select placeholder={t('settings.privacy.selectSearchVisibility', 'Select who can find you in search')}>
-                  <Option value="public">{t('settings.privacy.public', 'Public - Anyone can find')}</Option>
-                  <Option value="team">{t('settings.privacy.team', 'Team - Only team members')}</Option>
-                  <Option value="private">{t('settings.privacy.private', 'Private - Hidden from search')}</Option>
+                <Select placeholder={t('settings.privacy.selectSearchVisibility')}>
+                  <Option value="public">{t('settings.privacy.public')}</Option>
+                  <Option value="team">{t('settings.privacy.team')}</Option>
+                  <Option value="private">{t('settings.privacy.private')}</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -147,8 +147,8 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
         <Card 
           title={
             <Space>
-              <ShieldOutlined />
-              {t('settings.privacy.dataAnalytics', 'Data & Analytics')}
+              <SafetyOutlined />
+              {t('settings.privacy.dataAnalytics')}
             </Space>
           } 
           style={{ marginBottom: 24 }}
@@ -157,32 +157,32 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
             <Col xs={24} md={12}>
               <Form.Item
                 name="analytics_tracking"
-                label={t('settings.privacy.analyticsTracking', 'Analytics Tracking')}
+                label={t('settings.privacy.analyticsTracking')}
                 valuePropName="checked"
               >
                 <Switch 
-                  checkedChildren={t('settings.privacy.enabled', 'Enabled')} 
-                  unCheckedChildren={t('settings.privacy.disabled', 'Disabled')}
+                  checkedChildren={t('settings.privacy.enabled')} 
+                  unCheckedChildren={t('settings.privacy.disabled')}
                 />
               </Form.Item>
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                {t('settings.privacy.analyticsTrackingDesc', 'Help us improve by allowing anonymous usage analytics')}
+                {t('settings.privacy.analyticsTrackingDesc')}
               </Text>
             </Col>
             
             <Col xs={24} md={12}>
               <Form.Item
                 name="data_sharing"
-                label={t('settings.privacy.dataSharing', 'Data Sharing')}
+                label={t('settings.privacy.dataSharing')}
                 valuePropName="checked"
               >
                 <Switch 
-                  checkedChildren={t('settings.privacy.enabled', 'Enabled')} 
-                  unCheckedChildren={t('settings.privacy.disabled', 'Disabled')}
+                  checkedChildren={t('settings.privacy.enabled')} 
+                  unCheckedChildren={t('settings.privacy.disabled')}
                 />
               </Form.Item>
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                {t('settings.privacy.dataSharingDesc', 'Allow sharing of anonymized data for research')}
+                {t('settings.privacy.dataSharingDesc')}
               </Text>
             </Col>
           </Row>
@@ -191,72 +191,72 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
             <Col xs={24} md={12}>
               <Form.Item
                 name="third_party_sharing"
-                label={t('settings.privacy.thirdPartySharing', 'Third-Party Sharing')}
+                label={t('settings.privacy.thirdPartySharing')}
                 valuePropName="checked"
               >
                 <Switch 
-                  checkedChildren={t('settings.privacy.enabled', 'Enabled')} 
-                  unCheckedChildren={t('settings.privacy.disabled', 'Disabled')}
+                  checkedChildren={t('settings.privacy.enabled')} 
+                  unCheckedChildren={t('settings.privacy.disabled')}
                 />
               </Form.Item>
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                {t('settings.privacy.thirdPartySharingDesc', 'Allow sharing data with trusted third-party services')}
+                {t('settings.privacy.thirdPartySharingDesc')}
               </Text>
             </Col>
             
             <Col xs={24} md={12}>
               <Form.Item
                 name="location_sharing"
-                label={t('settings.privacy.locationSharing', 'Location Sharing')}
+                label={t('settings.privacy.locationSharing')}
                 valuePropName="checked"
               >
                 <Switch 
-                  checkedChildren={t('settings.privacy.enabled', 'Enabled')} 
-                  unCheckedChildren={t('settings.privacy.disabled', 'Disabled')}
+                  checkedChildren={t('settings.privacy.enabled')} 
+                  unCheckedChildren={t('settings.privacy.disabled')}
                 />
               </Form.Item>
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                {t('settings.privacy.locationSharingDesc', 'Share your location for location-based features')}
+                {t('settings.privacy.locationSharingDesc')}
               </Text>
             </Col>
           </Row>
 
           <Form.Item
             name="data_retention"
-            label={t('settings.privacy.dataRetention', 'Data Retention Period')}
+            label={t('settings.privacy.dataRetention')}
             rules={[
-              { required: true, message: t('settings.privacy.dataRetentionRequired', 'Please select data retention period') }
+              { required: true, message: t('settings.privacy.dataRetentionRequired') }
             ]}
           >
-            <Select placeholder={t('settings.privacy.selectDataRetention', 'Select how long to keep your data')}>
-              <Option value="30_days">{t('settings.privacy.30Days', '30 Days')}</Option>
-              <Option value="90_days">{t('settings.privacy.90Days', '90 Days')}</Option>
-              <Option value="6_months">{t('settings.privacy.6Months', '6 Months')}</Option>
-              <Option value="1_year">{t('settings.privacy.1Year', '1 Year')}</Option>
-              <Option value="indefinite">{t('settings.privacy.indefinite', 'Indefinite')}</Option>
+            <Select placeholder={t('settings.privacy.selectDataRetention')}>
+              <Option value="30_days">{t('settings.privacy.30Days')}</Option>
+              <Option value="90_days">{t('settings.privacy.90Days')}</Option>
+              <Option value="6_months">{t('settings.privacy.6Months')}</Option>
+              <Option value="1_year">{t('settings.privacy.1Year')}</Option>
+              <Option value="indefinite">{t('settings.privacy.indefinite')}</Option>
             </Select>
           </Form.Item>
         </Card>
 
         {/* Communication Preferences */}
         <Card 
-          title={t('settings.privacy.communication', 'Communication Preferences')} 
+          title={t('settings.privacy.communication')} 
           style={{ marginBottom: 24 }}
         >
           <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 name="marketing_emails"
-                label={t('settings.privacy.marketingEmails', 'Marketing Emails')}
+                label={t('settings.privacy.marketingEmails')}
                 valuePropName="checked"
               >
                 <Switch 
-                  checkedChildren={t('settings.privacy.enabled', 'Enabled')} 
-                  unCheckedChildren={t('settings.privacy.disabled', 'Disabled')}
+                  checkedChildren={t('settings.privacy.enabled')} 
+                  unCheckedChildren={t('settings.privacy.disabled')}
                 />
               </Form.Item>
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                {t('settings.privacy.marketingEmailsDesc', 'Receive promotional emails and newsletters')}
+                {t('settings.privacy.marketingEmailsDesc')}
               </Text>
             </Col>
           </Row>
@@ -270,7 +270,7 @@ const PrivacySettings: React.FC<PrivacySettingsProps> = ({ data, onSave, saving 
               loading={saving}
               icon={<SaveOutlined />}
             >
-              {t('settings.save', 'Save Changes')}
+              {t('common.save')}
             </Button>
           </Space>
         </Form.Item>

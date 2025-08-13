@@ -1,289 +1,206 @@
-# Settings Page - Complete Implementation
+# Settings Module
 
-## 🎯 Overview
+Module cài đặt hoàn chỉnh cho ứng dụng TeamHub với hỗ trợ đa ngôn ngữ (i18n).
 
-The Settings page provides a comprehensive user settings management system with the following features:
-
-- **Profile Settings**: Personal information, avatar upload, contact details
-- **App Settings**: Language, theme, layout, notifications preferences
-- **Notification Settings**: Detailed notification preferences with quiet hours
-- **Security Settings**: Password change, 2FA, login history, trusted devices
-- **Privacy Settings**: Profile visibility, data sharing, analytics tracking
-- **Accessibility Settings**: Visual, motion, and interaction accessibility features
-
-## 🏗️ Architecture
-
-### Backend (Laravel)
-- **Routes**: `routes/api/settings.php`
-- **Controller**: `app/Http/Controllers/SettingsController.php`
-- **Service**: `app/Services/SettingsService.php`
-- **Models**: `app/Models/User.php`, `app/Models/UserSetting.php`
-- **Migration**: `database/migrations/2025_08_12_000000_enhance_user_settings_table.php`
-
-### Frontend (React)
-- **Main Page**: `src/pages/settings/Settings.tsx`
-- **Components**: `src/pages/settings/components/`
-  - `ProfileSettings.tsx`
-  - `AppSettings.tsx`
-  - `NotificationSettings.tsx`
-  - `SecuritySettings.tsx`
-  - `PrivacySettings.tsx`
-  - `AccessibilitySettings.tsx`
-
-## 🚀 Features
+## Tính năng
 
 ### 1. Profile Settings
-- ✅ Avatar upload with preview
-- ✅ Personal information (name, email, phone, birth date, gender)
-- ✅ Bio and location
-- ✅ Form validation
-- ✅ File upload handling
+- Cập nhật thông tin cá nhân
+- Upload ảnh đại diện
+- Quản lý thông tin liên lạc
 
 ### 2. App Settings
-- ✅ Language selection (EN, VI, JA, KO, ZH)
-- ✅ Timezone selection
-- ✅ Theme selection (Light, Dark, Auto)
-- ✅ Layout density (Compact, Comfortable, Spacious)
-- ✅ Sidebar collapsed state
-- ✅ Animation controls
-- ✅ Notification preferences
-- ✅ Data & privacy controls
+- Cài đặt ngôn ngữ (EN, VI, JA, KO, ZH)
+- Cài đặt múi giờ
+- Chọn theme (Light, Dark, Auto)
+- Cài đặt layout (Comfortable, Compact)
+- Thu gọn sidebar
 
 ### 3. Notification Settings
-- ✅ Category-based notifications (General, Projects, Tasks, Chat, Meetings)
-- ✅ Multiple channels (Email, In-App, Push, SMS)
-- ✅ Frequency settings (Immediate, Hourly, Daily, Weekly)
-- ✅ Quiet hours configuration
-- ✅ Individual category controls
+- Cài đặt thông báo email
+- Thông báo đẩy
+- Thông báo SMS
+- Thông báo trong ứng dụng
+- Giờ yên lặng
+- Tần suất thông báo
 
 ### 4. Security Settings
-- ✅ Password change with validation
-- ✅ Two-factor authentication toggle
-- ✅ Login history display
-- ✅ Trusted devices management
-- ✅ Security alerts and notifications
+- Đổi mật khẩu
+- Xác thực hai yếu tố
+- Lịch sử đăng nhập
+- Thiết bị tin cậy
+- Thời gian chờ phiên
 
 ### 5. Privacy Settings
-- ✅ Profile visibility controls
-- ✅ Activity status visibility
-- ✅ Contact information visibility
-- ✅ Search visibility
-- ✅ Data sharing preferences
-- ✅ Analytics tracking controls
-- ✅ Marketing email preferences
-- ✅ Data retention settings
+- Hiển thị hồ sơ
+- Trạng thái hoạt động
+- Chia sẻ dữ liệu
+- Theo dõi phân tích
+- Thời gian lưu trữ dữ liệu
+- Tùy chọn liên lạc
 
 ### 6. Accessibility Settings
-- ✅ High contrast mode
-- ✅ Color blind friendly themes
-- ✅ Font size controls
-- ✅ Line spacing adjustment
-- ✅ Motion reduction
-- ✅ Screen reader support
-- ✅ Keyboard navigation
-- ✅ Focus indicators
-- ✅ Sound and visual notifications
-- ✅ Simplified layout option
+- Độ tương phản cao
+- Cỡ chữ
+- Khoảng cách dòng
+- Giảm chuyển động
+- Hỗ trợ trình đọc màn hình
+- Phím tắt
+- Giao diện đơn giản
 
-## 📡 API Endpoints
+### 7. Data Management
+- Xuất dữ liệu
+- Nhập dữ liệu
+- Xóa tài khoản
 
-### GET `/api/settings`
-Get all user settings
+### 8. Account Information
+- Hiển thị thông tin tài khoản
+- Trạng thái xác thực
+- Vai trò và quyền hạn
+- Lịch sử hoạt động
+
+## Cấu trúc Files
+
+```
+src/pages/settings/
+├── Settings.tsx                 # Component chính
+├── components/
+│   ├── ProfileSettings.tsx      # Cài đặt hồ sơ
+│   ├── AppSettings.tsx          # Cài đặt ứng dụng
+│   ├── NotificationSettings.tsx # Cài đặt thông báo
+│   ├── SecuritySettings.tsx     # Cài đặt bảo mật
+│   ├── PrivacySettings.tsx      # Cài đặt riêng tư
+│   ├── AccessibilitySettings.tsx # Cài đặt khả năng truy cập
+│   ├── DataManagement.tsx       # Quản lý dữ liệu
+│   └── AccountInfo.tsx          # Thông tin tài khoản
+└── README.md                    # Hướng dẫn này
+```
+
+## Internationalization (i18n)
+
+Tất cả text trong Settings đã được chuyển sang i18n với cấu trúc:
+
 ```json
 {
-  "success": true,
-  "data": {
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account settings and preferences",
     "profile": { ... },
     "app": { ... },
     "notifications": { ... },
     "security": { ... },
     "privacy": { ... },
-    "accessibility": { ... }
+    "accessibility": { ... },
+    "dataManagement": { ... },
+    "accountInfo": { ... }
   }
 }
 ```
 
-### PUT `/api/settings/profile`
-Update profile settings
-```json
-{
-  "name": "John Doe",
-  "phone": "+1234567890",
-  "birth_date": "1990-01-01",
-  "gender": "male",
-  "bio": "Software Developer",
-  "location": "New York",
-  "avatar": "file"
+### Ngôn ngữ hỗ trợ
+- **English (en)**: `src/locales/en/translation.json`
+- **Tiếng Việt (vi)**: `src/locales/vi/translation.json`
+
+## API Endpoints
+
+### Load Settings
+```typescript
+GET /settings
+```
+
+### Save Settings
+```typescript
+PUT /settings/{section}
+```
+
+### Export Data
+```typescript
+GET /settings/export
+```
+
+### Import Data
+```typescript
+POST /settings/import
+```
+
+## Sử dụng
+
+```tsx
+import Settings from './pages/settings/Settings';
+
+// Trong router
+<Route path="/settings" element={<Settings />} />
+```
+
+## Props Interface
+
+```typescript
+interface SettingsData {
+  profile: {
+    name: string;
+    email: string;
+    avatar: string;
+    phone: string;
+    birth_date: string;
+    gender: string;
+    bio: string;
+    location: string;
+  };
+  app: {
+    language: string;
+    timezone: string;
+    theme: string;
+    layout: string;
+    sidebar_collapsed: boolean;
+    dashboard_widgets: any[];
+    shortcuts: any[];
+  };
+  notifications: any;
+  security: {
+    two_factor_enabled: boolean;
+    login_history: any[];
+    trusted_devices: any[];
+  };
+  privacy: any;
+  accessibility: any;
+  user: {
+    name: string;
+    email: string;
+    avatar?: string;
+    role: string;
+    status: string;
+    createdAt: string;
+    lastLogin: string;
+    emailVerified: boolean;
+    twoFactorEnabled: boolean;
+  };
 }
 ```
 
-### PUT `/api/settings/app`
-Update app settings
-```json
-{
-  "language": "en",
-  "timezone": "UTC",
-  "theme": "light",
-  "layout": "comfortable",
-  "sidebar_collapsed": false
-}
-```
+## Tính năng nổi bật
 
-### PUT `/api/settings/notifications`
-Update notification preferences
-```json
-{
-  "preferences": [
-    {
-      "category": "general",
-      "channels": ["email", "in_app"],
-      "frequency": "immediate",
-      "quiet_hours": {
-        "enabled": true,
-        "start": "22:00",
-        "end": "08:00"
-      }
-    }
-  ]
-}
-```
+1. **Responsive Design**: Tương thích với mọi kích thước màn hình
+2. **Real-time Validation**: Kiểm tra dữ liệu ngay lập tức
+3. **Auto-save**: Tự động lưu khi có thay đổi
+4. **Error Handling**: Xử lý lỗi toàn diện
+5. **Loading States**: Hiển thị trạng thái loading
+6. **Success/Error Messages**: Thông báo rõ ràng
+7. **Accessibility**: Hỗ trợ người khuyết tật
+8. **Dark Mode**: Hỗ trợ chế độ tối
+9. **Keyboard Navigation**: Điều hướng bằng bàn phím
+10. **Data Export/Import**: Xuất nhập dữ liệu
 
-### PUT `/api/settings/security`
-Update security settings
-```json
-{
-  "current_password": "oldpassword",
-  "new_password": "newpassword",
-  "new_password_confirmation": "newpassword",
-  "two_factor_enabled": true
-}
-```
+## Dependencies
 
-### PUT `/api/settings/privacy`
-Update privacy settings
-```json
-{
-  "settings": {
-    "profile_visibility": "team",
-    "activity_status": "team",
-    "data_sharing": false,
-    "analytics_tracking": true
-  }
-}
-```
+- React 18+
+- Ant Design 5+
+- React i18next
+- Day.js
+- Axios
 
-### PUT `/api/settings/accessibility`
-Update accessibility settings
-```json
-{
-  "settings": {
-    "high_contrast": false,
-    "font_size": "medium",
-    "line_spacing": 1.5,
-    "reduce_motion": false
-  }
-}
-```
+## Browser Support
 
-### GET `/api/settings/export`
-Export user data
-```json
-{
-  "success": true,
-  "data": {
-    "user": { ... },
-    "settings": { ... }
-  }
-}
-```
-
-## 🛠️ Installation & Setup
-
-### Backend Setup
-1. Run migration:
-```bash
-docker-compose exec app php artisan migrate --path=database/migrations/2025_08_12_000000_enhance_user_settings_table.php
-```
-
-2. Create storage link:
-```bash
-docker-compose exec app php artisan storage:link
-```
-
-### Frontend Setup
-1. Install dependencies:
-```bash
-yarn install
-```
-
-2. Start development server:
-```bash
-yarn start
-```
-
-## 🎨 UI/UX Features
-
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Tab Navigation**: Easy switching between settings categories
-- **Form Validation**: Real-time validation with helpful error messages
-- **Loading States**: Visual feedback during save operations
-- **Success Messages**: Confirmation when settings are saved
-- **Internationalization**: Support for multiple languages
-- **Accessibility**: WCAG compliant with keyboard navigation and screen reader support
-
-## 🔧 Customization
-
-### Adding New Settings
-1. Add fields to the database migration
-2. Update the UserSetting model
-3. Add methods to SettingsService
-4. Create API endpoints in SettingsController
-5. Build frontend components
-6. Add translations
-
-### Styling
-- Uses Ant Design components
-- Customizable through CSS variables
-- Theme-aware styling
-- Responsive grid system
-
-## 🧪 Testing
-
-### API Testing
-```bash
-# Test settings endpoint
-curl -X GET "http://localhost/api/settings" \
-  -H "Authorization: Bearer YOUR_TOKEN"
-
-# Test profile update
-curl -X PUT "http://localhost/api/settings/profile" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "New Name"}'
-```
-
-### Frontend Testing
-- Navigate to `/settings` in the application
-- Test each tab and form submission
-- Verify responsive behavior
-- Check accessibility features
-
-## 📝 Notes
-
-- All settings are automatically saved when forms are submitted
-- File uploads (avatars) are stored in `storage/app/public/avatars/`
-- Settings are cached for performance
-- Export functionality downloads data as JSON
-- Privacy settings respect GDPR compliance
-- Accessibility settings follow WCAG 2.1 guidelines
-
-## 🚀 Future Enhancements
-
-- [ ] Settings import/export
-- [ ] Settings templates
-- [ ] Bulk settings management
-- [ ] Settings history/audit log
-- [ ] Advanced notification rules
-- [ ] Custom themes
-- [ ] Settings backup/restore
-- [ ] Team settings inheritance 
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+ 

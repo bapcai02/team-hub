@@ -152,7 +152,6 @@ const ChatList: React.FC = () => {
     try {
       await deleteMessage(messageId);
     } catch (error) {
-      console.error('Error deleting message:', error);
       throw error; // Re-throw to let MessageList handle the error display
     }
   };

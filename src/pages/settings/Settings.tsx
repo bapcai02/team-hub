@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Card, message, Spin, Avatar, Upload, Button, Switch, Select, Input, Form, DatePicker, Radio, Space, Divider, Typography } from 'antd';
-import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, EyeOutlined, ToolOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { Tabs, Card, message, Spin, Avatar, Upload, Button, Switch, Select, Input, Form, DatePicker, Radio, Space, Divider, Typography, Layout } from 'antd';
+import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, EyeOutlined, ToolOutlined, DownloadOutlined, UploadOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import MainLayout from '../../layouts/MainLayout';
+import { useTheme } from '../../contexts/ThemeContext';
+import HeaderBar from '../../components/HeaderBar';
+import Sidebar from '../../components/Sidebar';
 import ProfileSettings from './components/ProfileSettings';
 import AppSettings from './components/AppSettings';
 import NotificationSettings from './components/NotificationSettings';
 import SecuritySettings from './components/SecuritySettings';
 import PrivacySettings from './components/PrivacySettings';
 import AccessibilitySettings from './components/AccessibilitySettings';
+import DataManagement from './components/DataManagement';
+import AccountInfo from './components/AccountInfo';
 import apiClient from '../../lib/apiClient';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
+const { Content } = Layout;
 
 interface SettingsData {
   profile: {
@@ -43,10 +48,22 @@ interface SettingsData {
   integrations: any;
   privacy: any;
   accessibility: any;
+  user: {
+    name: string;
+    email: string;
+    avatar?: string;
+    role: string;
+    status: string;
+    createdAt: string;
+    lastLogin: string;
+    emailVerified: boolean;
+    twoFactorEnabled: boolean;
+  };
 }
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<SettingsData | null>(null);
@@ -63,7 +80,7 @@ const Settings: React.FC = () => {
       setSettings(response.data.data);
     } catch (error) {
       console.error('Error loading settings:', error);
-      message.error('Failed to load settings');
+      message.error(t('settings.loadError'));
     } finally {
       setLoading(false);
     }
@@ -75,12 +92,12 @@ const Settings: React.FC = () => {
       const response = await apiClient.put(`/settings/${section}`, data);
       
       if (response.data.success) {
-        message.success(response.data.message);
+        message.success(t('settings.saveSuccess'));
         await loadSettings(); // Reload settings
       }
     } catch (error) {
       console.error(`Error saving ${section} settings:`, error);
-      message.error(`Failed to save ${section} settings`);
+      message.error(t('settings.saveError'));
     } finally {
       setSaving(false);
     }
@@ -102,26 +119,53 @@ const Settings: React.FC = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      message.success('Data exported successfully');
+      message.success(t('settings.exportSuccess'));
     } catch (error) {
       console.error('Error exporting data:', error);
-      message.error('Failed to export data');
+      message.error(t('settings.exportError'));
+    }
+  };
+
+  const handleImportData = async (data: any) => {
+    try {
+      setSaving(true);
+      const response = await apiClient.post('/settings/import', data);
+      
+      if (response.data.success) {
+        message.success(t('settings.importSuccess'));
+        await loadSettings(); // Reload settings
+      }
+    } catch (error) {
+      console.error('Error importing data:', error);
+      message.error(t('settings.importError'));
+    } finally {
+      setSaving(false);
     }
   };
 
   if (loading) {
     return (
-      <MainLayout>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-          <Spin size="large" />
-        </div>
-      </MainLayout>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Sidebar />
+        <Layout>
+          <HeaderBar />
+          <Content style={{ padding: '24px', background: theme === 'dark' ? '#141414' : '#F3F4F6' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+              <Spin size="large" />
+            </div>
+          </Content>
+        </Layout>
+      </Layout>
     );
   }
 
   return (
-    <MainLayout>
-      <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sidebar />
+      <Layout>
+        <HeaderBar />
+        <Content style={{ padding: '24px', background: theme === 'dark' ? '#141414' : '#F3F4F6' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ marginBottom: '24px' }}>
           <Title level={2} style={{ margin: 0 }}>
             <SettingOutlined style={{ marginRight: '12px' }} />
@@ -131,6 +175,10 @@ const Settings: React.FC = () => {
             {t('settings.description', 'Manage your account settings and preferences')}
           </Text>
         </div>
+
+        {settings?.user && (
+          <AccountInfo user={settings.user} />
+        )}
 
         <Card>
           <Tabs 
@@ -144,7 +192,7 @@ const Settings: React.FC = () => {
               tab={
                 <span>
                   <UserOutlined />
-                  {t('settings.profile', 'Profile')}
+                  {t('settings.profileTab')}
                 </span>
               } 
               key="profile"
@@ -160,7 +208,7 @@ const Settings: React.FC = () => {
               tab={
                 <span>
                   <SettingOutlined />
-                  {t('settings.app', 'App')}
+                  {t('settings.appTab')}
                 </span>
               } 
               key="app"
@@ -176,7 +224,7 @@ const Settings: React.FC = () => {
               tab={
                 <span>
                   <BellOutlined />
-                  {t('settings.notifications', 'Notifications')}
+                  {t('settings.notificationsTab')}
                 </span>
               } 
               key="notifications"
@@ -192,7 +240,7 @@ const Settings: React.FC = () => {
               tab={
                 <span>
                   <LockOutlined />
-                  {t('settings.security', 'Security')}
+                  {t('settings.securityTab')}
                 </span>
               } 
               key="security"
@@ -208,7 +256,7 @@ const Settings: React.FC = () => {
               tab={
                 <span>
                   <EyeOutlined />
-                  {t('settings.privacy', 'Privacy')}
+                  {t('settings.privacyTab')}
                 </span>
               } 
               key="privacy"
@@ -224,7 +272,7 @@ const Settings: React.FC = () => {
               tab={
                 <span>
                   <ToolOutlined />
-                  {t('settings.accessibility', 'Accessibility')}
+                  {t('settings.accessibilityTab')}
                 </span>
               } 
               key="accessibility"
@@ -235,27 +283,28 @@ const Settings: React.FC = () => {
                 saving={saving}
               />
             </TabPane>
+
+            <TabPane 
+              tab={
+                <span>
+                  <DatabaseOutlined />
+                  {t('settings.dataManagement.title')}
+                </span>
+              } 
+              key="data"
+            >
+              <DataManagement 
+                onExport={handleExportData}
+                onImport={handleImportData}
+              />
+            </TabPane>
           </Tabs>
 
-          <Divider />
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <Text type="secondary">
-                {t('settings.exportDescription', 'Export your data for backup or transfer')}
-              </Text>
-            </div>
-            <Button 
-              type="primary" 
-              icon={<DownloadOutlined />}
-              onClick={handleExportData}
-            >
-              {t('settings.exportData', 'Export Data')}
-            </Button>
-          </div>
         </Card>
-      </div>
-    </MainLayout>
+          </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

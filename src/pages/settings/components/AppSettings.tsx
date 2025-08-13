@@ -28,7 +28,7 @@ const AppSettings: React.FC<AppSettingsProps> = ({ data, onSave, saving }) => {
   };
 
   return (
-    <Card title={t('settings.app.title', 'Application Settings')} style={{ marginBottom: 24 }}>
+    <Card title={t('settings.app.title')} style={{ marginBottom: 24 }}>
       <Form
         form={form}
         layout="vertical"
@@ -45,12 +45,12 @@ const AppSettings: React.FC<AppSettingsProps> = ({ data, onSave, saving }) => {
           <Col xs={24} md={12}>
             <Form.Item
               name="language"
-              label={t('settings.app.language', 'Language')}
+              label={t('settings.app.language')}
               rules={[
-                { required: true, message: t('settings.app.languageRequired', 'Please select a language') }
+                { required: true, message: t('settings.app.languageRequired') }
               ]}
             >
-              <Select placeholder={t('settings.app.languagePlaceholder', 'Select language')}>
+              <Select placeholder={t('settings.app.languagePlaceholder')}>
                 <Option value="en">English</Option>
                 <Option value="vi">Tiếng Việt</Option>
                 <Option value="ja">日本語</Option>
@@ -63,12 +63,12 @@ const AppSettings: React.FC<AppSettingsProps> = ({ data, onSave, saving }) => {
           <Col xs={24} md={12}>
             <Form.Item
               name="timezone"
-              label={t('settings.app.timezone', 'Timezone')}
+              label={t('settings.app.timezone')}
               rules={[
-                { required: true, message: t('settings.app.timezoneRequired', 'Please select a timezone') }
+                { required: true, message: t('settings.app.timezoneRequired') }
               ]}
             >
-              <Select placeholder={t('settings.app.timezonePlaceholder', 'Select timezone')}>
+              <Select placeholder={t('settings.app.timezonePlaceholder')}>
                 <Option value="UTC">UTC</Option>
                 <Option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (GMT+7)</Option>
                 <Option value="Asia/Tokyo">Asia/Tokyo (GMT+9)</Option>
@@ -80,21 +80,21 @@ const AppSettings: React.FC<AppSettingsProps> = ({ data, onSave, saving }) => {
           </Col>
         </Row>
 
-        <Divider>{t('settings.app.appearance', 'Appearance')}</Divider>
+        <Divider>{t('settings.app.appearance')}</Divider>
 
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <Form.Item
               name="theme"
-              label={t('settings.app.theme', 'Theme')}
+              label={t('settings.app.theme')}
               rules={[
-                { required: true, message: t('settings.app.themeRequired', 'Please select a theme') }
+                { required: true, message: t('settings.app.themeRequired') }
               ]}
             >
-              <Select placeholder={t('settings.app.themePlaceholder', 'Select theme')}>
-                <Option value="light">{t('settings.app.lightTheme', 'Light')}</Option>
-                <Option value="dark">{t('settings.app.darkTheme', 'Dark')}</Option>
-                <Option value="auto">{t('settings.app.autoTheme', 'Auto (System)')}</Option>
+              <Select placeholder={t('settings.app.themePlaceholder')}>
+                <Option value="light">{t('settings.app.lightTheme')}</Option>
+                <Option value="dark">{t('settings.app.darkTheme')}</Option>
+                <Option value="auto">{t('settings.app.autoTheme')}</Option>
               </Select>
             </Form.Item>
           </Col>
@@ -102,116 +102,129 @@ const AppSettings: React.FC<AppSettingsProps> = ({ data, onSave, saving }) => {
           <Col xs={24} md={12}>
             <Form.Item
               name="layout"
-              label={t('settings.app.layout', 'Layout Density')}
+              label={t('settings.app.layout')}
               rules={[
-                { required: true, message: t('settings.app.layoutRequired', 'Please select layout density') }
+                { required: true, message: t('settings.app.layoutRequired') }
               ]}
             >
-              <Select placeholder={t('settings.app.layoutPlaceholder', 'Select layout density')}>
-                <Option value="compact">{t('settings.app.compactLayout', 'Compact')}</Option>
-                <Option value="comfortable">{t('settings.app.comfortableLayout', 'Comfortable')}</Option>
-                <Option value="spacious">{t('settings.app.spaciousLayout', 'Spacious')}</Option>
+              <Select placeholder={t('settings.app.layoutPlaceholder')}>
+                <Option value="compact">{t('settings.app.compact')}</Option>
+                <Option value="comfortable">{t('settings.app.comfortable')}</Option>
+                <Option value="spacious">{t('settings.app.spacious')}</Option>
               </Select>
             </Form.Item>
           </Col>
         </Row>
 
-        <Divider>{t('settings.app.interface', 'Interface')}</Divider>
+        <Divider>{t('settings.app.interface')}</Divider>
 
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <Form.Item
               name="sidebar_collapsed"
-              label={t('settings.app.sidebarCollapsed', 'Sidebar Collapsed')}
+              label={t('settings.app.sidebarCollapsed')}
               valuePropName="checked"
             >
               <Switch 
-                checkedChildren={t('settings.app.yes', 'Yes')} 
-                unCheckedChildren={t('settings.app.no', 'No')}
+                checkedChildren={t('settings.app.yes')} 
+                unCheckedChildren={t('settings.app.no')}
               />
             </Form.Item>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {t('settings.app.sidebarCollapsedDesc')}
+            </div>
           </Col>
 
           <Col xs={24} md={12}>
             <Form.Item
               name="show_animations"
-              label={t('settings.app.showAnimations', 'Show Animations')}
+              label={t('settings.app.showAnimations')}
               valuePropName="checked"
-              initialValue={data?.show_animations ?? true}
             >
               <Switch 
-                checkedChildren={t('settings.app.yes', 'Yes')} 
-                unCheckedChildren={t('settings.app.no', 'No')}
+                checkedChildren={t('settings.app.yes')} 
+                unCheckedChildren={t('settings.app.no')}
               />
             </Form.Item>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {t('settings.app.showAnimationsDesc')}
+            </div>
           </Col>
         </Row>
 
-        <Divider>{t('settings.app.notifications', 'Notifications')}</Divider>
+        <Divider>{t('settings.app.notifications')}</Divider>
 
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <Form.Item
               name="sound_enabled"
-              label={t('settings.app.soundEnabled', 'Sound Notifications')}
+              label={t('settings.app.soundEnabled')}
               valuePropName="checked"
-              initialValue={data?.sound_enabled ?? true}
             >
               <Switch 
-                checkedChildren={t('settings.app.yes', 'Yes')} 
-                unCheckedChildren={t('settings.app.no', 'No')}
+                checkedChildren={t('settings.app.yes')} 
+                unCheckedChildren={t('settings.app.no')}
               />
             </Form.Item>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {t('settings.app.soundEnabledDesc')}
+            </div>
           </Col>
 
           <Col xs={24} md={12}>
             <Form.Item
               name="desktop_notifications"
-              label={t('settings.app.desktopNotifications', 'Desktop Notifications')}
+              label={t('settings.app.desktopNotifications')}
               valuePropName="checked"
-              initialValue={data?.desktop_notifications ?? true}
             >
               <Switch 
-                checkedChildren={t('settings.app.yes', 'Yes')} 
-                unCheckedChildren={t('settings.app.no', 'No')}
+                checkedChildren={t('settings.app.yes')} 
+                unCheckedChildren={t('settings.app.no')}
               />
             </Form.Item>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {t('settings.app.desktopNotificationsDesc')}
+            </div>
           </Col>
         </Row>
 
-        <Divider>{t('settings.app.data', 'Data & Privacy')}</Divider>
+        <Divider>{t('settings.app.data')}</Divider>
 
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <Form.Item
               name="auto_save"
-              label={t('settings.app.autoSave', 'Auto Save')}
+              label={t('settings.app.autoSave')}
               valuePropName="checked"
-              initialValue={data?.auto_save ?? true}
             >
               <Switch 
-                checkedChildren={t('settings.app.yes', 'Yes')} 
-                unCheckedChildren={t('settings.app.no', 'No')}
+                checkedChildren={t('settings.app.yes')} 
+                unCheckedChildren={t('settings.app.no')}
               />
             </Form.Item>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {t('settings.app.autoSaveDesc')}
+            </div>
           </Col>
 
           <Col xs={24} md={12}>
             <Form.Item
               name="analytics_enabled"
-              label={t('settings.app.analyticsEnabled', 'Analytics & Usage Data')}
+              label={t('settings.app.analyticsEnabled')}
               valuePropName="checked"
-              initialValue={data?.analytics_enabled ?? true}
             >
               <Switch 
-                checkedChildren={t('settings.app.yes', 'Yes')} 
-                unCheckedChildren={t('settings.app.no', 'No')}
+                checkedChildren={t('settings.app.yes')} 
+                unCheckedChildren={t('settings.app.no')}
               />
             </Form.Item>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {t('settings.app.analyticsEnabledDesc')}
+            </div>
           </Col>
         </Row>
 
-        <Form.Item style={{ marginTop: 24 }}>
+        <Form.Item>
           <Space>
             <Button 
               type="primary" 
@@ -219,13 +232,13 @@ const AppSettings: React.FC<AppSettingsProps> = ({ data, onSave, saving }) => {
               loading={saving}
               icon={<SaveOutlined />}
             >
-              {t('settings.save', 'Save Changes')}
+              {t('common.save')}
             </Button>
             <Button 
               onClick={handleReset}
               icon={<ReloadOutlined />}
             >
-              {t('settings.reset', 'Reset to Default')}
+              {t('settings.app.reset')}
             </Button>
           </Space>
         </Form.Item>
