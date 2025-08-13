@@ -281,6 +281,10 @@ const ChatList: React.FC = () => {
                   onAddReaction={handleAddReaction}
                   onRemoveReaction={handleRemoveReaction}
                   onDeleteMessage={handleDeleteMessage}
+                  onQuoteMessage={(message) => {
+                    setSelectedMessage(message);
+                    setShowThreadModal(true);
+                  }}
                 />
               </div>
 

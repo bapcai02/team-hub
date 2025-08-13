@@ -135,7 +135,7 @@ const ThreadedReplies: React.FC<ThreadedRepliesProps> = ({
                       {originalMessage.sender}
                     </Text>
                     <Text type="secondary" style={{ fontSize: '12px' }}>
-                      {formatTime(originalMessage.createdAt)}
+                      {formatTime((originalMessage as any).created_at)}
                     </Text>
                   </div>
                   <Text style={{ fontSize: '14px' }}>
@@ -174,7 +174,7 @@ const ThreadedReplies: React.FC<ThreadedRepliesProps> = ({
                       {reply.senderName}
                     </Text>
                     <Text type="secondary" style={{ fontSize: '11px' }}>
-                      {formatTime(reply.createdAt)}
+                      {formatTime((reply as any).created_at)}
                     </Text>
                   </div>
                   <Text style={{ fontSize: '13px' }}>

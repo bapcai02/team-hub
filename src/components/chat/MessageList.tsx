@@ -9,6 +9,7 @@ interface MessageListProps {
   onAddReaction?: (messageId: number, emoji: string) => void;
   onRemoveReaction?: (messageId: number, emoji: string) => void;
   onDeleteMessage?: (messageId: number) => void;
+  onQuoteMessage?: (message: UIMessage) => void;
 }
 
 
@@ -16,7 +17,8 @@ const MessageList: React.FC<MessageListProps> = ({
   messages, 
   onAddReaction, 
   onRemoveReaction,
-  onDeleteMessage
+  onDeleteMessage,
+  onQuoteMessage
 }) => {
   const { t } = useTranslation();
   const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
@@ -185,6 +187,25 @@ const MessageList: React.FC<MessageListProps> = ({
               gap: '8px',
               maxWidth: '70%'
             }}>
+              {/* Reply icon - always visible for messages with replies */}
+              {(message as any).replyCount > 0 && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '20px',
+                  height: '20px',
+                  fontSize: '12px',
+                  color: '#1890ff',
+                  cursor: 'pointer',
+                  marginTop: '4px'
+                }}
+                onClick={() => onQuoteMessage && onQuoteMessage(message)}
+                title={`${(message as any).replyCount} replies`}
+                >
+                  💬
+                </div>
+              )}
               {/* Avatar for other users (left side) - only show for last message in group */}
               {!message.isOwn && isLast && (
                 <div style={{
@@ -227,14 +248,72 @@ const MessageList: React.FC<MessageListProps> = ({
                   onMouseEnter={() => setHoveredMessage(message.id)}
                   onMouseLeave={() => setHoveredMessage(null)}
                 >
+                  {/* Reply preview */}
+                  {(message as any).replyTo && (
+                    <div style={{
+                      borderLeft: '3px solid #1890ff',
+                      paddingLeft: '8px',
+                      marginBottom: '8px',
+                      backgroundColor: 'rgba(24, 144, 255, 0.1)',
+                      borderRadius: '4px',
+                      padding: '6px 8px',
+                      fontSize: '12px',
+                      color: message.isOwn ? 'rgba(255, 255, 255, 0.8)' : '#666',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => onQuoteMessage && onQuoteMessage((message as any).replyTo)}
+                    title="Click to view original message"
+                    >
+                      <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>
+                        {(message as any).replyTo.sender}
+                      </div>
+                      <div style={{ 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis', 
+                        whiteSpace: 'nowrap',
+                        maxWidth: '200px'
+                      }}>
+                        {(message as any).replyTo.content}
+                      </div>
+                    </div>
+                  )}
+                  
                   {message.content}
                   
-                  {/* Message actions - only show for own messages */}
-                  {message.isOwn && hoveredMessage === message.id && (
+
+                  
+                  {/* Reply icon - always visible for own messages */}
+                  {message.isOwn && (
                     <div style={{
                       position: 'absolute',
                       top: '-8px',
                       right: '-8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '20px',
+                      height: '20px',
+                      fontSize: '12px',
+                      color: '#1890ff',
+                      cursor: 'pointer',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '50%',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      border: '1px solid #d9d9d9'
+                    }}
+                    onClick={() => onQuoteMessage && onQuoteMessage(message)}
+                    title={t('chat.message.quote', 'Quote message')}
+                    >
+                      💬
+                    </div>
+                  )}
+                  
+                  {/* Action buttons for other users' messages */}
+                  {!message.isOwn && hoveredMessage === message.id && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      left: '-8px',
                       display: 'flex',
                       gap: '4px',
                       backgroundColor: '#ffffff',
@@ -243,6 +322,28 @@ const MessageList: React.FC<MessageListProps> = ({
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                       border: '1px solid #d9d9d9'
                     }}>
+                      {/* Quote/Reply button */}
+                      <button
+                        onClick={() => onQuoteMessage && onQuoteMessage(message)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          padding: '2px',
+                          borderRadius: '2px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '20px',
+                          height: '20px',
+                          color: '#1890ff'
+                        }}
+                        title={t('chat.message.quote', 'Quote message')}
+                      >
+                        💬
+                      </button>
+                      
                       {/* Reaction button */}
                       <button
                         onClick={() => setShowReactionPicker(showReactionPicker === message.id ? null : message.id)}
@@ -263,56 +364,33 @@ const MessageList: React.FC<MessageListProps> = ({
                       >
                         😀
                       </button>
-                      
-                      {/* Delete button */}
-                      <button
-                        onClick={() => setShowDeleteModal(message.id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          padding: '2px',
-                          borderRadius: '2px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '20px',
-                          height: '20px',
-                          color: '#ff4d4f'
-                        }}
-                        title={t('chat.message.delete', 'Delete message')}
-                      >
-                        <DeleteOutlined style={{ fontSize: '12px' }} />
-                      </button>
                     </div>
                   )}
                   
-                  {/* Reaction button for other users' messages */}
-                  {!message.isOwn && hoveredMessage === message.id && (
-                    <button
-                      onClick={() => setShowReactionPicker(showReactionPicker === message.id ? null : message.id)}
-                      style={{
-                        position: 'absolute',
-                        top: '-8px',
-                        left: '-8px',
-                        background: '#ffffff',
-                        border: '1px solid #d9d9d9',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        padding: '2px',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '20px',
-                        height: '20px',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                      }}
-                      title={t('chat.message.addReaction', 'Add reaction')}
+                  {/* Reply icon - always visible for other users' messages */}
+                  {!message.isOwn && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      right: '-8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '20px',
+                      height: '20px',
+                      fontSize: '12px',
+                      color: '#1890ff',
+                      cursor: 'pointer',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '50%',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      border: '1px solid #d9d9d9'
+                    }}
+                    onClick={() => onQuoteMessage && onQuoteMessage(message)}
+                    title={t('chat.message.quote', 'Quote message')}
                     >
-                      😀
-                    </button>
+                      💬
+                    </div>
                   )}
                 </div>
                 
