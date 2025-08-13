@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { List, Avatar, Typography, Space, Badge, Input, Button, Empty, Spin, Modal, message, Popconfirm } from 'antd';
-import { UserOutlined, SearchOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { List, Avatar, Typography, Space, Badge, Input, Button, Empty, Spin, Modal, message } from 'antd';
+import { UserOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
-import { getConversations, searchConversations, deleteConversation } from '../../features/chat/chatSlice';
+import { getConversations, searchConversations } from '../../features/chat/chatSlice';
 import { UIConversation } from '../../types/chat';
 
 const { Text, Title } = Typography;
@@ -14,14 +14,12 @@ interface ChatListProps {
   onConversationSelect: (conversation: UIConversation) => void;
   onCreateConversation: () => void;
   selectedConversationId?: number;
-  onDeleteConversation?: (conversationId: number) => void;
 }
 
 const ChatList: React.FC<ChatListProps> = ({
   onConversationSelect,
   onCreateConversation,
-  selectedConversationId,
-  onDeleteConversation
+  selectedConversationId
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -42,30 +40,9 @@ const ChatList: React.FC<ChatListProps> = ({
     }
   };
 
-  const handleDeleteConversation = async (conversationId: number, conversationName: string) => {
-    try {
-      await dispatch(deleteConversation(conversationId)).unwrap();
-      message.success(t('chat.deleteSuccess', 'Conversation deleted successfully'));
-      if (onDeleteConversation) {
-        onDeleteConversation(conversationId);
-      }
-    } catch (error) {
-      console.error('Error deleting conversation:', error);
-      message.error(t('chat.deleteError', 'Failed to delete conversation'));
-    }
-  };
+
 
   const formatLastMessage = (conversation: UIConversation) => {
-    // Debug logging for group conversations
-    if (conversation.type === 'group') {
-      console.log('Group conversation debug:', {
-        id: conversation.id,
-        name: conversation.name,
-        participants: conversation.participants,
-        participantsLength: conversation.participants?.length
-      });
-    }
-    
     if (conversation.lastMessage) {
       return conversation.lastMessage.length > 30 
         ? conversation.lastMessage.substring(0, 30) + '...'
@@ -177,32 +154,7 @@ const ChatList: React.FC<ChatListProps> = ({
                         <Text type="secondary" style={{ fontSize: '12px' }}>
                           {formatTime(conversation)}
                         </Text>
-                        {/* Delete button - only show on hover */}
-                        {hoveredConversation === conversation.id && (
-                          <Popconfirm
-                            title={t('chat.deleteConfirmTitle', 'Delete Conversation')}
-                            description={t('chat.deleteConfirmContent', 'Are you sure you want to delete this conversation? This action cannot be undone.')}
-                            onConfirm={() => handleDeleteConversation(conversation.id, conversation.name || '')}
-                            okText={t('common.delete', 'Delete')}
-                            cancelText={t('common.cancel', 'Cancel')}
-                            okType="danger"
-                          >
-                            <Button
-                              type="text"
-                              icon={<DeleteOutlined />}
-                              size="small"
-                              danger
-                              style={{
-                                padding: '4px 8px',
-                                minWidth: 'auto',
-                                height: 'auto'
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent conversation selection
-                              }}
-                            />
-                          </Popconfirm>
-                        )}
+
                       </div>
                     </div>
                   }

@@ -59,12 +59,6 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access - don't clear token automatically
-      console.log('401 Error - Token might be expired or invalid');
-      // Only clear token if it's actually expired, not on every 401
-      // Let the application handle authentication errors
-    }
     return Promise.reject(error);
   }
 );

@@ -159,7 +159,6 @@ const rbacSlice = createSlice({
       })
       .addCase(fetchPermissions.fulfilled, (state, action) => {
         state.loading = false;
-        console.log('Fetch permissions response:', action.payload);
         state.permissions = (action.payload as any).data || action.payload;
       })
       .addCase(fetchPermissions.rejected, (state, action) => {
@@ -175,7 +174,6 @@ const rbacSlice = createSlice({
       })
       .addCase(fetchAuditLogs.fulfilled, (state, action) => {
         state.loading = false;
-        console.log('Fetch audit logs response:', action.payload);
         state.auditLogs = (action.payload as any).data || action.payload;
       })
       .addCase(fetchAuditLogs.rejected, (state, action) => {
@@ -191,7 +189,6 @@ const rbacSlice = createSlice({
       })
       .addCase(fetchModules.fulfilled, (state, action) => {
         state.loading = false;
-        console.log('Fetch modules response:', action.payload);
         state.modules = (action.payload as any).data || action.payload;
       })
       .addCase(fetchModules.rejected, (state, action) => {

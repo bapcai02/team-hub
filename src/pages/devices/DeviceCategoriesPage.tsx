@@ -56,11 +56,6 @@ const DeviceCategoriesPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { categories, loading, stats } = useAppSelector(state => state.devices);
   
-  // Debug: Log what categories actually contains
-  console.log('Categories from Redux:', categories);
-  console.log('Categories type:', typeof categories);
-  console.log('Is categories array?', Array.isArray(categories));
-  
   // Ensure categories is always an array
   const categoriesArray = Array.isArray(categories) ? categories : [];
   

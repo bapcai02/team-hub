@@ -33,8 +33,6 @@ export const fetchContractTemplates = createAsyncThunk(
   'contract/fetchTemplates',
   async () => {
     const response = await contractApi.getTemplates();
-    console.log('API Response for templates:', response);
-    console.log('API Response data:', response.data);
     return response.data;
   }
 );

@@ -28,6 +28,7 @@ import ProfilePage from '../pages/profile/ProfilePage';
 import RBACManagement from '../pages/rbac/RBACManagement';
 import ContractManagement from '../pages/contract/ContractManagement';
 import NotificationManagement from '../pages/notifications/NotificationManagement';
+import Settings from '../pages/settings/Settings';
 import React from 'react';
 
 const useAuth = () => {
@@ -232,6 +233,13 @@ export default function AppRoutes() {
       <Route path="/notifications" element={
         <PrivateRoute>
           <NotificationManagement />
+        </PrivateRoute>
+      } />
+      
+      {/* Settings Routes */}
+      <Route path="/settings" element={
+        <PrivateRoute>
+          <Settings />
         </PrivateRoute>
       } />
       

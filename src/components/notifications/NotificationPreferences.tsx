@@ -116,16 +116,6 @@ const NotificationPreferences: React.FC = () => {
     
     return fallbackChannels;
   })();
-  
-  console.log('NotificationPreferences Debug:', {
-    preferences: safePreferences,
-    categories: safeCategories,
-    channels: safeChannels,
-    preferencesLoading,
-    preferencesError,
-    safePreferencesLength: safePreferences.length,
-    rawPreferences: preferences
-  });
 
   useEffect(() => {
     dispatch(fetchNotificationPreferences() as any);

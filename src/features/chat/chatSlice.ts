@@ -3,12 +3,16 @@ import apiClient, { chatApiClient } from '../../lib/apiClient';
 import { Conversation, Message, CreateMessageDto, CreateConversationDto, UIConversation, UIMessage } from '../../types/chat';
 import type { SerializedError } from '@reduxjs/toolkit';
 
-// Get current user ID from user state
+// Get current user ID from localStorage
 const getCurrentUserId = (state: any): number => {
-  // Try to get from user state first
-  const currentUser = state.user?.list?.find((user: any) => user.id === 1);
-  if (currentUser) {
-    return currentUser.id;
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      return user.id || 1;
+    }
+  } catch (e) {
+    console.error('Error parsing user from localStorage:', e);
   }
   
   // Fallback to hardcoded value if user state is not available
@@ -144,17 +148,6 @@ export const deleteConversation = createAsyncThunk(
 
 // Helper function to transform API conversation to UI format
 const transformConversationToUI = (conversation: Conversation): UIConversation => {
-  // Debug logging to see the actual data structure
-  console.log('Transform conversation:', {
-    id: conversation.id,
-    type: conversation.type,
-    name: conversation.name,
-    participants: conversation.participants,
-    participantsLength: conversation.participants?.length,
-    participantsType: typeof conversation.participants,
-    isArray: Array.isArray(conversation.participants)
-  });
-
   // Generate conversation name based on type and participants
   let conversationName = conversation.name;
   if (!conversationName) {
@@ -176,15 +169,6 @@ const transformConversationToUI = (conversation: Conversation): UIConversation =
   // Calculate online count
   const onlineCount = participants.filter((p: any) => p.isOnline).length;
 
-  console.log('Conversation transform:', { 
-    id: conversation.id,
-    type: conversation.type,
-    participantsLength: participants.length,
-    onlineCount,
-    hasParticipants: !!conversation.participants,
-    participants: participants.map(p => ({ id: p.id, name: p.name }))
-  });
-
   return {
     ...conversation,
     participants: participants,
@@ -201,7 +185,6 @@ const transformConversationToUI = (conversation: Conversation): UIConversation =
 
 // Helper function to transform API message to UI format
 const transformMessageToUI = (message: Message, currentUserId: number): UIMessage => {
-  console.log('Transforming message:', message, 'currentUserId:', currentUserId);
   const isOwn = message.senderId === currentUserId;
   
   // Parse reactions from API with user info
@@ -328,27 +311,10 @@ export const getConversations = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await chatApiClient.get('/conversations');
-      console.log('Get conversations API response:', response.data);
-      
       const conversations = response.data.data?.conversations || response.data.conversations || [];
-      console.log('Extracted conversations:', conversations);
-      
-      // Log each conversation's participants
-      conversations.forEach((conv: any, index: number) => {
-        console.log(`Conversation ${index + 1}:`, {
-          id: conv.id,
-          type: conv.type,
-          name: conv.name,
-          participants: conv.participants,
-          participantsLength: conv.participants?.length,
-          participantsType: typeof conv.participants,
-          isArray: Array.isArray(conv.participants)
-        });
-      });
       
       return conversations;
     } catch (error) {
-      console.log('API error fetching conversations, returning empty array');
       return [];
     }
   }
@@ -361,17 +327,8 @@ export const createConversation = createAsyncThunk(
   async (data: CreateConversationDto, { rejectWithValue }) => {
     try {
       const response = await chatApiClient.post('/conversations', data);
-      console.log('Create conversation response:', response.data);
-      console.log('Response structure:', {
-        hasData: !!response.data.data,
-        hasConversation: !!response.data.data?.conversation,
-        hasDirectConversation: !!response.data.conversation,
-        dataKeys: Object.keys(response.data),
-        dataDataKeys: response.data.data ? Object.keys(response.data.data) : 'no data'
-      });
       
       const conversation = response.data.data?.conversation || response.data.conversation;
-      console.log('Final conversation object:', conversation);
       return conversation;
     } catch (error) {
       console.error('Create conversation error:', error);
@@ -387,7 +344,6 @@ export const getMessages = createAsyncThunk(
       const response = await chatApiClient.get(`/conversations/${conversationId}/messages`);      
       return { conversationId, messages: response.data.data.messages };
     } catch (error) {
-      console.log('API error fetching messages, returning empty array');
       return { conversationId, messages: [] };
     }
   }
@@ -398,7 +354,7 @@ export const sendMessage = createAsyncThunk(
   async (data: { conversationId: number; message: CreateMessageDto; currentUserId: number }, { rejectWithValue }) => {
     try {
       const response = await chatApiClient.post(`/conversations/${data.conversationId}/messages`, data.message);
-      return { message: response.data.message, currentUserId: data.currentUserId };
+      return { message: response.data.data.message, currentUserId: data.currentUserId };
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -640,9 +596,7 @@ const chatSlice = createSlice({
       })
       .addCase(createConversation.fulfilled, (state, action) => {
         state.loading.creating = false;
-        console.log('Create conversation fulfilled with payload:', action.payload);
         const newConversation = transformConversationToUI(action.payload);
-        console.log('Transformed conversation:', newConversation);
         state.conversations.unshift(newConversation);
       })
       .addCase(createConversation.rejected, (state, action) => {
@@ -659,7 +613,7 @@ const chatSlice = createSlice({
       .addCase(getMessages.fulfilled, (state, action) => {
         state.loading.messages = false;
         const { conversationId, messages } = action.payload;
-        const currentUserId = getCurrentUserIdFromState({ user: { list: [] } }); // We'll get this from the component
+        const currentUserId = getCurrentUserId({}); // Get from localStorage
         state.messages = (messages || []).map((msg: Message) => transformMessageToUI(msg, currentUserId));
         
         // Update selected conversation if it matches

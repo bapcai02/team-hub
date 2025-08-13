@@ -41,6 +41,7 @@ export default function Sidebar() {
     { key: 'documents', icon: <FileTextOutlined />, label: t('docs'), path: '/documents' },
     { key: 'guests', icon: <UsergroupAddOutlined />, label: t('guest.management.title'), path: '/guests' },
     { key: 'notifications', icon: <BellOutlined />, label: t('notifications.management.title'), path: '/notifications' },
+    { key: 'settings', icon: <SettingOutlined />, label: t('settings'), path: '/settings' },
     { 
       key: 'devices', 
       icon: <LaptopOutlined />, 

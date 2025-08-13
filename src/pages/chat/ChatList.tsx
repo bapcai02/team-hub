@@ -21,6 +21,7 @@ import LocationShare from '../../components/chat/LocationShare';
 import GroupManagement from '../../components/chat/GroupManagement';
 import ThreadedReplies from '../../components/chat/ThreadedReplies';
 import { useChat } from '../../hooks/useChat';
+import { chatApiClient } from '../../lib/apiClient';
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -39,10 +40,23 @@ const ChatList: React.FC = () => {
     addReaction,
     removeReaction,
     deleteMessage,
-    deleteConversation,
+
     createConversation
   } = useChat();
-  const currentUser = useSelector((state: RootState) => state.user.list.find(user => user.id === 1) || null);
+  // Get current user from localStorage
+  const getCurrentUser = () => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (e) {
+        console.error('Error parsing user:', e);
+      }
+    }
+    return null;
+  };
+  
+  const currentUser = getCurrentUser();
   const currentUserId = currentUser?.id || 1;
   
   // Modal states
@@ -81,7 +95,6 @@ const ChatList: React.FC = () => {
   const handleSearchMessages = (value: string) => {
     setSearchQuery(value);
     // TODO: Implement message search functionality
-    console.log('Searching for:', value);
   };
 
   const handleSendMessage = async (text: string) => {
@@ -106,11 +119,23 @@ const ChatList: React.FC = () => {
     if (!selectedConversation?.id) return;
 
     try {
-      // TODO: Implement file upload logic
-      console.log('Sending file:', file);
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Send file to chat API
+      const response = await chatApiClient.post(
+        `/conversations/${selectedConversation.id}/messages/file`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
       message.success('File sent successfully');
     } catch (error) {
-      console.error('Error sending file:', error);
       message.error('Failed to send file');
     }
   };
@@ -170,18 +195,6 @@ const ChatList: React.FC = () => {
             onConversationSelect={handleConversationSelect}
             onCreateConversation={handleOpenCreateModal}
             selectedConversationId={selectedConversation?.id}
-            onDeleteConversation={async (conversationId) => {
-              try {
-                await deleteConversation(conversationId);
-                // If the deleted conversation is currently selected, clear the selection
-                if (selectedConversation?.id === conversationId) {
-                  setSelectedConversation(null);
-                }
-              } catch (error) {
-                console.error('Error deleting conversation:', error);
-                // Error handling is done in the ChatListComponent
-              }
-            }}
           />
         </div>
 

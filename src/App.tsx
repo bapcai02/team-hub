@@ -6,6 +6,7 @@ import { store } from './app/store';
 import AppRoutes from './routes/AppRoutes';
 import { ThemeProvider } from './contexts/ThemeContext';
 import './App.css';
+import Settings from './pages/settings/Settings';
 
 function App() {
   return (

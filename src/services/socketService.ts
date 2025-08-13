@@ -48,7 +48,6 @@ class SocketService {
       try {
         // Chat service runs on port 3001
         const backendUrl = process.env.REACT_APP_CHAT_SOCKET_URL || 'http://localhost:3001';
-        
         this.socket = io(backendUrl, {
           auth: {
             token
@@ -66,14 +65,12 @@ class SocketService {
         });
 
         this.socket.on('disconnect', (reason) => {
-          console.log('❌ Socket disconnected:', reason);
           this.isConnected = false;
           this.notifyConnectionHandlers(false);
           this.attemptReconnect();
         });
 
         this.socket.on('connect_error', (error) => {
-          console.error('❌ Socket connection error:', error);
           this.isConnected = false;
           this.notifyConnectionHandlers(false);
           reject(error);
@@ -81,32 +78,26 @@ class SocketService {
 
         // Message events
         this.socket.on('new_message', (data: SocketMessageData) => {
-          console.log('📨 Received new message:', data);
           this.notifyMessageHandlers(data);
         });
 
         this.socket.on('user_typing', (data: SocketTypingData) => {
-          console.log('⌨️ User typing:', data);
           this.notifyTypingHandlers(data);
         });
 
         this.socket.on('user_status', (data: SocketUserData) => {
-          console.log('👤 User status:', data);
           this.notifyUserStatusHandlers(data);
         });
 
         this.socket.on('messages_read', (data: SocketReadData) => {
-          console.log('👁️ Messages read:', data);
           this.notifyReadReceiptHandlers(data);
         });
 
         this.socket.on('message_deleted', (data: { messageId: number }) => {
-          console.log('🗑️ Message deleted:', data);
           this.notifyMessageDeletedHandlers(data);
         });
 
         this.socket.on('conversation_deleted', (data: { conversationId: number }) => {
-          console.log('🗑️ Conversation deleted:', data);
           this.notifyConversationDeletedHandlers(data);
         });
 
@@ -132,7 +123,6 @@ class SocketService {
 
   disconnect(): void {
     if (this.socket) {
-      console.log('🔌 Disconnecting socket...');
       this.socket.disconnect();
       this.socket = null;
       this.isConnected = false;
@@ -142,7 +132,6 @@ class SocketService {
   // Join conversation room
   joinConversation(conversationId: number): void {
     if (this.socket && this.isConnected) {
-      console.log('🚪 Joining conversation:', conversationId);
       this.socket.emit('join_conversation', { conversationId });
     } else {
       console.warn('⚠️ Cannot join conversation: socket not connected');
@@ -158,9 +147,8 @@ class SocketService {
   }
 
   // Send message
-  sendMessage(conversationId: number, content: string, type: 'text' | 'image' | 'audio' = 'text'): void {
+  sendMessage(conversationId: number, content: string, type: 'text' | 'image' | 'audio' | 'file' | 'video' = 'text'): void {
     if (this.socket && this.isConnected) {
-      console.log('📤 Sending message:', { conversationId, content, type });
       this.socket.emit('send_message', {
         conversationId,
         content,

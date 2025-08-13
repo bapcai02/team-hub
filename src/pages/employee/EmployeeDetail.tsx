@@ -177,76 +177,59 @@ export default function EmployeeDetail() {
   const fetchAttendances = async () => {
     try {
       const response = await axios.get(`/employees/${id}/time-logs`);
-      console.log('Time logs response:', response.data);
       if (response.data.success) {
-        // Đảm bảo time_logs luôn là array
         const timeLogsData = response.data.data?.time_logs || response.data.data || [];
-        console.log('Time logs data:', timeLogsData);
         setAttendances(Array.isArray(timeLogsData) ? timeLogsData : []);
       } else {
-        console.log('Time logs API not successful');
         setAttendances([]);
       }
     } catch (error) {
       console.error('Error fetching time logs:', error);
-      setAttendances([]); // Set empty array nếu có lỗi
+      setAttendances([]);
     }
   };
 
   const fetchLeaves = async () => {
     try {
       const response = await axios.get(`/employees/${id}/leaves`);
-      console.log('Leaves response:', response.data);
       if (response.data.success) {
-        // Đảm bảo leaves luôn là array
         const leavesData = response.data.data?.leaves || response.data.data || [];
-        console.log('Leaves data:', leavesData);
         setLeaves(Array.isArray(leavesData) ? leavesData : []);
       } else {
-        console.log('Leaves API not successful');
         setLeaves([]);
       }
     } catch (error) {
       console.error('Error fetching leaves:', error);
-      setLeaves([]); // Set empty array nếu có lỗi
+      setLeaves([]);
     }
   };
 
   const fetchPayrolls = async () => {
     try {
       const response = await axios.get(`/employees/${id}/payrolls`);
-      console.log('Payrolls response:', response.data);
       if (response.data.success) {
-        // Đảm bảo payrolls luôn là array
         const payrollsData = response.data.data?.payrolls || response.data.data || [];
-        console.log('Payrolls data:', payrollsData);
         setPayrolls(Array.isArray(payrollsData) ? payrollsData : []);
       } else {
-        console.log('Payrolls API not successful');
         setPayrolls([]);
       }
     } catch (error) {
-      console.error('Error fetching payrolls:', error);
-      setPayrolls([]); // Set empty array nếu có lỗi
+      setPayrolls([]);
     }
   };
 
   const fetchPerformances = async () => {
     try {
       const response = await axios.get(`/employees/${id}/evaluations`);
-      console.log('Evaluations response:', response.data);
       if (response.data.success) {
-        // Đảm bảo evaluations luôn là array
         const evaluationsData = response.data.data?.evaluations || response.data.data || [];
-        console.log('Evaluations data:', evaluationsData);
         setPerformances(Array.isArray(evaluationsData) ? evaluationsData : []);
       } else {
-        console.log('Evaluations API not successful');
         setPerformances([]);
       }
     } catch (error) {
       console.error('Error fetching evaluations:', error);
-      setPerformances([]); // Set empty array nếu có lỗi
+      setPerformances([]);
     }
   };
 

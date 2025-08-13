@@ -55,7 +55,21 @@ interface UseChatReturn {
 export const useChat = (): UseChatReturn => {
   const dispatch = useDispatch<AppDispatch>();
   const { conversations, messages, selectedConversation, loading, typingUsers, isConnected } = useSelector((state: RootState) => state.chat);
-  const currentUser = useSelector((state: RootState) => state.user.list.find(user => user.id === 1) || null);
+  
+  // Get current user from localStorage
+  const getCurrentUser = () => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (e) {
+        console.error('Error parsing user:', e);
+      }
+    }
+    return null;
+  };
+  
+  const currentUser = getCurrentUser();
   
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -64,7 +78,9 @@ export const useChat = (): UseChatReturn => {
     const initChat = async () => {
       try {
         // Connect to socket service
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || localStorage.getItem('access-token');
+        console.log('🔑 Token from localStorage:', token ? 'Present' : 'Missing');
+        
         if (token) {
           await socketService.connect(token);
           
@@ -116,12 +132,15 @@ export const useChat = (): UseChatReturn => {
 
   // Handle new message from socket
   const handleNewMessage = useCallback((data: any) => {
-    console.log('📨 New message received:', data);
+    console.log('📨 New message received via socket:', data);
     if (data.conversationId === selectedConversation?.id) {
-      dispatch(addMessage({
-        message: data,
-        currentUserId: currentUser?.id || 1
-      }));
+      // Only add message if it's not from current user (to avoid duplicate)
+      if (data.senderId !== currentUser?.id) {
+        dispatch(addMessage({
+          message: data,
+          currentUserId: currentUser?.id || 1
+        }));
+      }
     }
   }, [selectedConversation, dispatch, currentUser]);
 
@@ -202,15 +221,32 @@ export const useChat = (): UseChatReturn => {
 
   const sendMessage = useCallback(async (data: { conversationId: number; message: CreateMessageDto }) => {
     try {
-      await dispatch(sendMessageAction({
-        ...data,
-        currentUserId: currentUser?.id || 1
-      })).unwrap();
+      console.log('Sending message via socket:', data);
+      
+      // Join conversation room first
+      socketService.joinConversation(data.conversationId);
       
       // Send via socket for real-time delivery
-      if (selectedConversation?.id === data.conversationId) {
-        socketService.sendMessage(data.conversationId, data.message.content);
-      }
+      const messageType = data.message.type === 'file' || data.message.type === 'video' ? 'text' : data.message.type;
+      socketService.sendMessage(data.conversationId, data.message.content, messageType || 'text');
+      
+      // Create optimistic message for immediate UI update
+      const optimisticMessage = {
+        id: Date.now(),
+        conversationId: data.conversationId,
+        senderId: currentUser?.id || 1,
+        content: data.message.content,
+        type: data.message.type || 'text',
+        createdAt: new Date().toISOString(),
+        isRead: false
+      };
+      
+      // Add message to state immediately
+      dispatch(addMessage({
+        message: optimisticMessage,
+        currentUserId: currentUser?.id || 1
+      }));
+      
     } catch (error) {
       console.error('Failed to send message:', error);
       throw error;

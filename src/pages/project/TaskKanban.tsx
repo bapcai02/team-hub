@@ -44,14 +44,9 @@ export default function TaskKanban() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  
-  // Debug: Log the id
-  console.log('TaskKanban - Project ID:', id);
-  
   const project = useSelector((state: RootState) => state.project.detail);
   const loading = useSelector((state: RootState) => state.project.loading);
   const error = useSelector((state: RootState) => state.project.error);
-
   const [tasks, setTasks] = useState<any[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -65,14 +60,12 @@ export default function TaskKanban() {
   });
 
   useEffect(() => {
-    console.log('useEffect - ID changed:', id);
     if (id) {
       dispatch(getProjectDetail(id));
     }
   }, [dispatch, id]);
 
   useEffect(() => {
-    console.log('useEffect - Fetching tasks for ID:', id);
     if (id) {
       fetchTasks();
     }
@@ -80,21 +73,17 @@ export default function TaskKanban() {
 
   const fetchTasks = async () => {
     if (!id) {
-      console.log('fetchTasks: No ID found');
       return;
     }
     
-    console.log('fetchTasks: Fetching tasks for project ID:', id);
     setTasksLoading(true);
     try {
       const response = await axios.get(`/projects/${id}/kanban/tasks`);
       
-      console.log('fetchTasks: Response:', response.data);
       if (response.data.success) {
         setTasks(response.data.data.tasks || []);
       }
     } catch (error) {
-      console.error('Error fetching tasks:', error);
       message.error('Failed to load tasks');
     } finally {
       setTasksLoading(false);

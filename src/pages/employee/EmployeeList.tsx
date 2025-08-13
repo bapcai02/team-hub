@@ -104,7 +104,6 @@ export default function EmployeeList() {
     fetchDepartments();
   }, []);
 
-  // Gọi fetchPositions khi employees thay đổi
   useEffect(() => {
     if (employees.length > 0) {
       fetchPositions();
@@ -113,23 +112,15 @@ export default function EmployeeList() {
 
   const fetchDepartments = async () => {
     try {
-      console.log('Fetching departments...');
       const response = await axios.get('/departments');
-      console.log('Departments response:', response.data);
       if (response.data.success) {
-        // Đảm bảo departments luôn là array
         const departmentsData = response.data.data?.data || response.data.data || [];
-        console.log('Departments data:', departmentsData);
-        console.log('Is array:', Array.isArray(departmentsData));
         setDepartments(Array.isArray(departmentsData) ? departmentsData : []);
       } else {
-        console.log('Departments API not successful');
         setDepartments([]);
       }
     } catch (error: any) {
-      console.error('Error fetching departments:', error);
-      console.error('Error response:', error.response?.data);
-      setDepartments([]); // Set empty array nếu có lỗi
+      setDepartments([]);
     }
   };
 
@@ -151,11 +142,9 @@ export default function EmployeeList() {
       if (response.data.success) {
         // API trả về { data: { employees: { data: [...] } } }
         const employeesData = response.data.data.employees.data || [];
-        console.log('Employees data:', employeesData);
         setEmployees(employeesData);
       }
     } catch (error) {
-      console.error('Error fetching employees:', error);
       message.error('Failed to load employees');
     } finally {
       setLoading(false);
@@ -165,16 +154,13 @@ export default function EmployeeList() {
   const fetchStats = async () => {
     try {
       const response = await axios.get('/employees/stats');
-      console.log('Stats response:', response.data);
       if (response.data.success) {
-        // API stats trả về { data: { stats: {...} } }
         const statsData = response.data.data.stats || {
           total: 0,
           active: 0,
           inactive: 0,
           suspended: 0
         };
-        console.log('Stats data:', statsData);
         setStats(statsData);
       }
     } catch (error) {

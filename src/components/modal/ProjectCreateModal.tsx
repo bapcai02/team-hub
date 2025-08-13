@@ -120,8 +120,6 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
           type: file.type
         }))
       }
-
-      console.log('Sending project data:', projectData)
       
       await dispatch(createNewProject(projectData)).unwrap()
       

@@ -67,7 +67,6 @@ const CreateConversationModal: React.FC<CreateConversationModalProps> = ({
     try {
       setUsersLoading(true);
       const response = await apiClient.get('/users');
-      console.log('Users API response:', response.data);
       const usersData = response.data?.data?.users || response.data?.users || response.data?.data || response.data || [];
       setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (error) {
@@ -129,7 +128,6 @@ const CreateConversationModal: React.FC<CreateConversationModalProps> = ({
       memberIds: allMemberIds
     };
 
-    console.log('Creating conversation with data:', data);
     onSubmit(data);
   };
 

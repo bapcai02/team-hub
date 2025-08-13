@@ -91,10 +91,15 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
 
   // Load available users for adding members
   useEffect(() => {
-    if (visible) {
+    if (visible && conversationSettings) {
       loadAvailableUsers();
     }
-  }, [visible]);
+  }, [visible, conversationSettings]);
+
+  // Reset filtered users when available users change
+  useEffect(() => {
+    setFilteredUsers(availableUsers);
+  }, [availableUsers]);
 
   // Filter members based on search
   useEffect(() => {
@@ -122,9 +127,22 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
   };
 
   const loadAvailableUsers = async () => {
+    if (!conversationId) return;
+    
     try {
+      // Sử dụng API /users hiện có từ Laravel backend
       const response = await apiClient.get('/users');
-      setAvailableUsers(response.data.data || []);
+      
+      const allUsers = response.data.data?.users || [];
+      
+      // Filter ra những user chưa có trong conversation
+      const currentMembers = conversationSettings?.members || [];
+      const currentMemberIds = currentMembers.map((member: any) => member.id);
+      
+      const availableUsers = allUsers.filter((user: any) => !currentMemberIds.includes(user.id));
+      
+      setAvailableUsers(availableUsers);
+      setFilteredUsers(availableUsers);
     } catch (error) {
       console.error('Error loading available users:', error);
     }
@@ -342,6 +360,13 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
             dataSource={filteredUsers.filter(user => 
               !conversation.members.find((member: any) => member.id === user.id)
             )}
+            locale={{
+              emptyText: (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                  {availableUsers.length === 0 ? 'No users available to add' : 'No users match your search'}
+                </div>
+              )
+            }}
             renderItem={(user) => (
               <List.Item
                 actions={[

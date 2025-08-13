@@ -70,27 +70,12 @@ const NotificationList: React.FC<NotificationListProps> = ({ compact = false, li
       filters.unread = true;
     }
 
-    console.log('NotificationList Debug - Fetching with filters:', filters);
     dispatch(fetchNotifications(filters) as any);
   }, [dispatch, selectedCategory, showUnreadOnly]);
 
   useEffect(() => {
-    console.log('NotificationList Debug - Fetching options');
     dispatch(fetchNotificationOptions() as any);
   }, [dispatch]);
-
-  // Debug logging
-  console.log('NotificationList Debug:', {
-    notifications: Array.isArray(notifications) ? notifications.length : 0,
-    notificationsLoading,
-    notificationsError,
-    categories: Object.keys(categories).length,
-    channels: Object.keys(channels).length,
-    priorities: Object.keys(priorities).length,
-    selectedCategory,
-    showUnreadOnly,
-    unreadCount: (Array.isArray(notifications) ? notifications.filter(n => !n.is_read).length : 0)
-  });
 
   const handleMarkAsRead = async (notification: Notification) => {
     if (notification.is_read) return;

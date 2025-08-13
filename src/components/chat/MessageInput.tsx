@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Input, Button, Upload, message as antMessage } from 'antd';
-import { PaperClipOutlined, AudioOutlined, SendOutlined } from '@ant-design/icons';
+import { PaperClipOutlined, AudioOutlined, SendOutlined, SmileOutlined } from '@ant-design/icons';
+import EmojiPicker from 'emoji-picker-react';
 
 const { TextArea } = Input;
 
@@ -22,7 +23,30 @@ const MessageInput: React.FC<MessageInputProps> = ({
   loading = false
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle clicking outside emoji picker
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showEmojiPicker && !target.closest('.emoji-picker-container')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
+
+  // Handle emoji selection
+  const handleEmojiClick = (emojiObject: any) => {
+    const emoji = emojiObject.emoji;
+    onMessageTextChange(messageText + emoji);
+    setShowEmojiPicker(false);
+  };
 
   // Handle file selection
   const handleFileSelect = (file: File) => {
@@ -142,6 +166,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   return (
     <div style={{
+      position: 'relative',
       padding: '16px 24px',
       backgroundColor: '#fff',
       borderTop: '1px solid #f0f0f0'
@@ -165,6 +190,16 @@ const MessageInput: React.FC<MessageInputProps> = ({
           icon={<PaperClipOutlined />}
           size="small"
           onClick={() => fileInputRef.current?.click()}
+          disabled={disabled || loading}
+          style={{ color: '#666' }}
+        />
+        
+        {/* Emoji picker button */}
+        <Button
+          type="text"
+          icon={<SmileOutlined />}
+          size="small"
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           disabled={disabled || loading}
           style={{ color: '#666' }}
         />
@@ -217,6 +252,27 @@ const MessageInput: React.FC<MessageInputProps> = ({
           }}
         />
       </div>
+      
+      {/* Emoji picker */}
+      {showEmojiPicker && (
+        <div className="emoji-picker-container" style={{
+          position: 'absolute',
+          bottom: '100%',
+          left: '24px',
+          zIndex: 1000,
+          backgroundColor: '#fff',
+          border: '1px solid #d9d9d9',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          marginBottom: '8px'
+        }}>
+          <EmojiPicker
+            onEmojiClick={handleEmojiClick}
+            width={300}
+            height={400}
+          />
+        </div>
+      )}
     </div>
   );
 };

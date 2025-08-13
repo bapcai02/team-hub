@@ -17,10 +17,6 @@ export default function Login() {
       const user = res.data.data?.user || res.data.user;
       const token = res.data.data?.access_token || res.data.access_token;
       
-      console.log('Login Response:', res.data);
-      console.log('User:', user);
-      console.log('Token:', token);
-      
       // Save user info and token to localStorage
       localStorage.setItem('user', JSON.stringify(user));
       if (token) {
@@ -28,16 +24,8 @@ export default function Login() {
         localStorage.setItem('access-token', token);
       }
       
-      console.log('Stored in localStorage:', {
-        user: localStorage.getItem('user'),
-        token: localStorage.getItem('token'),
-        access_token: localStorage.getItem('access-token')
-      });
-      
       message.success(t('loginSuccess'));
-      console.log('About to navigate to /');
       setTimeout(() => {
-        console.log('Navigating to / now...');
         navigate('/');
       }, 800);
     } catch (err: any) {
