@@ -4,7 +4,7 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../app/store';
-import { fetchCalendarEvents, createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from '../../features/calendar/calendarSlice';
+import { fetchEvents, createEvent, updateEvent, deleteEvent } from '../../features/calendar/calendarSlice';
 import { CalendarEvent } from '../../features/calendar/types';
 import CalendarToolbar from './CalendarToolbar';
 import EventModal from './EventModal';
@@ -31,7 +31,7 @@ const CalendarComponent: React.FC = () => {
   const [date, setDate] = useState(new Date());
 
   useEffect(() => {
-    dispatch(fetchCalendarEvents({}));
+    dispatch(fetchEvents({}));
   }, [dispatch]);
 
   const calendarEvents: CalendarEventItem[] = events.map((event) => ({
